@@ -678,13 +678,18 @@
         function showNotification(message, isSuccess = false) {
             console.log('Notifikasi:', message);
             const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.className = `notification ${isSuccess ? 'success' : ''}`;
-            notification.style.display = 'block';
-            setTimeout(() => {
-                notification.style.display = 'none';
-                notification.className = 'notification';
-            }, 5000);
+            if (notification) {
+                notification.textContent = message;
+                notification.className = `notification ${isSuccess ? 'success' : ''}`;
+                notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    notification.className = 'notification';
+                }, 5000);
+            } else {
+                console.error('Elemen notification tidak ditemukan');
+                alert(message); // Fallback ke alert jika elemen tidak ada
+            }
         }
 
         // Fungsi untuk mengganti tema
@@ -692,9 +697,12 @@
             console.log('Mengganti tema');
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
-            if (body.classList.contains('dark-theme'))彼此
-
-System: **theme)) {
+            if (!body || !themeIcon) {
+                console.error('Elemen body atau themeIcon tidak ditemukan');
+                showNotification('Gagal mengganti tema: Elemen tidak ditemukan.');
+                return;
+            }
+            if (body.classList.contains('dark-theme')) {
                 body.classList.remove('dark-theme');
                 body.classList.add('light-theme');
                 themeIcon.classList.remove('fa-sun');
@@ -712,11 +720,17 @@ System: **theme)) {
         // Fungsi untuk login
         function login() {
             console.log('Fungsi login dipanggil');
-            const nikInput = document.getElementById('nikInput').value.trim().toUpperCase();
-            console.log('NIK yang dimasukkan:', nikInput);
-            const user = users.find(u => u.nik === nikInput);
+            const nikInput = document.getElementById('nikInput');
+            if (!nikInput) {
+                console.error('Elemen nikInput tidak ditemukan');
+                showNotification('Gagal login: Input NIK tidak ditemukan.');
+                return;
+            }
+            const nikValue = nikInput.value.trim().toUpperCase();
+            console.log('NIK yang dimasukkan:', nikValue);
+            const user = users.find(u => u.nik === nikValue);
             if (user) {
-                currentNIK = nikInput;
+                currentNIK = nikValue;
                 currentUserName = user.name;
                 console.log('User ditemukan:', user);
                 document.getElementById('loginPage').style.display = 'none';
@@ -745,7 +759,12 @@ System: **theme)) {
             } else {
                 greetingText = `Selamat Sore, ${currentUserName}!`;
             }
-            document.getElementById('greeting').textContent = greetingText;
+            const greetingElement = document.getElementById('greeting');
+            if (greetingElement) {
+                greetingElement.textContent = greetingText;
+            } else {
+                console.error('Elemen greeting tidak ditemukan');
+            }
         }
 
         // Fungsi untuk memperbarui informasi shift
@@ -758,14 +777,24 @@ System: **theme)) {
                     shiftInfo = `${shift.name} (${shift.startInput}-${shift.endOutput})`;
                 }
             });
-            document.getElementById('shiftInfo').textContent = shiftInfo;
+            const shiftInfoElement = document.getElementById('shiftInfo');
+            if (shiftInfoElement) {
+                shiftInfoElement.textContent = shiftInfo;
+            } else {
+                console.error('Elemen shiftInfo tidak ditemukan');
+            }
         }
 
         // Fungsi untuk memperbarui waktu
         function updateTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID');
-            document.getElementById('currentTime').textContent = timeString;
+            const currentTimeElement = document.getElementById('currentTime');
+            if (currentTimeElement) {
+                currentTimeElement.textContent = timeString;
+            } else {
+                console.error('Elemen currentTime tidak ditemukan');
+            }
             updateShiftInfo();
             updateGreeting();
         }
@@ -776,9 +805,14 @@ System: **theme)) {
             currentType = type;
             const buttons = document.querySelectorAll('.switch-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`switch${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
+            const switchButton = document.getElementById(`switch${type.charAt(0).toUpperCase() + type.slice(1)}`);
+            if (switchButton) {
+                switchButton.classList.add('active');
+            } else {
+                console.error(`Elemen switch${type.charAt(0).toUpperCase() + type.slice(1)} tidak ditemukan`);
+            }
         }
-
+        
         // Fungsi untuk menyimpan checklist
         async function saveChecklist(event) {
             event.preventDefault();
@@ -879,33 +913,42 @@ System: **theme)) {
                 return;
             }
 
-            const filterDate = document.getElementById('filterDate').value;
-            const filterShift = document.getElementById('filterShift').value;
-            const filterNIK = document.getElementById('filterNIK').value;
+            const filterDate = document.getElementById('filterDate');
+            const filterShift = document.getElementById('filterShift');
+            const filterNIK = document.getElementById('filterNIK');
+            if (!filterDate || !filterShift || !filterNIK) {
+                console.error('Elemen filter tidak ditemukan');
+                showNotification('Gagal memuat laporan: Elemen filter tidak ditemukan.');
+                return;
+            }
 
             let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'), limit(50));
-            if (filterDate) q = query(q, where('date', '==', filterDate));
-            if (filterShift) q = query(q, where('shift', '==', filterShift));
-            if (filterNIK) q = query(q, where('nik', '==', filterNIK));
+            if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
+            if (filterShift.value) q = query(q, where('shift', '==', filterShift.value));
+            if (filterNIK.value) q = query(q, where('nik', '==', filterNIK.value));
 
             try {
                 onSnapshot(q, (snapshot) => {
                     const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     const tbody = document.getElementById('reportBody');
-                    tbody.innerHTML = '';
-
-                    checklists.forEach(c => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${c.date}</td>
-                            <td>${c.time}</td>
-                            <td>${c.shift.toUpperCase()} ${c.shiftName !== 'Custom' ? '(' + c.shiftName + ')' : ''}</td>
-                            <td>${c.nik} - ${c.name}</td>
-                            <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                        `;
-                        tbody.appendChild(row);
-                    });
+                    if (tbody) {
+                        tbody.innerHTML = '';
+                        checklists.forEach(c => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${c.date}</td>
+                                <td>${c.time}</td>
+                                <td>${c.shift.toUpperCase()} ${c.shiftName !== 'Custom' ? '(' + c.shiftName + ')' : ''}</td>
+                                <td>${c.nik} - ${c.name}</td>
+                                <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
+                                <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    } else {
+                        console.error('Elemen reportBody tidak ditemukan');
+                        showNotification('Gagal memuat laporan: Tabel laporan tidak ditemukan.');
+                    }
                 }, (error) => {
                     console.error('Gagal memuat laporan:', error);
                     showNotification('Gagal memuat laporan: ' + error.message);
@@ -918,8 +961,17 @@ System: **theme)) {
 
         // Fungsi untuk mengisi filter
         async function populateFilters() {
+            console.log('Mengisi filter');
             if (!db) {
                 showNotification('Koneksi ke database gagal. Tidak dapat memuat filter.');
+                return;
+            }
+
+            const filterDate = document.getElementById('filterDate');
+            const filterNIK = document.getElementById('filterNIK');
+            if (!filterDate || !filterNIK) {
+                console.error('Elemen filterDate atau filterNIK tidak ditemukan');
+                showNotification('Gagal memuat filter: Elemen filter tidak ditemukan.');
                 return;
             }
 
@@ -929,11 +981,8 @@ System: **theme)) {
                 const dates = [...new Set(checklists.map(c => c.date))];
                 const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
 
-                const dateSelect = document.getElementById('filterDate');
-                dateSelect.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
-
-                const nikSelect = document.getElementById('filterNIK');
-                nikSelect.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+                filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+                filterNIK.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
             } catch (error) {
                 console.error('Gagal memuat filter:', error);
                 showNotification('Gagal memuat filter: ' + error.message);
@@ -1019,62 +1068,98 @@ Catatan: ${data.catatan || '-'}`);
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.body.classList.add(`${savedTheme}-theme`);
             const themeIcon = document.getElementById('themeIcon');
-            themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+            if (themeIcon) {
+                themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+            } else {
+                console.error('Elemen themeIcon tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Ikon tema tidak ditemukan.');
+            }
 
             // Debugging: Pastikan elemen ada
-            if (!document.getElementById('loginButton')) {
+            const loginButton = document.getElementById('loginButton');
+            const checklistForm = document.getElementById('checklistForm');
+            const themeToggle = document.getElementById('themeToggle');
+            const switchMasuk = document.getElementById('switchMasuk');
+            const switchPulang = document.getElementById('switchPulang');
+            const switchCustom = document.getElementById('switchCustom');
+            const filterDate = document.getElementById('filterDate');
+            const filterShift = document.getElementById('filterShift');
+            const filterNIK = document.getElementById('filterNIK');
+            const reportTable = document.getElementById('reportTable');
+
+            if (!loginButton) {
                 console.error('Elemen loginButton tidak ditemukan');
                 showNotification('Kesalahan inisialisasi: Tombol login tidak ditemukan.');
                 return;
             }
-            if (!document.getElementById('checklistForm')) {
+            if (!checklistForm) {
                 console.error('Elemen checklistForm tidak ditemukan');
                 showNotification('Kesalahan inisialisasi: Form checklist tidak ditemukan.');
                 return;
             }
+            if (!themeToggle) {
+                console.error('Elemen themeToggle tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Tombol tema tidak ditemukan.');
+                return;
+            }
+            if (!switchMasuk || !switchPulang || !switchCustom) {
+                console.error('Elemen switch button tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Tombol switch checklist tidak ditemukan.');
+                return;
+            }
+            if (!filterDate || !filterShift || !filterNIK) {
+                console.error('Elemen filter tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Elemen filter tidak ditemukan.');
+                return;
+            }
+            if (!reportTable) {
+                console.error('Elemen reportTable tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Tabel laporan tidak ditemukan.');
+                return;
+            }
 
             // Event listener untuk tombol login
-            document.getElementById('loginButton').addEventListener('click', () => {
+            loginButton.addEventListener('click', () => {
                 console.log('Tombol login diklik');
                 login();
             });
 
             // Event listener untuk tombol tema
-            document.getElementById('themeToggle').addEventListener('click', () => {
+            themeToggle.addEventListener('click', () => {
                 console.log('Tombol tema diklik');
                 toggleTheme();
             });
 
             // Event listener untuk tombol switch tipe checklist
-            document.getElementById('switchMasuk').addEventListener('click', () => {
+            switchMasuk.addEventListener('click', () => {
                 console.log('Tombol switchMasuk diklik');
                 switchType('masuk');
             });
-            document.getElementById('switchPulang').addEventListener('click', () => {
+            switchPulang.addEventListener('click', () => {
                 console.log('Tombol switchPulang diklik');
                 switchType('pulang');
             });
-            document.getElementById('switchCustom').addEventListener('click', () => {
+            switchCustom.addEventListener('click', () => {
                 console.log('Tombol switchCustom diklik');
                 switchType('custom');
             });
 
             // Event listener untuk form checklist
-            document.getElementById('checklistForm').addEventListener('submit', (event) => {
+            checklistForm.addEventListener('submit', (event) => {
                 console.log('Form checklist disubmit');
                 saveChecklist(event);
             });
 
             // Event listener untuk filter
-            ['filterDate', 'filterShift', 'filterNIK'].forEach(id => {
-                document.getElementById(id).addEventListener('change', () => {
-                    console.log(`Filter ${id} diubah`);
+            [filterDate, filterShift, filterNIK].forEach(element => {
+                element.addEventListener('change', () => {
+                    console.log(`Filter ${element.id} diubah`);
                     listenReports();
                 });
             });
 
             // Event delegation untuk tombol di tabel
-            document.getElementById('reportTable').addEventListener('click', (e) => {
+            reportTable.addEventListener('click', (e) => {
                 const detailBtn = e.target.closest('.detail-btn');
                 const whatsappBtn = e.target.closest('.whatsapp-btn');
                 if (detailBtn) {
@@ -1091,6 +1176,9 @@ Catatan: ${data.catatan || '-'}`);
             // Mulai pembaruan waktu
             updateTime();
             setInterval(updateTime, 1000);
+
+            // Tes notifikasi saat inisialisasi
+            showNotification('Aplikasi berhasil dimuat!', true);
         });
     </script>
 </body>
