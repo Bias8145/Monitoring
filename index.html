@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water System Checklist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(30, 30, 46, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+        }
+
+        .card {
+            background: rgba(40, 40, 60, 0.9);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transform: perspective(1000px) rotateX(3deg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: perspective(1000px) rotateX(0deg);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2e2e4a, #3a3a5a);
+            color: #e0e0e0;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #e0e0e0;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(50, 50, 70, 0.85);
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group select:focus, .form-group input:focus {
+            outline: none;
+            background: rgba(60, 60, 80, 0.9);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .unit {
+            padding: 12px;
+            background: rgba(76, 175, 80, 0.2);
+            border-radius: 12px;
+            color: #e0e0e0;
+            min-width: 50px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, #4CAF50, #81C784);
+            margin: 20px 0;
+            border-radius: 2px;
+        }
+
+        .switch-type {
+            display: flex;
+            gap: 10px;
+            background: rgba(40, 40, 60, 0.9);
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 20px;
+        }
+
+        .switch-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border: none;
+            border-radius: 10px;
+            background: none;
+            color: #e0e0e0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .switch-btn.active {
+            background: #4CAF50;
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .table-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #e0e0e0;
+            background: rgba(40, 40, 60, 0.9);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(50, 50, 70, 0.95);
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+        }
+
+        td button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 10px;
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        td button:hover {
+            background: #45a049;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group select {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(50, 50, 70, 0.85);
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .login-container {
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .login-card {
+            background: rgba(30, 30, 46, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            transform: perspective(1000px) rotateX(3deg);
+        }
+
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 12px;
+            background: rgba(50, 50, 70, 0.85);
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(244, 67, 54, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <h1>Water System Checklist</h1>
+            <div class="subtitle">Login</div>
+            <div class="form-group">
+                <label for="nikInput">Masukkan NIK</label>
+                <input type="text" id="nikInput" placeholder="Contoh: CA00006" required>
+            </div>
+            <button class="btn" onclick="login()">Masuk</button>
+        </div>
+    </div>
+
+    <div id="mainPage" class="container" style="display: none;">
+        <div class="header">
+            <h1>Water System Checklist</h1>
+            <div class="subtitle">Monitoring & Maintenance</div>
+        </div>
+
+        <div class="card">
+            <div class="shift-info">Shift: <span id="shiftInfo">SHIFT 1 (07:00-15:00)</span> | Waktu: <span id="currentTime">00:00:00</span></div>
+        </div>
+
+        <div class="card">
+            <div class="switch-type">
+                <button class="switch-btn active" onclick="switchType('masuk')">CHECKLIST MASUK</button>
+                <button class="switch-btn" onclick="switchType('pulang')">CHECKLIST PULANG</button>
+            </div>
+        </div>
+
+        <div class="card" id="checklistFormContainer">
+            <form id="checklistForm">
+                <div class="form-group">
+                    <label>1. Kondisi Bak Distribusi Air RO</label>
+                    <select id="bakRO" required>
+                        <option value="">Pilih status...</option>
+                        <option value="Memadai">Memadai</option>
+                        <option value="Tidak Memadai">Tidak Memadai</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ketinggian Bak RO</label>
+                    <div class="input-group">
+                        <input type="number" id="tinggiRO" placeholder="85" required>
+                        <div class="unit">cm</div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="form-group">
+                    <label>2. Kondisi Bak Input RO dari WWTP</label>
+                    <select id="bakWWTP" required>
+                        <option value="">Pilih status...</option>
+                        <option value="Memadai">Memadai</option>
+                        <option value="Tidak Memadai">Tidak Memadai</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Ketinggian Bak WWTP</label>
+                    <div class="input-group">
+                        <input type="number" id="tinggiWWTP" placeholder="45" required>
+                        <div class="unit">cm</div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="form-group">
+                    <label>3. Kondisi Pompa Transfer WWTP → Distribusi</label>
+                    <select id="pompa" required>
+                        <option value="">Pilih status...</option>
+                        <option value="ON">ON</option>
+                        <option value="OFF">OFF</option>
+                    </select>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="form-group">
+                    <label>4. Ketinggian Bak Input Air PDAM</label>
+                    <div class="input-group">
+                        <input type="number" id="tinggiPDAM" placeholder="92" required>
+                        <div class="unit">cm</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Status Bak Input PDAM</label>
+                    <select id="statusPDAM" required>
+                        <option value="">Pilih status...</option>
+                        <option value="Memadai">Memadai</option>
+                        <option value="Tidak Memadai">Tidak Memadai</option>
+                    </select>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <div class="form-group">
+                    <label>5. Supply Air PDAM</label>
+                    <select id="supplyPDAM" required>
+                        <option value="">Pilih status...</option>
+                        <option value="Menyala">Menyala</option>
+                        <option value="Mati">Mati</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Angka Meter Induk PDAM</label>
+                    <input type="number" id="meterIndukPDAM" placeholder="12500" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Angka Meter Induk WTP</label>
+                    <input type="number" id="meterIndukWTP" placeholder="8900" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Flow Rate Input</label>
+                    <div class="input-group">
+                        <input type="number" id="flowPDAM" placeholder="25" required>
+                        <div class="unit">L/min</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Catatan Tambahan (Opsional)</label>
+                    <input type="text" id="catatan" placeholder="Catatan khusus atau kondisi tidak normal...">
+                </div>
+
+                <button type="submit" class="btn" onclick="saveChecklist()">Simpan Checklist</button>
+            </form>
+        </div>
+
+        <div class="card" id="reportSection">
+            <h2 style="color: #e0e0e0; margin-bottom: 15px; font-size: 20px; font-weight: 600;">Laporan Checklist</h2>
+            <div class="filter-group">
+                <select id="filterDate">
+                    <option value="">Semua Tanggal</option>
+                </select>
+                <select id="filterShift">
+                    <option value="">Semua Shift</option>
+                    <option value="masuk">Masuk</option>
+                    <option value="pulang">Pulang</option>
+                </select>
+                <select id="filterNIK">
+                    <option value="">Semua Pengguna</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table id="reportTable">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Waktu</th>
+                            <th>Shift</th>
+                            <th>NIK</th>
+                            <th>Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        const users = [
+            { nik: 'CA00006', name: 'Muhammad Fahruroji' },
+            { nik: 'CA00159', name: 'Andri Rahmatulloh' },
+            { nik: 'CA00193', name: 'IIP M Ilyas' },
+            { nik: 'CA00198', name: 'Shashi Prasetyo' },
+            { nik: 'CA00210', name: 'Ridwan Fauzy' },
+            { nik: 'CA00383', name: 'Bias Fajar Khaliq' },
+            { nik: 'CA00491', name: 'Torik Hidayat' },
+            { nik: 'CA00508', name: 'Amanda Lutfi' }
+        ];
+
+        let currentType = 'masuk';
+        let currentNIK = '';
+
+        // Request notification permission
+        function requestNotificationPermission() {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission !== 'granted') {
+                        alert('Notifikasi diperlukan untuk pengingat checklist. Silakan izinkan notifikasi di browser Anda.');
+                    }
+                });
+            }
+        }
+
+        // Show browser notification
+        function showNotification(message) {
+            if (Notification.permission === 'granted') {
+                new Notification('Water System Checklist', {
+                    body: message,
+                    icon: 'https://via.placeholder.com/64' // Ganti dengan URL ikon jika ada
+                });
+            } else {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.style.display = 'block';
+                setTimeout(() => notification.style.display = 'none', 5000);
+            }
+        }
+
+        // Login function
+        function login() {
+            const nikInput = document.getElementById('nikInput').value.trim().toUpperCase();
+            const user = users.find(u => u.nik === nikInput);
+            if (user) {
+                currentNIK = nikInput;
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+                requestNotificationPermission();
+                checkNotification();
+                loadReports();
+                populateFilters();
+            } else {
+                alert('NIK tidak valid!');
+            }
+        }
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID');
+            document.getElementById('currentTime').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+
+        // Switch checklist type
+        function switchType(type) {
+            currentType = type;
+            const buttons = document.querySelectorAll('.switch-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            checkNotification();
+        }
+
+        // Save checklist
+        function saveChecklist() {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const dateStr = now.toLocaleDateString('id-ID');
+
+            // Validate time window
+            if (currentType === 'masuk' && (hour < 7 || hour > 7 || (hour === 7 && minute > 30))) {
+                alert('Checklist Masuk hanya dapat dilakukan antara 07:00-07:30');
+                return;
+            }
+            if (currentType === 'pulang' && (hour < 15 || hour > 15 || (hour === 15 && minute > 30))) {
+                alert('Checklist Pulang hanya dapat dilakukan antara 15:00-15:30');
+                return;
+            }
+
+            const data = {
+                nik: currentNIK,
+                date: dateStr,
+                time: now.toLocaleTimeString('id-ID'),
+                shift: currentType,
+                bakRO: document.getElementById('bakRO').value,
+                tinggiRO: document.getElementById('tinggiRO').value,
+                bakWWTP: document.getElementById('bakWWTP').value,
+                tinggiWWTP: document.getElementById('tinggiWWTP').value,
+                pompa: document.getElementById('pompa').value,
+                tinggiPDAM: document.getElementById('tinggiPDAM').value,
+                statusPDAM: document.getElementById('statusPDAM').value,
+                supplyPDAM: document.getElementById('supplyPDAM').value,
+                meterIndukPDAM: document.getElementById('meterIndukPDAM').value,
+                meterIndukWTP: document.getElementById('meterIndukWTP').value,
+                flowPDAM: document.getElementById('flowPDAM').value,
+                catatan: document.getElementById('catatan').value
+            };
+
+            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
+            const missing = required.filter(field => !data[field]);
+
+            if (missing.length > 0) {
+                alert('Mohon lengkapi semua field yang wajib diisi!');
+                return;
+            }
+
+            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
+            checklists.push(data);
+            localStorage.setItem('checklists', JSON.stringify(checklists));
+
+            alert('Checklist berhasil disimpan!');
+            document.getElementById('checklistForm').reset();
+            loadReports();
+            checkNotification();
+        }
+
+        // Load reports
+        function loadReports() {
+            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
+            const filterDate = document.getElementById('filterDate').value;
+            const filterShift = document.getElementById('filterShift').value;
+            const filterNIK = document.getElementById('filterNIK').value;
+
+            const filtered = checklists.filter(c => {
+                return (!filterDate || c.date === filterDate) &&
+                       (!filterShift || c.shift === filterShift) &&
+                       (!filterNIK || c.nik === filterNIK);
+            });
+
+            const tbody = document.getElementById('reportBody');
+            tbody.innerHTML = '';
+
+            filtered.forEach(c => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${c.date}</td>
+                    <td>${c.time}</td>
+                    <td>${c.shift.toUpperCase()}</td>
+                    <td>${c.nik}</td>
+                    <td><button onclick="showDetail(${JSON.stringify(c).replace(/"/g, '&quot;')})">Lihat</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Show checklist detail
+        function showDetail(data) {
+            const detailText = `
+                Tanggal: ${data.date}
+                Waktu: ${data.time}
+                Shift: ${data.shift.toUpperCase()}
+                NIK: ${data.nik}
+
+                1. Bak Distribusi RO
+                   Status: ${data.bakRO}
+                   Ketinggian: ${data.tinggiRO} cm
+
+                2. Bak Input WWTP
+                   Status: ${data.bakWWTP}
+                   Ketinggian: ${data.tinggiWWTP} cm
+
+                3. Pompa Transfer
+                   Status: ${data.pompa}
+
+                4. Bak Input PDAM
+                   Ketinggian: ${data.tinggiPDAM} cm
+                   Status: ${data.statusPDAM}
+
+                5. Supply Air PDAM
+                   Status: ${data.supplyPDAM}
+                   Meter Induk PDAM: ${data.meterIndukPDAM}
+                   Meter Induk WTP: ${data.meterIndukWTP}
+                   Flow Rate: ${data.flowPDAM} L/min
+
+                Catatan: ${data.catatan || '-'}`;
+            alert(detailText);
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
+            const dates = [...new Set(checklists.map(c => c.date))];
+            const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
+
+            const dateSelect = document.getElementById('filterDate');
+            dateSelect.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+
+            const nikSelect = document.getElementById('filterNIK');
+            nikSelect.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+
+            [dateSelect, document.getElementById('filterShift'), nikSelect].forEach(select => {
+                select.addEventListener('change', loadReports);
+            });
+        }
+
+        // Check for notification
+        function checkNotification() {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const dateStr = now.toLocaleDateString('id-ID');
+            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
+
+            const hasMasuk = checklists.some(c => c.date === dateStr && c.shift === 'masuk');
+            const hasPulang = checklists.some(c => c.date === dateStr && c.shift === 'pulang');
+
+            if (hour === 7 && minute <= 30 && !hasMasuk) {
+                showNotification('Checklist Masuk belum dilakukan! Harap selesaikan sebelum 07:30.');
+            } else if (hour === 15 && minute <= 30 && !hasPulang) {
+                showNotification('Checklist Pulang belum dilakukan! Harap selesaikan sebelum 15:30.');
+            } else {
+                document.getElementById('notification').style.display = 'none';
+            }
+        }
+
+        // Initialize
+        updateTime();
+        setInterval(checkNotification, 60000); // Check every minute
+        requestNotificationPermission();
+    </script>
+</body>
+</html>
