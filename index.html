@@ -13,47 +13,147 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
             min-height: 100vh;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            color: #333;
+        }
+
+        body.light-theme .container,
+        body.light-theme .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        body.light-theme .card {
+            background: rgba(245, 245, 245, 0.9);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        body.light-theme .header {
+            background: linear-gradient(135deg, #ffffff, #e0e0e0);
+            color: #333;
+        }
+
+        body.light-theme .form-group select,
+        body.light-theme .form-group input,
+        body.light-theme .login-card input {
+            background: rgba(220, 220, 220, 0.85);
+            color: #333;
+        }
+
+        body.light-theme .unit {
+            background: rgba(76, 175, 80, 0.3);
+            color: #333;
+        }
+
+        body.light-theme .switch-type {
+            background: rgba(220, 220, 220, 0.9);
+        }
+
+        body.light-theme .switch-btn {
+            color: #333;
+        }
+
+        body.light-theme table {
+            background: rgba(245, 245, 245, 0.9);
+        }
+
+        body.light-theme th {
+            background: rgba(230, 230, 230, 0.95);
+        }
+
+        /* Dark Theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
             color: #e0e0e0;
+        }
+
+        body.dark-theme .container,
+        body.dark-theme .login-card {
+            background: rgba(30, 30, 46, 0.85);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        body.dark-theme .card {
+            background: rgba(40, 40, 60, 0.9);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        body.dark-theme .header {
+            background: linear-gradient(135deg, #2e2e4a, #3a3a5a);
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .form-group select,
+        body.dark-theme .form-group input,
+        body.dark-theme .login-card input {
+            background: rgba(50, 50, 70, 0.85);
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .unit {
+            background: rgba(76, 175, 80, 0.2);
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .switch-type {
+            background: rgba(40, 40, 60, 0.9);
+        }
+
+        body.dark-theme .switch-btn {
+            color: #e0e0e0;
+        }
+
+        body.dark-theme table {
+            background: rgba(40, 40, 60, 0.9);
+        }
+
+        body.dark-theme th {
+            background: rgba(50, 50, 70, 0.95);
         }
 
         .container {
             max-width: 600px;
             width: 100%;
-            background: rgba(30, 30, 46, 0.85);
             border-radius: 20px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
             backdrop-filter: blur(12px);
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
         .card {
-            background: rgba(40, 40, 60, 0.9);
             border-radius: 16px;
             padding: 20px;
             margin: 15px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            transform: perspective(1000px) rotateX(3deg);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform: perspective(1000px) rotateX(3deg) translateZ(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.3s ease;
+            position: relative;
+            z-index: 2;
         }
 
         .card:hover {
-            transform: perspective(1000px) rotateX(0deg);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            transform: perspective(1000px) rotateX(0deg) translateZ(20px);
+            z-index: 3;
         }
 
         .header {
-            background: linear-gradient(135deg, #2e2e4a, #3a3a5a);
-            color: #e0e0e0;
             padding: 20px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px 20px 0 0;
+            position: relative;
+            z-index: 2;
+            transform: perspective(1000px) translateZ(15px);
         }
 
         .header h1 {
@@ -69,6 +169,9 @@
 
         .form-group {
             margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            transform: perspective(1000px) translateZ(5px);
         }
 
         .form-group label {
@@ -76,7 +179,6 @@
             margin-bottom: 8px;
             font-weight: 500;
             font-size: 14px;
-            color: #e0e0e0;
         }
 
         .form-group select, .form-group input {
@@ -84,15 +186,12 @@
             padding: 12px;
             border: none;
             border-radius: 12px;
-            background: rgba(50, 50, 70, 0.85);
-            color: #e0e0e0;
             font-size: 14px;
             transition: background 0.3s ease, box-shadow 0.3s ease;
         }
 
         .form-group select:focus, .form-group input:focus {
             outline: none;
-            background: rgba(60, 60, 80, 0.9);
             box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
         }
 
@@ -104,9 +203,7 @@
 
         .unit {
             padding: 12px;
-            background: rgba(76, 175, 80, 0.2);
             border-radius: 12px;
-            color: #e0e0e0;
             min-width: 50px;
             text-align: center;
             font-size: 14px;
@@ -117,15 +214,16 @@
             background: linear-gradient(90deg, #4CAF50, #81C784);
             margin: 20px 0;
             border-radius: 2px;
+            transform: perspective(1000px) translateZ(5px);
         }
 
         .switch-type {
             display: flex;
             gap: 10px;
-            background: rgba(40, 40, 60, 0.9);
             border-radius: 12px;
             padding: 8px;
             margin-bottom: 20px;
+            transform: perspective(1000px) translateZ(10px);
         }
 
         .switch-btn {
@@ -135,7 +233,6 @@
             border: none;
             border-radius: 10px;
             background: none;
-            color: #e0e0e0;
             cursor: pointer;
             font-weight: 500;
             font-size: 14px;
@@ -159,10 +256,11 @@
             background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
             transition: all 0.3s ease;
+            transform: perspective(1000px) translateZ(10px);
         }
 
         .btn:hover {
-            transform: translateY(-2px);
+            transform: perspective(1000px) translateZ(20px);
             box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
         }
 
@@ -171,13 +269,12 @@
             overflow-y: auto;
             margin: 15px 0;
             border-radius: 12px;
+            transform: perspective(1000px) translateZ(5px);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            color: #e0e0e0;
-            background: rgba(40, 40, 60, 0.9);
             border-radius: 12px;
             overflow: hidden;
         }
@@ -189,7 +286,6 @@
         }
 
         th {
-            background: rgba(50, 50, 70, 0.95);
             position: sticky;
             top: 0;
             font-weight: 600;
@@ -204,11 +300,13 @@
             cursor: pointer;
             font-size: 12px;
             transition: all 0.3s ease;
+            transform: perspective(1000px) translateZ(5px);
         }
 
         td button:hover {
             background: #45a049;
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            transform: perspective(1000px) translateZ(10px);
         }
 
         .filter-group {
@@ -216,6 +314,7 @@
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            transform: perspective(1000px) translateZ(5px);
         }
 
         .filter-group select {
@@ -223,8 +322,6 @@
             min-width: 120px;
             padding: 12px;
             border-radius: 12px;
-            background: rgba(50, 50, 70, 0.85);
-            color: #e0e0e0;
             font-size: 14px;
         }
 
@@ -232,15 +329,32 @@
             max-width: 400px;
             width: 100%;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .login-card {
-            background: rgba(30, 30, 46, 0.85);
             backdrop-filter: blur(12px);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-            transform: perspective(1000px) rotateX(3deg);
+            transform: perspective(1000px) rotateX(5deg) translateZ(20px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: perspective(1000px) rotateX(0deg) translateZ(30px);
+        }
+
+        .login-card h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .login-card .subtitle {
+            font-size: 16px;
+            opacity: 0.7;
+            margin-bottom: 20px;
         }
 
         .login-card input {
@@ -249,9 +363,8 @@
             margin: 10px 0;
             border: none;
             border-radius: 12px;
-            background: rgba(50, 50, 70, 0.85);
-            color: #e0e0e0;
             font-size: 14px;
+            transform: perspective(1000px) translateZ(5px);
         }
 
         .notification {
@@ -265,14 +378,40 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             display: none;
             font-size: 14px;
+            transform: perspective(1000px) translateZ(10px);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px;
+            background: rgba(50, 50, 70, 0.85);
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            transition: background 0.3s ease;
+        }
+
+        body.light-theme .theme-toggle {
+            background: rgba(220, 220, 220, 0.85);
+        }
+
+        .theme-toggle img {
+            width: 24px;
+            height: 24px;
         }
     </style>
 </head>
-<body>
+<body class="dark-theme">
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <img src="https://via.placeholder.com/24?text=☀️" alt="Toggle Theme" id="themeIcon">
+    </div>
+
     <div id="loginPage" class="login-container">
         <div class="login-card">
             <h1>Water System Checklist</h1>
-            <div class="subtitle">Login</div>
+            <div class="subtitle">Secure Login</div>
             <div class="form-group">
                 <label for="nikInput">Masukkan NIK</label>
                 <input type="text" id="nikInput" placeholder="Contoh: CA00006" required>
@@ -405,7 +544,7 @@
         </div>
 
         <div class="card" id="reportSection">
-            <h2 style="color: #e0e0e0; margin-bottom: 15px; font-size: 20px; font-weight: 600;">Laporan Checklist</h2>
+            <h2 style="margin-bottom: 15px; font-size: 20px; font-weight: 600;">Laporan Checklist</h2>
             <div class="filter-group">
                 <select id="filterDate">
                     <option value="">Semua Tanggal</option>
@@ -439,6 +578,32 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // Theme toggle function
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('themeIcon');
+            if (body.classList.contains('dark-theme')) {
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+                themeIcon.src = 'https://via.placeholder.com/24?text=🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                themeIcon.src = 'https://via.placeholder.com/24?text=☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load theme from localStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.classList.add(`${savedTheme}-theme`);
+            document.getElementById('themeIcon').src = savedTheme === 'dark' 
+                ? 'https://via.placeholder.com/24?text=☀️' 
+                : 'https://via.placeholder.com/24?text=🌙';
+        });
+
         const users = [
             { nik: 'CA00006', name: 'Muhammad Fahruroji' },
             { nik: 'CA00159', name: 'Andri Rahmatulloh' },
@@ -453,14 +618,12 @@
         let currentType = 'masuk';
         let currentNIK = '';
 
-        // Define shift schedules
         const shifts = [
             { name: 'Shift 1', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
             { name: 'Shift 2', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
             { name: 'Shift 3', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
         ];
 
-        // Request notification permission
         function requestNotificationPermission() {
             if (Notification.permission !== 'granted') {
                 Notification.requestPermission().then(permission => {
@@ -471,12 +634,11 @@
             }
         }
 
-        // Show browser notification
         function showNotification(message) {
             if (Notification.permission === 'granted') {
                 new Notification('Water System Checklist', {
                     body: message,
-                    icon: 'https://via.placeholder.com/64' // Ganti dengan URL ikon jika ada
+                    icon: 'https://via.placeholder.com/64'
                 });
             } else {
                 const notification = document.getElementById('notification');
@@ -486,7 +648,6 @@
             }
         }
 
-        // Login function
         function login() {
             const nikInput = document.getElementById('nikInput').value.trim().toUpperCase();
             const user = users.find(u => u.nik === nikInput);
@@ -500,11 +661,10 @@
                 loadReports();
                 populateFilters();
             } else {
-                alert('NIK tidak valid!');
+                showNotification('NIK tidak valid!');
             }
         }
 
-        // Update shift info based on current time
         function updateShiftInfo() {
             const now = new Date();
             const hour = now.getHours();
@@ -517,7 +677,6 @@
             document.getElementById('shiftInfo').textContent = shiftInfo;
         }
 
-        // Update time
         function updateTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID');
@@ -526,7 +685,6 @@
         }
         setInterval(updateTime, 1000);
 
-        // Switch checklist type
         function switchType(type) {
             currentType = type;
             const buttons = document.querySelectorAll('.switch-btn');
@@ -535,14 +693,12 @@
             checkNotification();
         }
 
-        // Save checklist
         function saveChecklist() {
             const now = new Date();
             const hour = now.getHours();
             const minute = now.getMinutes();
             const dateStr = now.toLocaleDateString('id-ID');
 
-            // Determine current shift
             let currentShift = null;
             shifts.forEach(shift => {
                 if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
@@ -551,11 +707,10 @@
             });
 
             if (!currentShift) {
-                alert('Checklist hanya dapat dilakukan selama jam shift!');
+                showNotification('Checklist hanya dapat dilakukan selama jam shift!');
                 return;
             }
 
-            // Validate time window
             const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
             const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
             const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
@@ -570,7 +725,7 @@
                  (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
 
             if (!isValidMasuk && !isValidPulang) {
-                alert(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}`);
+                showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}`);
                 return;
             }
 
@@ -600,7 +755,7 @@
             const missing = required.filter(field => !data[field]);
 
             if (missing.length > 0) {
-                alert('Mohon lengkapi semua field yang wajib diisi!');
+                showNotification('Mohon lengkapi semua field yang wajib diisi!');
                 return;
             }
 
@@ -608,13 +763,12 @@
             checklists.push(data);
             localStorage.setItem('checklists', JSON.stringify(checklists));
 
-            alert('Checklist berhasil disimpan!');
+            showNotification('Checklist berhasil disimpan!');
             document.getElementById('checklistForm').reset();
             loadReports();
             checkNotification();
         }
 
-        // Load reports
         function loadReports() {
             const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
             const filterDate = document.getElementById('filterDate').value;
@@ -643,7 +797,6 @@
             });
         }
 
-        // Show checklist detail
         function showDetail(data) {
             const detailText = `
                 Tanggal: ${data.date}
@@ -676,7 +829,6 @@
             alert(detailText);
         }
 
-        // Populate filter dropdowns
         function populateFilters() {
             const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
             const dates = [...new Set(checklists.map(c => c.date))];
@@ -693,7 +845,6 @@
             });
         }
 
-        // Check for notification
         function checkNotification() {
             const now = new Date();
             const hour = now.getHours();
@@ -718,9 +869,8 @@
             });
         }
 
-        // Initialize
         updateTime();
-        setInterval(checkNotification, 60000); // Check every minute
+        setInterval(checkNotification, 60000);
         requestNotificationPermission();
     </script>
 </body>
