@@ -627,7 +627,7 @@
     <script type="module">
         // Import Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -812,7 +812,7 @@
                 console.error(`Elemen switch${type.charAt(0).toUpperCase() + type.slice(1)} tidak ditemukan`);
             }
         }
-        
+
         // Fungsi untuk menyimpan checklist
         async function saveChecklist(event) {
             event.preventDefault();
@@ -865,18 +865,18 @@
                 shift: currentType,
                 shiftName: currentType === 'custom' ? 'Custom' : currentShift ? currentShift.name : 'Unknown',
                 bakRO: document.getElementById('bakRO').value,
-                tinggiRO: parseFloat(document.getElementById('tinggiRO').value),
+                tinggiRO: parseFloat(document.getElementById('tinggiRO').value) || 0,
                 bakWWTP: document.getElementById('bakWWTP').value,
-                tinggiWWTP: parseFloat(document.getElementById('tinggiWWTP').value),
+                tinggiWWTP: parseFloat(document.getElementById('tinggiWWTP').value) || 0,
                 pompa: document.getElementById('pompa').value,
-                tinggiPDAM: parseFloat(document.getElementById('tinggiPDAM').value),
+                tinggiPDAM: parseFloat(document.getElementById('tinggiPDAM').value) || 0,
                 statusPDAM: document.getElementById('statusPDAM').value,
                 hydrantStatus: document.getElementById('hydrantStatus').value,
                 supplyPDAM: document.getElementById('supplyPDAM').value,
-                meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value),
-                meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value),
-                flowPDAM: parseFloat(document.getElementById('flowPDAM').value),
-                catatan: document.getElementById('catatan').value,
+                meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value) || 0,
+                meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value) || 0,
+                flowPDAM: parseFloat(document.getElementById('flowPDAM').value) || 0,
+                catatan: document.getElementById('catatan').value || '',
                 createdAt: serverTimestamp()
             };
 
@@ -896,7 +896,8 @@
             try {
                 console.log('Menyimpan data ke Firestore:', data);
                 showNotification('Menyimpan checklist...', true);
-                await addDoc(collection(db, 'checklists'), data);
+                const docRef = await addDoc(collection(db, 'checklists'), data);
+                console.log('Checklist tersimpan dengan ID:', docRef.id);
                 showNotification('Checklist berhasil disimpan!', true);
                 document.getElementById('checklistForm').reset();
             } catch (error) {
@@ -909,6 +910,7 @@
         function listenReports() {
             console.log('Memuat laporan');
             if (!db) {
+                console.error('Database tidak tersedia');
                 showNotification('Koneksi ke database gagal. Tidak dapat memuat laporan.');
                 return;
             }
@@ -916,38 +918,53 @@
             const filterDate = document.getElementById('filterDate');
             const filterShift = document.getElementById('filterShift');
             const filterNIK = document.getElementById('filterNIK');
-            if (!filterDate || !filterShift || !filterNIK) {
-                console.error('Elemen filter tidak ditemukan');
-                showNotification('Gagal memuat laporan: Elemen filter tidak ditemukan.');
+            const reportBody = document.getElementById('reportBody');
+
+            if (!filterDate || !filterShift || !filterNIK || !reportBody) {
+                console.error('Elemen filter atau reportBody tidak ditemukan');
+                showNotification('Gagal memuat laporan: Elemen filter atau tabel tidak ditemukan.');
                 return;
             }
 
-            let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'), limit(50));
-            if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
-            if (filterShift.value) q = query(q, where('shift', '==', filterShift.value));
-            if (filterNIK.value) q = query(q, where('nik', '==', filterNIK.value));
+            let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'));
+            if (filterDate.value) {
+                console.log('Filter tanggal aktif:', filterDate.value);
+                q = query(q, where('date', '==', filterDate.value));
+            }
+            if (filterShift.value) {
+                console.log('Filter shift aktif:', filterShift.value);
+                q = query(q, where('shift', '==', filterShift.value));
+            }
+            if (filterNIK.value) {
+                console.log('Filter NIK aktif:', filterNIK.value);
+                q = query(q, where('nik', '==', filterNIK.value));
+            }
 
             try {
+                console.log('Mengatur listener onSnapshot');
                 onSnapshot(q, (snapshot) => {
+                    console.log('Data laporan diterima, jumlah dokumen:', snapshot.size);
                     const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    const tbody = document.getElementById('reportBody');
-                    if (tbody) {
-                        tbody.innerHTML = '';
+                    console.log('Data checklist:', checklists);
+                    reportBody.innerHTML = '';
+
+                    if (checklists.length === 0) {
+                        console.log('Tidak ada data checklist untuk ditampilkan');
+                        reportBody.innerHTML = '<tr><td colspan="6">Tidak ada data checklist.</td></tr>';
+                    } else {
                         checklists.forEach(c => {
+                            console.log('Merender checklist:', c);
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${c.date}</td>
-                                <td>${c.time}</td>
-                                <td>${c.shift.toUpperCase()} ${c.shiftName !== 'Custom' ? '(' + c.shiftName + ')' : ''}</td>
-                                <td>${c.nik} - ${c.name}</td>
+                                <td>${c.date || '-'}</td>
+                                <td>${c.time || '-'}</td>
+                                <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
+                                <td>${c.nik || '-'} - ${c.name || '-'}</td>
                                 <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
                                 <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
                             `;
-                            tbody.appendChild(row);
+                            reportBody.appendChild(row);
                         });
-                    } else {
-                        console.error('Elemen reportBody tidak ditemukan');
-                        showNotification('Gagal memuat laporan: Tabel laporan tidak ditemukan.');
                     }
                 }, (error) => {
                     console.error('Gagal memuat laporan:', error);
@@ -978,6 +995,7 @@
             try {
                 const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date')));
                 const checklists = snapshot.docs.map(doc => doc.data());
+                console.log('Data untuk filter:', checklists);
                 const dates = [...new Set(checklists.map(c => c.date))];
                 const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
 
@@ -993,32 +1011,32 @@
         function showDetail(data) {
             console.log('Menampilkan detail:', data);
             const detailText = `
-                Tanggal: ${data.date}
-                Waktu: ${data.time}
-                Shift: ${data.shift.toUpperCase()} ${data.shiftName !== 'Custom' ? '(' + data.shiftName + ')' : ''}
-                Penginput: ${data.nik} - ${data.name}
+                Tanggal: ${data.date || '-'}
+                Waktu: ${data.time || '-'}
+                Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
+                Penginput: ${data.nik || '-'} - ${data.name || '-'}
 
                 1. Bak Distribusi RO
-                   Status: ${data.bakRO}
-                   Ketinggian: ${data.tinggiRO} cm
+                   Status: ${data.bakRO || '-'}
+                   Ketinggian: ${data.tinggiRO || 0} cm
 
                 2. Bak Input WWTP
-                   Status: ${data.bakWWTP}
-                   Ketinggian: ${data.tinggiWWTP} cm
+                   Status: ${data.bakWWTP || '-'}
+                   Ketinggian: ${data.tinggiWWTP || 0} cm
 
                 3. Pompa Transfer
-                   Status: ${data.pompa}
+                   Status: ${data.pompa || '-'}
 
                 4. Bak Input PDAM
-                   Ketinggian: ${data.tinggiPDAM} cm
-                   Status: ${data.statusPDAM}
-                   Hydrant Status: ${data.hydrantStatus}
+                   Ketinggian: ${data.tinggiPDAM || 0} cm
+                   Status: ${data.statusPDAM || '-'}
+                   Hydrant Status: ${data.hydrantStatus || '-'}
 
                 5. Supply Air PDAM
-                   Status: ${data.supplyPDAM}
-                   Meter Induk PDAM: ${data.meterIndukPDAM}
-                   Meter Induk WTP: ${data.meterIndukWTP}
-                   Flow Rate: ${data.flowPDAM} L/min
+                   Status: ${data.supplyPDAM || '-'}
+                   Meter Induk PDAM: ${data.meterIndukPDAM || 0}
+                   Meter Induk WTP: ${data.meterIndukWTP || 0}
+                   Flow Rate: ${data.flowPDAM || 0} L/min
 
                 Catatan: ${data.catatan || '-'}`;
             alert(detailText);
@@ -1029,32 +1047,32 @@
             console.log('Membagikan ke WhatsApp:', data);
             const message = encodeURIComponent(`
 Water System Checklist
-Tanggal: ${data.date}
-Waktu: ${data.time}
-Shift: ${data.shift.toUpperCase()} ${data.shiftName !== 'Custom' ? '(' + data.shiftName + ')' : ''}
-Penginput: ${data.nik} - ${data.name}
+Tanggal: ${data.date || '-'}
+Waktu: ${data.time || '-'}
+Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
+Penginput: ${data.nik || '-'} - ${data.name || '-'}
 
 1. Bak Distribusi RO
-   Status: ${data.bakRO}
-   Ketinggian: ${data.tinggiRO} cm
+   Status: ${data.bakRO || '-'}
+   Ketinggian: ${data.tinggiRO || 0} cm
 
 2. Bak Input WWTP
-   Status: ${data.bakWWTP}
-   Ketinggian: ${data.tinggiWWTP} cm
+   Status: ${data.bakWWTP || '-'}
+   Ketinggian: ${data.tinggiWWTP || 0} cm
 
 3. Pompa Transfer
-   Status: ${data.pompa}
+   Status: ${data.pompa || '-'}
 
 4. Bak Input PDAM
-   Ketinggian: ${data.tinggiPDAM} cm
-   Status: ${data.statusPDAM}
-   Hydrant Status: ${data.hydrantStatus}
+   Ketinggian: ${data.tinggiPDAM || 0} cm
+   Status: ${data.statusPDAM || '-'}
+   Hydrant Status: ${data.hydrantStatus || '-'}
 
 5. Supply Air PDAM
-   Status: ${data.supplyPDAM}
-   Meter Induk PDAM: ${data.meterIndukPDAM}
-   Meter Induk WTP: ${data.meterIndukWTP}
-   Flow Rate: ${data.flowPDAM} L/min
+   Status: ${data.supplyPDAM || '-'}
+   Meter Induk PDAM: ${data.meterIndukPDAM || 0}
+   Meter Induk WTP: ${data.meterIndukWTP || 0}
+   Flow Rate: ${data.flowPDAM || 0} L/min
 
 Catatan: ${data.catatan || '-'}`);
             const whatsappUrl = `https://wa.me/?text=${message}`;
@@ -1153,7 +1171,7 @@ Catatan: ${data.catatan || '-'}`);
             // Event listener untuk filter
             [filterDate, filterShift, filterNIK].forEach(element => {
                 element.addEventListener('change', () => {
-                    console.log(`Filter ${element.id} diubah`);
+                    console.log(`Filter ${element.id} diubah ke: ${element.value}`);
                     listenReports();
                 });
             });
