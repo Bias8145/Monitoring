@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water System Checklist</title>
-    <!-- Add Font Awesome CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWixZYv+IlO0O5+j+2hZ3fQ2i+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+2+ krajach
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -73,6 +73,11 @@
             background: rgba(230, 230, 230, 0.95);
         }
 
+        body.light-theme .theme-toggle {
+            background: rgba(220, 220, 220, 0.85);
+            color: #333;
+        }
+
         /* Dark Theme */
         body.dark-theme {
             background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
@@ -121,6 +126,11 @@
 
         body.dark-theme th {
             background: rgba(50, 50, 70, 0.95);
+        }
+
+        body.dark-theme .theme-toggle {
+            background: rgba(50, 50, 70, 0.85);
+            color: #e0e0e0;
         }
 
         .container {
@@ -388,26 +398,25 @@
             top: 20px;
             left: 20px;
             padding: 10px;
-            background: rgba(50, 50, 70, 0.85);
             border-radius: 50%;
             cursor: pointer;
             z-index: 1000;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
         }
 
-        body.light-theme .theme-toggle {
-            background: rgba(220, 220, 220, 0.85);
-        }
-
-        .theme-toggle img {
-            width: 24px;
-            height: 24px;
+        .theme-toggle i {
+            font-size: 24px;
         }
     </style>
 </head>
 <body class="dark-theme">
     <div class="theme-toggle" onclick="toggleTheme()">
-        <img src="https://via.placeholder.com/24?text=☀️" alt="Toggle Theme" id="themeIcon">
+        <i id="themeIcon" class="fas fa-sun"></i>
     </div>
 
     <div id="loginPage" class="login-container">
@@ -507,6 +516,15 @@
                     </select>
                 </div>
 
+                <div class="form-group">
+                    <label>Status Hydrant</label>
+                    <select id="hydrantStatus" required>
+                        <option value="">Pilih status...</option>
+                        <option value="ON">ON</option>
+                        <option value="OFF">OFF</option>
+                    </select>
+                </div>
+
                 <div class="section-divider"></div>
 
                 <div class="form-group">
@@ -587,14 +605,14 @@
             if (body.classList.contains('dark-theme')) {
                 body.classList.remove('dark-theme');
                 body.classList.add('light-theme');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
                 localStorage.setItem('theme', 'light');
             } else {
                 body.classList.remove('light-theme');
                 body.classList.add('dark-theme');
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
                 localStorage.setItem('theme', 'dark');
             }
         }
@@ -604,7 +622,7 @@
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.body.classList.add(`${savedTheme}-theme`);
             const themeIcon = document.getElementById('themeIcon');
-            themeIcon.classList.add(savedTheme === 'dark' ? 'fa-moon' : 'fa-sun');
+            themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
         });
 
         const users = [
@@ -747,6 +765,7 @@
                 pompa: document.getElementById('pompa').value,
                 tinggiPDAM: document.getElementById('tinggiPDAM').value,
                 statusPDAM: document.getElementById('statusPDAM').value,
+                hydrantStatus: document.getElementById('hydrantStatus').value,
                 supplyPDAM: document.getElementById('supplyPDAM').value,
                 meterIndukPDAM: document.getElementById('meterIndukPDAM').value,
                 meterIndukWTP: document.getElementById('meterIndukWTP').value,
@@ -754,7 +773,7 @@
                 catatan: document.getElementById('catatan').value
             };
 
-            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
+            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
             const missing = required.filter(field => !data[field]);
 
             if (missing.length > 0) {
@@ -821,6 +840,7 @@
                 4. Bak Input PDAM
                    Ketinggian: ${data.tinggiPDAM} cm
                    Status: ${data.statusPDAM}
+                   Hydrant Status: ${data.hydrantStatus}
 
                 5. Supply Air PDAM
                    Status: ${data.supplyPDAM}
