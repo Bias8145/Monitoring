@@ -174,6 +174,12 @@
             margin-bottom: 8px;
         }
 
+        .header .greeting {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
         .header .subtitle {
             font-size: 14px;
             opacity: 0.7;
@@ -321,6 +327,15 @@
             transform: perspective(1000px) translateZ(10px);
         }
 
+        td button.whatsapp-btn {
+            background: #25D366;
+        }
+
+        td button.whatsapp-btn:hover {
+            background: #20B058;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+        }
+
         .filter-group {
             display: flex;
             gap: 10px;
@@ -433,6 +448,7 @@
 
     <div id="mainPage" class="container" style="display: none;">
         <div class="header">
+            <div class="greeting" id="greeting">Selamat Pagi, User!</div>
             <h1>Water System Checklist</h1>
             <div class="subtitle">Monitoring & Maintenance</div>
         </div>
@@ -445,6 +461,7 @@
             <div class="switch-type">
                 <button class="switch-btn active" onclick="switchType('masuk')">CHECKLIST MASUK</button>
                 <button class="switch-btn" onclick="switchType('pulang')">CHECKLIST PULANG</button>
+                <button class="switch-btn" onclick="switchType('custom')">CUSTOM CHECKLIST</button>
             </div>
         </div>
 
@@ -550,7 +567,7 @@
                     <label>Flow Rate Input</label>
                     <div class="input-group">
                         <input type="number" id="flowPDAM" placeholder="25" required>
-                        <div class="unit">M³/Jam</div>
+                        <div class="unit">L/min</div>
                     </div>
                 </div>
 
@@ -573,6 +590,7 @@
                     <option value="">Semua Shift</option>
                     <option value="masuk">Masuk</option>
                     <option value="pulang">Pulang</option>
+                    <option value="custom">Custom</option>
                 </select>
                 <select id="filterNIK">
                     <option value="">Semua Pengguna</option>
@@ -587,6 +605,7 @@
                             <th>Shift</th>
                             <th>Penginput</th>
                             <th>Detail</th>
+                            <th>Share</th>
                         </tr>
                     </thead>
                     <tbody id="reportBody"></tbody>
@@ -597,7 +616,25 @@
 
     <div id="notification" class="notification"></div>
 
-    <script>
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
+            authDomain: "water-checklist.firebaseapp.com",
+            projectId: "water-checklist",
+            storageBucket: "water-checklist.firebasestorage.app",
+            messagingSenderId: "84158811467",
+            appId: "1:84158811467:web:717bd038c3da5362ad2cce"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         // Theme toggle function
         function toggleTheme() {
             const body = document.body;
@@ -623,6 +660,7 @@
             document.body.classList.add(`${savedTheme}-theme`);
             const themeIcon = document.getElementById('themeIcon');
             themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+            listenReports(); // Mulai listener real-time
         });
 
         const users = [
@@ -638,6 +676,7 @@
 
         let currentType = 'masuk';
         let currentNIK = '';
+        let currentUserName = '';
 
         const shifts = [
             { name: 'Shift 1', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
@@ -674,16 +713,34 @@
             const user = users.find(u => u.nik === nikInput);
             if (user) {
                 currentNIK = nikInput;
+                currentUserName = user.name;
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainPage').style.display = 'block';
                 requestNotificationPermission();
                 updateShiftInfo();
+                updateGreeting();
                 checkNotification();
-                loadReports();
                 populateFilters();
+                listenReports();
             } else {
                 showNotification('NIK tidak valid!');
             }
+        }
+
+        function updateGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greetingText = '';
+            if (hour >= 0 && hour < 6) {
+                greetingText = `Selamat Malam, ${currentUserName}!`;
+            } else if (hour >= 6 && hour < 12) {
+                greetingText = `Selamat Pagi, ${currentUserName}!`;
+            } else if (hour >= 12 && hour < 17) {
+                greetingText = `Selamat Siang, ${currentUserName}!`;
+            } else {
+                greetingText = `Selamat Sore, ${currentUserName}!`;
+            }
+            document.getElementById('greeting').textContent = greetingText;
         }
 
         function updateShiftInfo() {
@@ -691,7 +748,7 @@
             const hour = now.getHours();
             let shiftInfo = 'Di luar jam shift';
             shifts.forEach(shift => {
-                if (hour >= shift.start || hour < shift.end) {
+                if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
                     shiftInfo = `${shift.name} (${shift.startInput}-${shift.endOutput})`;
                 }
             });
@@ -703,6 +760,7 @@
             const timeString = now.toLocaleTimeString('id-ID');
             document.getElementById('currentTime').textContent = timeString;
             updateShiftInfo();
+            updateGreeting();
         }
         setInterval(updateTime, 1000);
 
@@ -714,40 +772,44 @@
             checkNotification();
         }
 
-        function saveChecklist() {
+        async function saveChecklist() {
             const now = new Date();
             const hour = now.getHours();
             const minute = now.getMinutes();
             const dateStr = now.toLocaleDateString('id-ID');
 
             let currentShift = null;
-            shifts.forEach(shift => {
-                if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
-                    currentShift = shift;
-                }
-            });
+            if (currentType !== 'custom') {
+                shifts.forEach(shift => {
+                    if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
+                        currentShift = shift;
+                    }
+                });
+            }
 
-            if (!currentShift) {
-                showNotification('Checklist hanya dapat dilakukan selama jam shift!');
+            if (currentType !== 'custom' && !currentShift) {
+                showNotification('Checklist masuk/pulang hanya dapat dilakukan selama jam shift!');
                 return;
             }
 
-            const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
-            const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
-            const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
-            const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
+            if (currentType !== 'custom') {
+                const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
+                const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
+                const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
+                const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
 
-            const isValidMasuk = currentType === 'masuk' &&
-                ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
-                 (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
+                const isValidMasuk = currentType === 'masuk' &&
+                    ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
+                     (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
 
-            const isValidPulang = currentType === 'pulang' &&
-                ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
-                 (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
+                const isValidPulang = currentType === 'pulang' &&
+                    ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
+                     (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
 
-            if (!isValidMasuk && !isValidPulang) {
-                showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}`);
-                return;
+                if (!isValidMasuk && !isValidPulang) {
+                    showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}`);
+                    return;
+                }
             }
 
             const user = users.find(u => u.nik === currentNIK);
@@ -757,73 +819,129 @@
                 date: dateStr,
                 time: now.toLocaleTimeString('id-ID'),
                 shift: currentType,
-                shiftName: currentShift.name,
+                shiftName: currentType === 'custom' ? 'Custom' : currentShift ? currentShift.name : 'Unknown',
                 bakRO: document.getElementById('bakRO').value,
-                tinggiRO: document.getElementById('tinggiRO').value,
+                tinggiRO: parseFloat(document.getElementById('tinggiRO').value),
                 bakWWTP: document.getElementById('bakWWTP').value,
-                tinggiWWTP: document.getElementById('tinggiWWTP').value,
+                tinggiWWTP: parseFloat(document.getElementById('tinggiWWTP').value),
                 pompa: document.getElementById('pompa').value,
-                tinggiPDAM: document.getElementById('tinggiPDAM').value,
+                tinggiPDAM: parseFloat(document.getElementById('tinggiPDAM').value),
                 statusPDAM: document.getElementById('statusPDAM').value,
                 hydrantStatus: document.getElementById('hydrantStatus').value,
                 supplyPDAM: document.getElementById('supplyPDAM').value,
-                meterIndukPDAM: document.getElementById('meterIndukPDAM').value,
-                meterIndukWTP: document.getElementById('meterIndukWTP').value,
-                flowPDAM: document.getElementById('flowPDAM').value,
-                catatan: document.getElementById('catatan').value
+                meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value),
+                meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value),
+                flowPDAM: parseFloat(document.getElementById('flowPDAM').value),
+                catatan: document.getElementById('catatan').value,
+                createdAt: serverTimestamp()
             };
 
             const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
-            const missing = required.filter(field => !data[field]);
+            const missing = required.filter(field => !data[field] && data[field] !== 0);
 
             if (missing.length > 0) {
                 showNotification('Mohon lengkapi semua field yang wajib diisi!');
                 return;
             }
 
-            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
-            checklists.push(data);
-            localStorage.setItem('checklists', JSON.stringify(checklists));
-
-            showNotification('Checklist berhasil disimpan!');
-            document.getElementById('checklistForm').reset();
-            loadReports();
-            checkNotification();
+            try {
+                await addDoc(collection(db, 'checklists'), data);
+                showNotification('Checklist berhasil disimpan!');
+                document.getElementById('checklistForm').reset();
+                checkNotification();
+            } catch (error) {
+                showNotification('Gagal menyimpan checklist: ' + error.message);
+            }
         }
 
-        function loadReports() {
-            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
+        function listenReports() {
             const filterDate = document.getElementById('filterDate').value;
             const filterShift = document.getElementById('filterShift').value;
             const filterNIK = document.getElementById('filterNIK').value;
 
-            const filtered = checklists.filter(c => {
-                return (!filterDate || c.date === filterDate) &&
-                       (!filterShift || c.shift === filterShift) &&
-                       (!filterNIK || c.nik === filterNIK);
-            });
+            let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'));
+            if (filterDate) q = query(q, where('date', '==', filterDate));
+            if (filterShift) q = query(q, where('shift', '==', filterShift));
+            if (filterNIK) q = query(q, where('nik', '==', filterNIK));
 
-            const tbody = document.getElementById('reportBody');
-            tbody.innerHTML = '';
+            onSnapshot(q, (snapshot) => {
+                const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const tbody = document.getElementById('reportBody');
+                tbody.innerHTML = '';
 
-            filtered.forEach(c => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${c.date}</td>
-                    <td>${c.time}</td>
-                    <td>${c.shift.toUpperCase()} (${c.shiftName})</td>
-                    <td>${c.nik} - ${c.name}</td>
-                    <td><button onclick="showDetail(${JSON.stringify(c).replace(/"/g, '&quot;')})">Lihat</button></td>
-                `;
-                tbody.appendChild(row);
+                checklists.forEach(c => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${c.date}</td>
+                        <td>${c.time}</td>
+                        <td>${c.shift.toUpperCase()} ${c.shiftName !== 'Custom' ? '(' + c.shiftName + ')' : ''}</td>
+                        <td>${c.nik} - ${c.name}</td>
+                        <td><button onclick="showDetail(${JSON.stringify(c).replace(/"/g, '&quot;')})">Lihat</button></td>
+                        <td><button class="whatsapp-btn" onclick="shareToWhatsApp(${JSON.stringify(c).replace(/"/g, '&quot;')})"><i class="fab fa-whatsapp"></i> Share</button></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }, (error) => {
+                showNotification('Gagal memuat laporan: ' + error.message);
             });
+        }
+
+        async function populateFilters() {
+            try {
+                const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date')));
+                const checklists = snapshot.docs.map(doc => doc.data());
+                const dates = [...new Set(checklists.map(c => c.date))];
+                const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
+
+                const dateSelect = document.getElementById('filterDate');
+                dateSelect.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+
+                const nikSelect = document.getElementById('filterNIK');
+                nikSelect.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+
+                [dateSelect, document.getElementById('filterShift'), nikSelect].forEach(select => {
+                    select.addEventListener('change', listenReports);
+                });
+            } catch (error) {
+                showNotification('Gagal memuat filter: ' + error.message);
+            }
+        }
+
+        async function checkNotification() {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+            const dateStr = now.toLocaleDateString('id-ID');
+
+            try {
+                const snapshot = await getDocs(query(collection(db, 'checklists'), where('date', '==', dateStr)));
+                const checklists = snapshot.docs.map(doc => doc.data());
+
+                shifts.forEach(shift => {
+                    const [startInputHour, startInputMinute] = shift.startInput.split(':').map(Number);
+                    const [startOutputHour, startOutputMinute] = shift.startOutput.split(':').map(Number);
+
+                    const hasMasuk = checklists.some(c => c.date === dateStr && c.shift === 'masuk' && c.shiftName === shift.name);
+                    const hasPulang = checklists.some(c => c.date === dateStr && c.shift === 'pulang' && c.shiftName === shift.name);
+
+                    if (hour === startInputHour && minute <= startInputMinute + 30 && !hasMasuk) {
+                        showNotification(`Checklist Masuk ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endInput}.`);
+                    } else if (hour === startOutputHour && minute >= startOutputMinute && !hasPulang) {
+                        showNotification(`Checklist Pulang ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endOutput}.`);
+                    } else {
+                        document.getElementById('notification').style.display = 'none';
+                    }
+                });
+            } catch (error) {
+                showNotification('Gagal memeriksa notifikasi: ' + error.message);
+            }
         }
 
         function showDetail(data) {
             const detailText = `
                 Tanggal: ${data.date}
                 Waktu: ${data.time}
-                Shift: ${data.shift.toUpperCase()} (${data.shiftName})
+                Shift: ${data.shift.toUpperCase()} ${data.shiftName !== 'Custom' ? '(' + data.shiftName + ')' : ''}
                 Penginput: ${data.nik} - ${data.name}
 
                 1. Bak Distribusi RO
@@ -852,44 +970,39 @@
             alert(detailText);
         }
 
-        function populateFilters() {
-            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
-            const dates = [...new Set(checklists.map(c => c.date))];
-            const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
+        function shareToWhatsApp(data) {
+            const message = encodeURIComponent(`
+Water System Checklist
+Tanggal: ${data.date}
+Waktu: ${data.time}
+Shift: ${data.shift.toUpperCase()} ${data.shiftName !== 'Custom' ? '(' + data.shiftName + ')' : ''}
+Penginput: ${data.nik} - ${data.name}
 
-            const dateSelect = document.getElementById('filterDate');
-            dateSelect.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+1. Bak Distribusi RO
+   Status: ${data.bakRO}
+   Ketinggian: ${data.tinggiRO} cm
 
-            const nikSelect = document.getElementById('filterNIK');
-            nikSelect.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+2. Bak Input WWTP
+   Status: ${data.bakWWTP}
+   Ketinggian: ${data.tinggiWWTP} cm
 
-            [dateSelect, document.getElementById('filterShift'), nikSelect].forEach(select => {
-                select.addEventListener('change', loadReports);
-            });
-        }
+3. Pompa Transfer
+   Status: ${data.pompa}
 
-        function checkNotification() {
-            const now = new Date();
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-            const dateStr = now.toLocaleDateString('id-ID');
-            const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
+4. Bak Input PDAM
+   Ketinggian: ${data.tinggiPDAM} cm
+   Status: ${data.statusPDAM}
+   Hydrant Status: ${data.hydrantStatus}
 
-            shifts.forEach(shift => {
-                const [startInputHour, startInputMinute] = shift.startInput.split(':').map(Number);
-                const [startOutputHour, startOutputMinute] = shift.startOutput.split(':').map(Number);
+5. Supply Air PDAM
+   Status: ${data.supplyPDAM}
+   Meter Induk PDAM: ${data.meterIndukPDAM}
+   Meter Induk WTP: ${data.meterIndukWTP}
+   Flow Rate: ${data.flowPDAM} L/min
 
-                const hasMasuk = checklists.some(c => c.date === dateStr && c.shift === 'masuk' && c.shiftName === shift.name);
-                const hasPulang = checklists.some(c => c.date === dateStr && c.shift === 'pulang' && c.shiftName === shift.name);
-
-                if (hour === startInputHour && minute <= startInputMinute + 30 && !hasMasuk) {
-                    showNotification(`Checklist Masuk ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endInput}.`);
-                } else if (hour === startOutputHour && minute >= startOutputMinute && !hasPulang) {
-                    showNotification(`Checklist Pulang ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endOutput}.`);
-                } else {
-                    document.getElementById('notification').style.display = 'none';
-                }
-            });
+Catatan: ${data.catatan || '-'}`);
+            const whatsappUrl = `https://wa.me/?text=${message}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         updateTime();
