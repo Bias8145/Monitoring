@@ -406,6 +406,11 @@
             display: none;
             font-size: 14px;
             transform: perspective(1000px) translateZ(10px);
+            z-index: 1000;
+        }
+
+        .notification.success {
+            background: rgba(76, 175, 80, 0.9);
         }
 
         .theme-toggle {
@@ -635,8 +640,15 @@
         };
 
         // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log('Firebase berhasil diinisialisasi');
+        } catch (error) {
+            console.error('Gagal menginisialisasi Firebase:', error);
+            showNotification('Gagal menginisialisasi aplikasi. Silakan coba lagi nanti.');
+        }
 
         // Daftar pengguna
         const users = [
@@ -663,18 +675,22 @@
         ];
 
         // Fungsi untuk menampilkan notifikasi
-        function showNotification(message) {
+        function showNotification(message, isSuccess = false) {
             console.log('Notifikasi:', message);
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${isSuccess ? 'success' : ''}`;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+                notification.className = 'notification';
+            }, 5000);
+
             if (Notification.permission === 'granted') {
                 new Notification('Water System Checklist', {
                     body: message,
                     icon: 'https://via.placeholder.com/64'
                 });
-            } else {
-                const notification = document.getElementById('notification');
-                notification.textContent = message;
-                notification.style.display = 'block';
-                setTimeout(() => notification.style.display = 'none', 5000);
             }
         }
 
@@ -721,6 +737,7 @@
                 console.log('User ditemukan:', user);
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainPage').style.display = 'block';
+                showNotification(`Selamat datang, ${currentUserName}!`, true);
                 requestNotificationPermission();
                 updateShiftInfo();
                 updateGreeting();
@@ -728,7 +745,7 @@
                 populateFilters();
                 listenReports();
             } else {
-                showNotification('NIK tidak valid!');
+                showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
             }
         }
 
@@ -780,11 +797,11 @@
             document.getElementById(`switch${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
             checkNotification();
         }
-
+        
         // Fungsi untuk menyimpan checklist
         async function saveChecklist(event) {
             event.preventDefault();
-            console.log('Menyimpan checklist');
+            console.log('Menyimpan checklist, tipe:', currentType);
             const now = new Date();
             const hour = now.getHours();
             const minute = now.getMinutes();
@@ -819,7 +836,7 @@
                      (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
 
                 if (!isValidMasuk && !isValidPulang) {
-                    showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}`);
+                    showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}. Silakan coba lagi pada waktu yang sesuai.`);
                     return;
                 }
             }
@@ -857,13 +874,14 @@
             }
 
             try {
-                console.log('Menyimpan data:', data);
+                console.log('Menyimpan data ke Firestore:', data);
+                showNotification('Menyimpan checklist...', true);
                 await addDoc(collection(db, 'checklists'), data);
-                showNotification('Checklist berhasil disimpan!');
+                showNotification('Checklist berhasil disimpan!', true);
                 document.getElementById('checklistForm').reset();
                 checkNotification();
             } catch (error) {
-                console.error('Gagal menyimpan:', error);
+                console.error('Gagal menyimpan checklist:', error);
                 showNotification('Gagal menyimpan checklist: ' + error.message);
             }
         }
@@ -880,27 +898,32 @@
             if (filterShift) q = query(q, where('shift', '==', filterShift));
             if (filterNIK) q = query(q, where('nik', '==', filterNIK));
 
-            onSnapshot(q, (snapshot) => {
-                const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const tbody = document.getElementById('reportBody');
-                tbody.innerHTML = '';
+            try {
+                onSnapshot(q, (snapshot) => {
+                    const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    const tbody = document.getElementById('reportBody');
+                    tbody.innerHTML = '';
 
-                checklists.forEach(c => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${c.date}</td>
-                        <td>${c.time}</td>
-                        <td>${c.shift.toUpperCase()} ${c.shiftName !== 'Custom' ? '(' + c.shiftName + ')' : ''}</td>
-                        <td>${c.nik} - ${c.name}</td>
-                        <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
-                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                    `;
-                    tbody.appendChild(row);
+                    checklists.forEach(c => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${c.date}</td>
+                            <td>${c.time}</td>
+                            <td>${c.shift.toUpperCase()} ${c.shiftName !== 'Custom' ? '(' + c.shiftName + ')' : ''}</td>
+                            <td>${c.nik} - ${c.name}</td>
+                            <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
+                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }, (error) => {
+                    console.error('Gagal memuat laporan:', error);
+                    showNotification('Gagal memuat laporan: ' + error.message);
                 });
-            }, (error) => {
-                console.error('Gagal memuat laporan:', error);
-                showNotification('Gagal memuat laporan: ' + error.message);
-            });
+            } catch (error) {
+                console.error('Gagal mengatur listener laporan:', error);
+                showNotification('Gagal mengatur laporan: ' + error.message);
+            }
         }
 
         // Fungsi untuk mengisi filter
@@ -953,7 +976,7 @@
                 showNotification('Gagal memeriksa notifikasi: ' + error.message);
             }
         }
-        
+
         // Fungsi untuk menampilkan detail checklist
         function showDetail(data) {
             console.log('Menampilkan detail:', data);
@@ -1035,23 +1058,56 @@ Catatan: ${data.catatan || '-'}`);
             const themeIcon = document.getElementById('themeIcon');
             themeIcon.classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
 
+            // Debugging: Pastikan elemen ada
+            if (!document.getElementById('loginButton')) {
+                console.error('Elemen loginButton tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Tombol login tidak ditemukan.');
+                return;
+            }
+            if (!document.getElementById('checklistForm')) {
+                console.error('Elemen checklistForm tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Form checklist tidak ditemukan.');
+                return;
+            }
+
             // Event listener untuk tombol login
-            document.getElementById('loginButton').addEventListener('click', login);
+            document.getElementById('loginButton').addEventListener('click', () => {
+                console.log('Tombol login diklik');
+                login();
+            });
 
             // Event listener untuk tombol tema
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                console.log('Tombol tema diklik');
+                toggleTheme();
+            });
 
             // Event listener untuk tombol switch tipe checklist
-            document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
-            document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
-            document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
+            document.getElementById('switchMasuk').addEventListener('click', () => {
+                console.log('Tombol switchMasuk diklik');
+                switchType('masuk');
+            });
+            document.getElementById('switchPulang').addEventListener('click', () => {
+                console.log('Tombol switchPulang diklik');
+                switchType('pulang');
+            });
+            document.getElementById('switchCustom').addEventListener('click', () => {
+                console.log('Tombol switchCustom diklik');
+                switchType('custom');
+            });
 
             // Event listener untuk form checklist
-            document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
+            document.getElementById('checklistForm').addEventListener('submit', (event) => {
+                console.log('Form checklist disubmit');
+                saveChecklist(event);
+            });
 
             // Event listener untuk filter
             ['filterDate', 'filterShift', 'filterNIK'].forEach(id => {
-                document.getElementById(id).addEventListener('change', listenReports);
+                document.getElementById(id).addEventListener('change', () => {
+                    console.log(`Filter ${id} diubah`);
+                    listenReports();
+                });
             });
 
             // Event delegation untuk tombol di tabel
@@ -1059,9 +1115,11 @@ Catatan: ${data.catatan || '-'}`);
                 const detailBtn = e.target.closest('.detail-btn');
                 const whatsappBtn = e.target.closest('.whatsapp-btn');
                 if (detailBtn) {
+                    console.log('Tombol detail diklik');
                     const data = JSON.parse(detailBtn.getAttribute('data-detail'));
                     showDetail(data);
                 } else if (whatsappBtn) {
+                    console.log('Tombol share WhatsApp diklik');
                     const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
                     shareToWhatsApp(data);
                 }
