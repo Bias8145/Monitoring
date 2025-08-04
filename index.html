@@ -30,7 +30,8 @@
         }
 
         body.light-theme .container,
-        body.light-theme .login-card {
+        body.light-theme .login-card,
+        body.light-theme .modal {
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
         }
@@ -85,7 +86,8 @@
         }
 
         body.dark-theme .container,
-        body.dark-theme .login-card {
+        body.dark-theme .login-card,
+        body.dark-theme .modal {
             background: rgba(30, 30, 46, 0.85);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         }
@@ -190,13 +192,6 @@
             position: relative;
             z-index: 2;
             transform: perspective(1000px) translateZ(5px);
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
         }
 
         .form-group select, .form-group input {
@@ -336,6 +331,21 @@
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
         }
 
+        td button.edit-btn {
+            background: #FFC107;
+            color: #333;
+        }
+
+        td button.edit-btn:hover {
+            background: #FFB300;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+        }
+
+        td button.edit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         .filter-group {
             display: flex;
             gap: 10px;
@@ -432,6 +442,64 @@
         .theme-toggle i {
             font-size: 24px;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 20px;
+            border-radius: 12px;
+            z-index: 1000;
+            backdrop-filter: blur(12px);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        .modal-content {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .modal-content ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
     </style>
 </head>
 <body class="dark-theme">
@@ -446,8 +514,7 @@
             <h1>Water System Checklist</h1>
             <div class="subtitle">Secure Login</div>
             <div class="form-group">
-                <label for="nikInput">Masukkan NIK</label>
-                <input type="text" id="nikInput" placeholder="Contoh: CA00006" required>
+                <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00006)" required>
             </div>
             <button class="btn" id="loginButton">Masuk</button>
         </div>
@@ -476,18 +543,16 @@
         <div class="card" id="checklistFormContainer">
             <form id="checklistForm">
                 <div class="form-group">
-                    <label>1. Kondisi Bak Distribusi Air RO</label>
                     <select id="bakRO" required>
-                        <option value="">Pilih status...</option>
+                        <option value="">Pilih Kondisi Bak Distribusi Air RO...</option>
                         <option value="Memadai">Memadai</option>
                         <option value="Tidak Memadai">Tidak Memadai</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Ketinggian Bak RO</label>
                     <div class="input-group">
-                        <input type="number" id="tinggiRO" placeholder="85" required>
+                        <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
                         <div class="unit">cm</div>
                     </div>
                 </div>
@@ -495,18 +560,16 @@
                 <div class="section-divider"></div>
 
                 <div class="form-group">
-                    <label>2. Kondisi Bak Input RO dari WWTP</label>
                     <select id="bakWWTP" required>
-                        <option value="">Pilih status...</option>
+                        <option value="">Pilih Kondisi Bak Input RO dari WWTP...</option>
                         <option value="Memadai">Memadai</option>
                         <option value="Tidak Memadai">Tidak Memadai</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Ketinggian Bak WWTP</label>
                     <div class="input-group">
-                        <input type="number" id="tinggiWWTP" placeholder="45" required>
+                        <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak WWTP (cm)" required>
                         <div class="unit">cm</div>
                     </div>
                 </div>
@@ -514,9 +577,8 @@
                 <div class="section-divider"></div>
 
                 <div class="form-group">
-                    <label>3. Kondisi Pompa Transfer WWTP RO</label>
                     <select id="pompa" required>
-                        <option value="">Pilih status...</option>
+                        <option value="">Pilih Kondisi Pompa Transfer WWTP RO...</option>
                         <option value="ON">ON</option>
                         <option value="OFF">OFF</option>
                     </select>
@@ -525,26 +587,23 @@
                 <div class="section-divider"></div>
 
                 <div class="form-group">
-                    <label>4. Ketinggian Bak Input Air PDAM</label>
                     <div class="input-group">
-                        <input type="number" id="tinggiPDAM" placeholder="92" required>
+                        <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak Input Air PDAM (cm)" required>
                         <div class="unit">cm</div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Status Bak Input PDAM</label>
                     <select id="statusPDAM" required>
-                        <option value="">Pilih status...</option>
+                        <option value="">Pilih Status Bak Input PDAM...</option>
                         <option value="Memadai">Memadai</option>
                         <option value="Tidak Memadai">Tidak Memadai</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Status Hydrant</label>
                     <select id="hydrantStatus" required>
-                        <option value="">Pilih status...</option>
+                        <option value="">Pilih Status Hydrant...</option>
                         <option value="ON">ON</option>
                         <option value="OFF">OFF</option>
                     </select>
@@ -553,35 +612,30 @@
                 <div class="section-divider"></div>
 
                 <div class="form-group">
-                    <label>5. Supply Air PDAM</label>
                     <select id="supplyPDAM" required>
-                        <option value="">Pilih status...</option>
+                        <option value="">Pilih Status Supply Air PDAM...</option>
                         <option value="Menyala">Menyala</option>
                         <option value="Mati">Mati</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Angka Meter Induk PDAM</label>
-                    <input type="number" id="meterIndukPDAM" placeholder="12500" required>
+                    <input type="number" id="meterIndukPDAM" placeholder="Angka Meter Induk PDAM" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Angka Meter Induk WTP</label>
-                    <input type="number" id="meterIndukWTP" placeholder="8900" required>
+                    <input type="number" id="meterIndukWTP" placeholder="Angka Meter Induk WTP" required>
                 </div>
 
                 <div class="form-group">
-                    <label>Flow Rate Input</label>
                     <div class="input-group">
-                        <input type="number" id="flowPDAM" placeholder="25" required>
+                        <input type="number" id="flowPDAM" placeholder="Flow Rate Input (m³)" required>
                         <div class="unit">m³</div>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Catatan Tambahan (Opsional)</label>
-                    <input type="text" id="catatan" placeholder="Catatan khusus atau kondisi tidak normal...">
+                    <input type="text" id="catatan" placeholder="Catatan Tambahan (Opsional)">
                 </div>
 
                 <button type="submit" class="btn" id="saveChecklistButton">Simpan Checklist</button>
@@ -612,8 +666,10 @@
                             <th>Waktu</th>
                             <th>Shift</th>
                             <th>Penginput</th>
+                            <th>Catatan</th>
                             <th>Detail</th>
                             <th>Share</th>
+                            <th>Edit</th>
                         </tr>
                     </thead>
                     <tbody id="reportBody"></tbody>
@@ -622,12 +678,22 @@
         </div>
     </div>
 
+    <!-- Modal untuk Detail Laporan -->
+    <div id="modalOverlay" class="modal-overlay"></div>
+    <div id="detailModal" class="modal">
+        <div class="modal-header">
+            <h2>Detail Checklist</h2>
+            <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div class="modal-content" id="modalContent"></div>
+    </div>
+
     <div id="notification" class="notification"></div>
 
     <script type="module">
         // Import Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -673,7 +739,7 @@
             { name: 'Shift 2', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
             { name: 'Shift 3', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
         ];
-
+        
         // Fungsi untuk menampilkan notifikasi visual
         function showNotification(message, isSuccess = false) {
             console.log('Notifikasi:', message);
@@ -688,7 +754,6 @@
                 }, 5000);
             } else {
                 console.error('Elemen notification tidak ditemukan');
-                alert(message); // Fallback ke alert jika elemen tidak ada
             }
         }
 
@@ -749,12 +814,13 @@
         function updateGreeting() {
             const now = new Date();
             const hour = now.getHours();
+            const minute = now.getMinutes();
             let greetingText = '';
-            if (hour >= 0 && hour < 6) {
+            if ((hour >= 19 && hour <= 23) || (hour >= 0 && hour < 5)) {
                 greetingText = `Selamat Malam, ${currentUserName}!`;
-            } else if (hour >= 6 && hour < 12) {
+            } else if (hour >= 5 && hour < 8) {
                 greetingText = `Selamat Pagi, ${currentUserName}!`;
-            } else if (hour >= 12 && hour < 17) {
+            } else if (hour >= 8 && hour < 17) {
                 greetingText = `Selamat Siang, ${currentUserName}!`;
             } else {
                 greetingText = `Selamat Sore, ${currentUserName}!`;
@@ -811,6 +877,52 @@
             } else {
                 console.error(`Elemen switch${type.charAt(0).toUpperCase() + type.slice(1)} tidak ditemukan`);
             }
+            // Reset form saat mengganti tipe
+            const saveButton = document.getElementById('saveChecklistButton');
+            saveButton.textContent = 'Simpan Checklist';
+            delete saveButton.dataset.editId;
+            document.getElementById('checklistForm').reset();
+        }
+
+        // Fungsi untuk menampilkan form edit
+        function showEditForm(checklist) {
+            if (checklist.nik !== currentNIK) {
+                showNotification('Anda tidak memiliki izin untuk mengedit laporan ini.');
+                return;
+            }
+
+            // Set tipe checklist dan tombol aktif
+            currentType = checklist.shift || 'custom';
+            const buttons = document.querySelectorAll('.switch-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            const switchButton = document.getElementById(`switch${currentType.charAt(0).toUpperCase() + currentType.slice(1)}`);
+            if (switchButton) {
+                switchButton.classList.add('active');
+            }
+
+            // Isi form dengan data laporan
+            const form = document.getElementById('checklistForm');
+            document.getElementById('bakRO').value = checklist.bakRO || '';
+            document.getElementById('tinggiRO').value = checklist.tinggiRO || '';
+            document.getElementById('bakWWTP').value = checklist.bakWWTP || '';
+            document.getElementById('tinggiWWTP').value = checklist.tinggiWWTP || '';
+            document.getElementById('pompa').value = checklist.pompa || '';
+            document.getElementById('tinggiPDAM').value = checklist.tinggiPDAM || '';
+            document.getElementById('statusPDAM').value = checklist.statusPDAM || '';
+            document.getElementById('hydrantStatus').value = checklist.hydrantStatus || '';
+            document.getElementById('supplyPDAM').value = checklist.supplyPDAM || '';
+            document.getElementById('meterIndukPDAM').value = checklist.meterIndukPDAM || '';
+            document.getElementById('meterIndukWTP').value = checklist.meterIndukWTP || '';
+            document.getElementById('flowPDAM').value = checklist.flowPDAM || '';
+            document.getElementById('catatan').value = checklist.catatan || '';
+
+            // Ganti tombol simpan menjadi tombol update
+            const saveButton = document.getElementById('saveChecklistButton');
+            saveButton.textContent = 'Update Checklist';
+            saveButton.dataset.editId = checklist.id;
+
+            // Scroll ke form
+            document.getElementById('checklistFormContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
         // Fungsi untuk menyimpan checklist
@@ -893,19 +1005,30 @@
                 return;
             }
 
+            const saveButton = document.getElementById('saveChecklistButton');
             try {
-                console.log('Menyimpan data ke Firestore:', data);
-                showNotification('Menyimpan checklist...', true);
-                const docRef = await addDoc(collection(db, 'checklists'), data);
-                console.log('Checklist tersimpan dengan ID:', docRef.id);
-                showNotification('Checklist berhasil disimpan!', true);
+                if (saveButton.dataset.editId) {
+                    // Mode update
+                    showNotification('Memperbarui checklist...', true);
+                    await updateDoc(doc(db, 'checklists', saveButton.dataset.editId), data);
+                    showNotification('Checklist berhasil diperbarui!', true);
+                    saveButton.textContent = 'Simpan Checklist';
+                    delete saveButton.dataset.editId;
+                } else {
+                    // Mode simpan baru
+                    console.log('Menyimpan data ke Firestore:', data);
+                    showNotification('Menyimpan checklist...', true);
+                    const docRef = await addDoc(collection(db, 'checklists'), data);
+                    console.log('Checklist tersimpan dengan ID:', docRef.id);
+                    showNotification('Checklist berhasil disimpan!', true);
+                }
                 document.getElementById('checklistForm').reset();
             } catch (error) {
                 console.error('Gagal menyimpan checklist:', error);
                 showNotification(`Gagal menyimpan checklist: ${error.message}`);
             }
         }
-
+        
         // Fungsi untuk memuat laporan secara real-time
         function listenReports() {
             console.log('Memuat laporan');
@@ -927,6 +1050,8 @@
             }
 
             let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'));
+
+            // Terapkan filter jika ada
             if (filterDate.value) {
                 console.log('Filter tanggal aktif:', filterDate.value);
                 q = query(q, where('date', '==', filterDate.value));
@@ -950,7 +1075,7 @@
 
                     if (checklists.length === 0) {
                         console.log('Tidak ada data checklist untuk ditampilkan');
-                        reportBody.innerHTML = '<tr><td colspan="6">Tidak ada data checklist.</td></tr>';
+                        reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data checklist yang sesuai dengan filter.</td></tr>';
                     } else {
                         checklists.forEach(c => {
                             console.log('Merender checklist:', c);
@@ -960,8 +1085,10 @@
                                 <td>${c.time || '-'}</td>
                                 <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
                                 <td>${c.nik || '-'} - ${c.name || '-'}</td>
+                                <td>${c.catatan || '-'}</td>
                                 <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
                                 <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                                <td><button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>Edit</button></td>
                             `;
                             reportBody.appendChild(row);
                         });
@@ -993,10 +1120,10 @@
             }
 
             try {
-                const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date')));
+                const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date', 'desc')));
                 const checklists = snapshot.docs.map(doc => doc.data());
                 console.log('Data untuk filter:', checklists);
-                const dates = [...new Set(checklists.map(c => c.date))];
+                const dates = [...new Set(checklists.map(c => c.date))].sort((a, b) => new Date(b) - new Date(a));
                 const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
 
                 filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
@@ -1007,39 +1134,73 @@
             }
         }
 
-        // Fungsi untuk menampilkan detail checklist
+        // Fungsi untuk menampilkan detail checklist dengan modal
         function showDetail(data) {
             console.log('Menampilkan detail:', data);
-            const detailText = `
-                Tanggal: ${data.date || '-'}
-                Waktu: ${data.time || '-'}
-                Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
-                Penginput: ${data.nik || '-'} - ${data.name || '-'}
+            const modal = document.getElementById('detailModal');
+            const modalContent = document.getElementById('modalContent');
+            const modalOverlay = document.getElementById('modalOverlay');
 
-                1. Bak Distribusi RO
-                   Status: ${data.bakRO || '-'}
-                   Ketinggian: ${data.tinggiRO || 0} cm
+            if (!modal || !modalContent || !modalOverlay) {
+                console.error('Elemen modal tidak ditemukan');
+                showNotification('Gagal menampilkan detail: Elemen modal tidak ditemukan.');
+                return;
+            }
 
-                2. Bak Input WWTP
-                   Status: ${data.bakWWTP || '-'}
-                   Ketinggian: ${data.tinggiWWTP || 0} cm
+            modalContent.innerHTML = `
+                <ul>
+                    <li><strong>Tanggal:</strong> ${data.date || '-'}</li>
+                    <li><strong>Waktu:</strong> ${data.time || '-'}</li>
+                    <li><strong>Shift:</strong> ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}</li>
+                    <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
+                    <li><strong>1. Bak Distribusi RO</strong>
+                        <ul>
+                            <li>Status: ${data.bakRO || '-'}</li>
+                            <li>Ketinggian: ${data.tinggiRO || 0} cm</li>
+                        </ul>
+                    </li>
+                    <li><strong>2. Bak Input WWTP</strong>
+                        <ul>
+                            <li>Status: ${data.bakWWTP || '-'}</li>
+                            <li>Ketinggian: ${data.tinggiWWTP || 0} cm</li>
+                        </ul>
+                    </li>
+                    <li><strong>3. Pompa Transfer</strong>
+                        <ul>
+                            <li>Status: ${data.pompa || '-'}</li>
+                        </ul>
+                    </li>
+                    <li><strong>4. Bak Input PDAM</strong>
+                        <ul>
+                            <li>Ketinggian: ${data.tinggiPDAM || 0} cm</li>
+                            <li>Status: ${data.statusPDAM || '-'}</li>
+                            <li>Hydrant Status: ${data.hydrantStatus || '-'}</li>
+                        </ul>
+                    </li>
+                    <li><strong>5. Supply Air PDAM</strong>
+                        <ul>
+                            <li>Status: ${data.supplyPDAM || '-'}</li>
+                            <li>Meter Induk PDAM: ${data.meterIndukPDAM || 0}</li>
+                            <li>Meter Induk WTP: ${data.meterIndukWTP || 0}</li>
+                            <li>Flow Rate: ${data.flowPDAM || 0} m³</li>
+                        </ul>
+                    </li>
+                    <li><strong>Catatan:</strong> ${data.catatan || '-'}</li>
+                </ul>
+            `;
 
-                3. Pompa Transfer
-                   Status: ${data.pompa || '-'}
+            modal.style.display = 'block';
+            modalOverlay.style.display = 'block';
+        }
 
-                4. Bak Input PDAM
-                   Ketinggian: ${data.tinggiPDAM || 0} cm
-                   Status: ${data.statusPDAM || '-'}
-                   Hydrant Status: ${data.hydrantStatus || '-'}
-
-                5. Supply Air PDAM
-                   Status: ${data.supplyPDAM || '-'}
-                   Meter Induk PDAM: ${data.meterIndukPDAM || 0}
-                   Meter Induk WTP: ${data.meterIndukWTP || 0}
-                   Flow Rate: ${data.flowPDAM || 0} m³
-
-                Catatan: ${data.catatan || '-'}`;
-            alert(detailText);
+        // Fungsi untuk menutup modal
+        function closeModal() {
+            const modal = document.getElementById('detailModal');
+            const modalOverlay = document.getElementById('modalOverlay');
+            if (modal && modalOverlay) {
+                modal.style.display = 'none';
+                modalOverlay.style.display = 'none';
+            }
         }
 
         // Fungsi untuk membagikan ke WhatsApp
@@ -1047,38 +1208,38 @@
             console.log('Membagikan ke WhatsApp:', data);
             const message = encodeURIComponent(`
 Water System Checklist
-Tanggal: ${data.date || '-'}
-Waktu: ${data.time || '-'}
-Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
-Penginput: ${data.nik || '-'} - ${data.name || '-'}
+• Tanggal: ${data.date || '-'}
+• Waktu: ${data.time || '-'}
+• Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
+• Penginput: ${data.nik || '-'} - ${data.name || '-'}
 
 1. Bak Distribusi RO
-   Status: ${data.bakRO || '-'}
-   Ketinggian: ${data.tinggiRO || 0} cm
+   • Status: ${data.bakRO || '-'}
+   • Ketinggian: ${data.tinggiRO || 0} cm
 
 2. Bak Input WWTP
-   Status: ${data.bakWWTP || '-'}
-   Ketinggian: ${data.tinggiWWTP || 0} cm
+   • Status: ${data.bakWWTP || '-'}
+   • Ketinggian: ${data.tinggiWWTP || 0} cm
 
 3. Pompa Transfer
-   Status: ${data.pompa || '-'}
+   • Status: ${data.pompa || '-'}
 
 4. Bak Input PDAM
-   Ketinggian: ${data.tinggiPDAM || 0} cm
-   Status: ${data.statusPDAM || '-'}
-   Hydrant Status: ${data.hydrantStatus || '-'}
+   • Ketinggian: ${data.tinggiPDAM || 0} cm
+   • Status: ${data.statusPDAM || '-'}
+   • Hydrant Status: ${data.hydrantStatus || '-'}
 
 5. Supply Air PDAM
-   Status: ${data.supplyPDAM || '-'}
-   Meter Induk PDAM: ${data.meterIndukPDAM || 0}
-   Meter Induk WTP: ${data.meterIndukWTP || 0}
-   Flow Rate: ${data.flowPDAM || 0} m³
+   • Status: ${data.supplyPDAM || '-'}
+   • Meter Induk PDAM: ${data.meterIndukPDAM || 0}
+   • Meter Induk WTP: ${data.meterIndukWTP || 0}
+   • Flow Rate: ${data.flowPDAM || 0} m³
 
-Catatan: ${data.catatan || '-'}`);
+• Catatan: ${data.catatan || '-'}`);
             const whatsappUrl = `https://wa.me/?text=${message}`;
             window.open(whatsappUrl, '_blank');
         }
-
+        
         // Inisialisasi aplikasi saat DOM dimuat
         document.addEventListener('DOMContentLoaded', () => {
             console.log('DOM dimuat, menginisialisasi aplikasi');
@@ -1104,6 +1265,8 @@ Catatan: ${data.catatan || '-'}`);
             const filterShift = document.getElementById('filterShift');
             const filterNIK = document.getElementById('filterNIK');
             const reportTable = document.getElementById('reportTable');
+            const modalClose = document.getElementById('modalClose');
+            const modalOverlay = document.getElementById('modalOverlay');
 
             if (!loginButton) {
                 console.error('Elemen loginButton tidak ditemukan');
@@ -1133,6 +1296,11 @@ Catatan: ${data.catatan || '-'}`);
             if (!reportTable) {
                 console.error('Elemen reportTable tidak ditemukan');
                 showNotification('Kesalahan inisialisasi: Tabel laporan tidak ditemukan.');
+                return;
+            }
+            if (!modalClose || !modalOverlay) {
+                console.error('Elemen modal tidak ditemukan');
+                showNotification('Kesalahan inisialisasi: Elemen modal tidak ditemukan.');
                 return;
             }
 
@@ -1176,10 +1344,11 @@ Catatan: ${data.catatan || '-'}`);
                 });
             });
 
-            // Event delegation untuk tombol di tabel
+            // Event listener untuk tombol di tabel
             reportTable.addEventListener('click', (e) => {
                 const detailBtn = e.target.closest('.detail-btn');
                 const whatsappBtn = e.target.closest('.whatsapp-btn');
+                const editBtn = e.target.closest('.edit-btn');
                 if (detailBtn) {
                     console.log('Tombol detail diklik');
                     const data = JSON.parse(detailBtn.getAttribute('data-detail'));
@@ -1188,7 +1357,22 @@ Catatan: ${data.catatan || '-'}`);
                     console.log('Tombol share WhatsApp diklik');
                     const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
                     shareToWhatsApp(data);
+                } else if (editBtn) {
+                    console.log('Tombol edit diklik');
+                    const data = JSON.parse(editBtn.getAttribute('data-detail'));
+                    showEditForm(data);
                 }
+            });
+
+            // Event listener untuk menutup modal
+            modalClose.addEventListener('click', () => {
+                console.log('Tombol tutup modal diklik');
+                closeModal();
+            });
+
+            modalOverlay.addEventListener('click', () => {
+                console.log('Overlay modal diklik');
+                closeModal();
             });
 
             // Mulai pembaruan waktu
