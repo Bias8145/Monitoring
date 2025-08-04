@@ -626,8 +626,8 @@
 
     <script type="module">
         // Import Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -674,7 +674,7 @@
             { name: 'Shift 3', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
         ];
 
-        // Fungsi untuk menampilkan notifikasi
+        // Fungsi untuk menampilkan notifikasi visual
         function showNotification(message, isSuccess = false) {
             console.log('Notifikasi:', message);
             const notification = document.getElementById('notification');
@@ -685,13 +685,6 @@
                 notification.style.display = 'none';
                 notification.className = 'notification';
             }, 5000);
-
-            if (Notification.permission === 'granted') {
-                new Notification('Water System Checklist', {
-                    body: message,
-                    icon: 'https://via.placeholder.com/64'
-                });
-            }
         }
 
         // Fungsi untuk mengganti tema
@@ -699,7 +692,9 @@
             console.log('Mengganti tema');
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
-            if (body.classList.contains('dark-theme')) {
+            if (body.classList.contains('dark-theme'))彼此
+
+System: **theme)) {
                 body.classList.remove('dark-theme');
                 body.classList.add('light-theme');
                 themeIcon.classList.remove('fa-sun');
@@ -711,17 +706,6 @@
                 themeIcon.classList.remove('fa-moon');
                 themeIcon.classList.add('fa-sun');
                 localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        // Fungsi untuk meminta izin notifikasi
-        function requestNotificationPermission() {
-            if (Notification.permission !== 'granted') {
-                Notification.requestPermission().then(permission => {
-                    if (permission !== 'granted') {
-                        showNotification('Notifikasi diperlukan untuk pengingat checklist. Silakan izinkan notifikasi di browser Anda.');
-                    }
-                });
             }
         }
 
@@ -738,10 +722,8 @@
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainPage').style.display = 'block';
                 showNotification(`Selamat datang, ${currentUserName}!`, true);
-                requestNotificationPermission();
                 updateShiftInfo();
                 updateGreeting();
-                checkNotification();
                 populateFilters();
                 listenReports();
             } else {
@@ -795,9 +777,8 @@
             const buttons = document.querySelectorAll('.switch-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             document.getElementById(`switch${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
-            checkNotification();
         }
-        
+
         // Fungsi untuk menyimpan checklist
         async function saveChecklist(event) {
             event.preventDefault();
@@ -873,22 +854,31 @@
                 return;
             }
 
+            if (!db) {
+                showNotification('Koneksi ke database gagal. Silakan coba lagi nanti.');
+                return;
+            }
+
             try {
                 console.log('Menyimpan data ke Firestore:', data);
                 showNotification('Menyimpan checklist...', true);
                 await addDoc(collection(db, 'checklists'), data);
                 showNotification('Checklist berhasil disimpan!', true);
                 document.getElementById('checklistForm').reset();
-                checkNotification();
             } catch (error) {
                 console.error('Gagal menyimpan checklist:', error);
-                showNotification('Gagal menyimpan checklist: ' + error.message);
+                showNotification(`Gagal menyimpan checklist: ${error.message}`);
             }
         }
 
         // Fungsi untuk memuat laporan secara real-time
         function listenReports() {
             console.log('Memuat laporan');
+            if (!db) {
+                showNotification('Koneksi ke database gagal. Tidak dapat memuat laporan.');
+                return;
+            }
+
             const filterDate = document.getElementById('filterDate').value;
             const filterShift = document.getElementById('filterShift').value;
             const filterNIK = document.getElementById('filterNIK').value;
@@ -928,6 +918,11 @@
 
         // Fungsi untuk mengisi filter
         async function populateFilters() {
+            if (!db) {
+                showNotification('Koneksi ke database gagal. Tidak dapat memuat filter.');
+                return;
+            }
+
             try {
                 const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date')));
                 const checklists = snapshot.docs.map(doc => doc.data());
@@ -942,38 +937,6 @@
             } catch (error) {
                 console.error('Gagal memuat filter:', error);
                 showNotification('Gagal memuat filter: ' + error.message);
-            }
-        }
-
-        // Fungsi untuk memeriksa notifikasi checklist
-        async function checkNotification() {
-            const now = new Date();
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-            const dateStr = now.toLocaleDateString('id-ID');
-
-            try {
-                const snapshot = await getDocs(query(collection(db, 'checklists'), where('date', '==', dateStr)));
-                const checklists = snapshot.docs.map(doc => doc.data());
-
-                shifts.forEach(shift => {
-                    const [startInputHour, startInputMinute] = shift.startInput.split(':').map(Number);
-                    const [startOutputHour, startOutputMinute] = shift.startOutput.split(':').map(Number);
-
-                    const hasMasuk = checklists.some(c => c.date === dateStr && c.shift === 'masuk' && c.shiftName === shift.name);
-                    const hasPulang = checklists.some(c => c.date === dateStr && c.shift === 'pulang' && c.shiftName === shift.name);
-
-                    if (hour === startInputHour && minute <= startInputMinute + 30 && !hasMasuk) {
-                        showNotification(`Checklist Masuk ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endInput}.`);
-                    } else if (hour === startOutputHour && minute >= startOutputMinute && !hasPulang) {
-                        showNotification(`Checklist Pulang ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endOutput}.`);
-                    } else {
-                        document.getElementById('notification').style.display = 'none';
-                    }
-                });
-            } catch (error) {
-                console.error('Gagal memeriksa notifikasi:', error);
-                showNotification('Gagal memeriksa notifikasi: ' + error.message);
             }
         }
 
@@ -1128,10 +1091,6 @@ Catatan: ${data.catatan || '-'}`);
             // Mulai pembaruan waktu
             updateTime();
             setInterval(updateTime, 1000);
-
-            // Mulai pemeriksaan notifikasi
-            setInterval(checkNotification, 60000);
-            requestNotificationPermission();
         });
     </script>
 </body>
