@@ -288,7 +288,7 @@
         </div>
 
         <div class="card">
-            <div class="shift-info">Shift: <span id="shiftInfo">SHIFT 1 (07:00-15:00)</span> | Waktu: <span id="currentTime">00:00:00</span></div>
+            <div class="shift-info">Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span></div>
         </div>
 
         <div class="card">
@@ -426,7 +426,7 @@
                             <th>Tanggal</th>
                             <th>Waktu</th>
                             <th>Shift</th>
-                            <th>NIK</th>
+                            <th>Penginput</th>
                             <th>Detail</th>
                         </tr>
                     </thead>
@@ -452,6 +452,13 @@
 
         let currentType = 'masuk';
         let currentNIK = '';
+
+        // Define shift schedules
+        const shifts = [
+            { name: 'Shift 1', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
+            { name: 'Shift 2', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
+            { name: 'Shift 3', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
+        ];
 
         // Request notification permission
         function requestNotificationPermission() {
@@ -488,6 +495,7 @@
                 document.getElementById('loginPage').style.display = 'none';
                 document.getElementById('mainPage').style.display = 'block';
                 requestNotificationPermission();
+                updateShiftInfo();
                 checkNotification();
                 loadReports();
                 populateFilters();
@@ -496,11 +504,25 @@
             }
         }
 
+        // Update shift info based on current time
+        function updateShiftInfo() {
+            const now = new Date();
+            const hour = now.getHours();
+            let shiftInfo = 'Di luar jam shift';
+            shifts.forEach(shift => {
+                if (hour >= shift.start || hour < shift.end) {
+                    shiftInfo = `${shift.name} (${shift.startInput}-${shift.endOutput})`;
+                }
+            });
+            document.getElementById('shiftInfo').textContent = shiftInfo;
+        }
+
         // Update time
         function updateTime() {
             const now = new Date();
             const timeString = now.toLocaleTimeString('id-ID');
             document.getElementById('currentTime').textContent = timeString;
+            updateShiftInfo();
         }
         setInterval(updateTime, 1000);
 
@@ -520,21 +542,46 @@
             const minute = now.getMinutes();
             const dateStr = now.toLocaleDateString('id-ID');
 
-            // Validate time window
-            if (currentType === 'masuk' && (hour < 7 || hour > 7 || (hour === 7 && minute > 30))) {
-                alert('Checklist Masuk hanya dapat dilakukan antara 07:00-07:30');
-                return;
-            }
-            if (currentType === 'pulang' && (hour < 15 || hour > 15 || (hour === 15 && minute > 30))) {
-                alert('Checklist Pulang hanya dapat dilakukan antara 15:00-15:30');
+            // Determine current shift
+            let currentShift = null;
+            shifts.forEach(shift => {
+                if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
+                    currentShift = shift;
+                }
+            });
+
+            if (!currentShift) {
+                alert('Checklist hanya dapat dilakukan selama jam shift!');
                 return;
             }
 
+            // Validate time window
+            const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
+            const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
+            const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
+            const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
+
+            const isValidMasuk = currentType === 'masuk' &&
+                ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
+                 (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
+
+            const isValidPulang = currentType === 'pulang' &&
+                ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
+                 (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
+
+            if (!isValidMasuk && !isValidPulang) {
+                alert(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}`);
+                return;
+            }
+
+            const user = users.find(u => u.nik === currentNIK);
             const data = {
                 nik: currentNIK,
+                name: user ? user.name : 'Unknown',
                 date: dateStr,
                 time: now.toLocaleTimeString('id-ID'),
                 shift: currentType,
+                shiftName: currentShift.name,
                 bakRO: document.getElementById('bakRO').value,
                 tinggiRO: document.getElementById('tinggiRO').value,
                 bakWWTP: document.getElementById('bakWWTP').value,
@@ -588,8 +635,8 @@
                 row.innerHTML = `
                     <td>${c.date}</td>
                     <td>${c.time}</td>
-                    <td>${c.shift.toUpperCase()}</td>
-                    <td>${c.nik}</td>
+                    <td>${c.shift.toUpperCase()} (${c.shiftName})</td>
+                    <td>${c.nik} - ${c.name}</td>
                     <td><button onclick="showDetail(${JSON.stringify(c).replace(/"/g, '&quot;')})">Lihat</button></td>
                 `;
                 tbody.appendChild(row);
@@ -601,8 +648,8 @@
             const detailText = `
                 Tanggal: ${data.date}
                 Waktu: ${data.time}
-                Shift: ${data.shift.toUpperCase()}
-                NIK: ${data.nik}
+                Shift: ${data.shift.toUpperCase()} (${data.shiftName})
+                Penginput: ${data.nik} - ${data.name}
 
                 1. Bak Distribusi RO
                    Status: ${data.bakRO}
@@ -654,16 +701,21 @@
             const dateStr = now.toLocaleDateString('id-ID');
             const checklists = JSON.parse(localStorage.getItem('checklists') || '[]');
 
-            const hasMasuk = checklists.some(c => c.date === dateStr && c.shift === 'masuk');
-            const hasPulang = checklists.some(c => c.date === dateStr && c.shift === 'pulang');
+            shifts.forEach(shift => {
+                const [startInputHour, startInputMinute] = shift.startInput.split(':').map(Number);
+                const [startOutputHour, startOutputMinute] = shift.startOutput.split(':').map(Number);
 
-            if (hour === 7 && minute <= 30 && !hasMasuk) {
-                showNotification('Checklist Masuk belum dilakukan! Harap selesaikan sebelum 07:30.');
-            } else if (hour === 15 && minute <= 30 && !hasPulang) {
-                showNotification('Checklist Pulang belum dilakukan! Harap selesaikan sebelum 15:30.');
-            } else {
-                document.getElementById('notification').style.display = 'none';
-            }
+                const hasMasuk = checklists.some(c => c.date === dateStr && c.shift === 'masuk' && c.shiftName === shift.name);
+                const hasPulang = checklists.some(c => c.date === dateStr && c.shift === 'pulang' && c.shiftName === shift.name);
+
+                if (hour === startInputHour && minute <= startInputMinute + 30 && !hasMasuk) {
+                    showNotification(`Checklist Masuk ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endInput}.`);
+                } else if (hour === startOutputHour && minute >= startOutputMinute && !hasPulang) {
+                    showNotification(`Checklist Pulang ${shift.name} belum dilakukan! Harap selesaikan sebelum ${shift.endOutput}.`);
+                } else {
+                    document.getElementById('notification').style.display = 'none';
+                }
+            });
         }
 
         // Initialize
