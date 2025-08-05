@@ -600,11 +600,11 @@
         </div>
         <div class="nav-item" data-page="meterPage">
             <i class="fas fa-tachometer-alt"></i>
-            <span>Check Meter</span>
+            <span>Meter Lapangan</span>
         </div>
         <div class="nav-item" data-page="damagePage">
             <i class="fas fa-exclamation-triangle"></i>
-            <span>Laporan Kerusakan</span>
+            <span>Kerusakan</span>
         </div>
     </nav>
 
@@ -881,10 +881,6 @@
                 <div class="form-group">
                     <textarea id="damageNotes" placeholder="Catatan"></textarea>
                 </div>
-                <div class="form-group">
-                    <input type="file" id="damagePhoto" accept="image/*">
-                    <div id="photoPreview" style="margin-top: 10px;"></div>
-                </div>
                 <button type="submit" class="btn" id="saveDamageButton">Simpan Laporan</button>
             </form>
         </div>
@@ -908,7 +904,6 @@
                             <th>Lokasi</th>
                             <th>Spesifik</th>
                             <th>Catatan</th>
-                            <th>Foto</th>
                             <th>Share</th>
                         </tr>
                     </thead>
@@ -931,421 +926,418 @@
     <div id="notification" class="notification"></div>
 
     <script type="module">
-        // Import Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
+    // Import Firebase SDK (tanpa Firebase Storage)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
-            authDomain: "water-checklist.firebaseapp.com",
-            projectId: "water-checklist",
-            storageBucket: "water-checklist.firebasestorage.app",
-            messagingSenderId: "84158811467",
-            appId: "1:84158811467:web:717bd038c3da5362ad2cce"
-        };
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
+        authDomain: "water-checklist.firebaseapp.com",
+        projectId: "water-checklist",
+        storageBucket: "water-checklist.firebasestorage.app",
+        messagingSenderId: "84158811467",
+        appId: "1:84158811467:web:717bd038c3da5362ad2cce"
+    };
 
-        // Initialize Firebase
-        let db, storage;
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            storage = getStorage(app);
-            console.log('Firebase berhasil diinisialisasi');
-        } catch (error) {
-            console.error('Gagal menginisialisasi Firebase:', error);
-            showNotification('Gagal menginisialisasi aplikasi. Silakan coba lagi nanti.');
+    // Initialize Firebase
+    let db;
+    try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        console.log('Firebase berhasil diinisialisasi');
+    } catch (error) {
+        console.error('Gagal menginisialisasi Firebase:', error);
+        showNotification('Gagal menginisialisasi aplikasi. Silakan coba lagi nanti.');
+    }
+
+    // Daftar pengguna
+    const users = [
+        { nik: 'CA00006', name: 'Muhammad Fahruroji' },
+        { nik: 'CA00159', name: 'Andri Rahmatulloh' },
+        { nik: 'CA00193', name: 'IIP M Ilyas' },
+        { nik: 'CA00198', name: 'Shashi Prasetyo' },
+        { nik: 'CA00210', name: 'Ridwan Fauzi' },
+        { nik: 'CA00383', name: 'Bias Fajar Khaliq' },
+        { nik: 'CA00491', name: 'Torik Hidayat' },
+        { nik: 'CA00508', name: 'Amanda Lutfi' }
+    ];
+
+    // Variabel global
+    let currentType = 'masuk';
+    let currentNIK = '';
+    let currentUserName = '';
+
+    // Definisi shift
+    const shifts = [
+        { name: 'Shift 1', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
+        { name: 'Shift 2', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
+        { name: 'Shift 3', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
+    ];
+
+    // Mapping blok dan lokasi
+    const blockLocations = {
+        'Induk': ['Aquaria', 'Hydran', 'Induk Blok A B C', 'Induk P+D', 'Damkar', 'Blok H', 'Blok E, F, G', 'PDAM', 'PDAM II', 'Hydrant II'],
+        'Blok C': ['Toilet C11', 'Toilet C8', 'Toilet C15', 'Toilet C12', 'Toilet C17', 'Toilet C20', 'Manual 1', 'Manual 2', 'Manual 3', 'Manual 4', 'Manual 5'],
+        'Blok B': ['B1 Stockfit', 'B1.2 Mesin', 'B1.3 Mesin', 'B1.4 Mesin', 'B3 Cooling Tower', 'B3.2 Mesin', 'B3.3 Mesin', 'B6.1 Toilet', 'B6.2 Toilet', 'B7.1 Toilet', 'B7.2 Toilet'],
+        'Blok D': ['D1 Kantin TKA/Dapur', 'D2.1 Mess Bungalow', 'D2.2 Mess Bungalow', 'D2.3 Mess Bungalow', 'D2.6 Mess Bungalow', 'D2.7 Mess Bungalow', 'D2.8 Mess Bungalow', 'D13 Mess Bungalow', 'D3.1 Mess Bungalow', 'D3.2 Mess Bungalow', 'D4.2 Mess Bungalow', 'D5 Mess Bungalow', 'D5 Bungalow'],
+        'Blok P': ['P1.1 Toilet', 'P1.2 Toilet', 'Galon', 'Send', 'Carbon', 'Sumur Bor', 'P2 Aquaria', 'P4 WWTP', 'P7 Toilet', 'P8 Office Pusat', 'P10 Kantin', 'P11.1 Toilet', 'P11.2 Kantin Dapur', 'P16 Masjid', 'P21 Damkar', 'P9', 'P17 Masjid'],
+        'Blok J': ['J1 Mess Bungalow', 'J2 Mess Bungalow'],
+        'Blok A': ['A10 Toilet', 'A17 Toilet', 'A14 Toilet', 'A22 Toilet', 'A19 Toilet', 'A2 Office II', 'A1 Office I', 'A5.2 Sablon', 'A5.1', 'A5 Lab', 'A23 Cooling Tower'],
+        'Blok F': ['F1 Lab', 'F3.1 Toilet', 'F3.2 Toilet', 'F3.3 Toilet', 'F3.4 Toilet', 'G8.1 Toilet', 'G8.2 Toilet'],
+        'Blok G': ['G12 Cooling Tower', 'G14.1 Mesin', 'G14.2 Cooling Tower', 'G15.1 Toilet', 'G15.2 Toilet'],
+        'Blok H': ['H2 Masjid', 'H4 Kantin', 'H5.1 Toilet', 'H5.2 Dapur', 'H5.3 Toilet'],
+        'Blok E': ['E21 Office', 'E22 Office', 'E7.1 Toilet', 'E7.2 Toilet', 'E8.1 Toilet', 'E8.2 Toilet', 'E9.1 Toilet', 'E9.2 Toilet', 'E10.3 Toilet', 'E10.4 Toilet']
+    };
+
+    // Fungsi untuk menampilkan notifikasi
+    function showNotification(message, isSuccess = false) {
+        const notification = document.getElementById('notification');
+        if (notification) {
+            notification.textContent = message;
+            notification.className = `notification ${isSuccess ? 'success' : ''}`;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+                notification.className = 'notification';
+            }, 5000);
+        } else {
+            console.error('Elemen notification tidak ditemukan');
         }
+    }
 
-        // Daftar pengguna
-        const users = [
-            { nik: 'CA00006', name: 'Muhammad Fahruroji' },
-            { nik: 'CA00159', name: 'Andri Rahmatulloh' },
-            { nik: 'CA00193', name: 'IIP M Ilyas' },
-            { nik: 'CA00198', name: 'Shashi Prasetyo' },
-            { nik: 'CA00210', name: 'Ridwan Fauzi' },
-            { nik: 'CA00383', name: 'Bias Fajar Khaliq' },
-            { nik: 'CA00491', name: 'Torik Hidayat' },
-            { nik: 'CA00508', name: 'Amanda Lutfi' }
-        ];
-
-        // Variabel global
-        let currentType = 'masuk';
-        let currentNIK = '';
-        let currentUserName = '';
-
-        // Definisi shift
-        const shifts = [
-            { name: 'Shift 1', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
-            { name: 'Shift 2', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
-            { name: 'Shift 3', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
-        ];
-
-        // Mapping blok dan lokasi
-        const blockLocations = {
-            'Induk': ['Aquaria', 'Hydran', 'Induk Blok A B C', 'Induk P+D', 'Damkar', 'Blok H', 'Blok E, F, G', 'PDAM', 'PDAM II', 'Hydrant II'],
-            'Blok C': ['Toilet C11', 'Toilet C8', 'Toilet C15', 'Toilet C12', 'Toilet C17', 'Toilet C20', 'Manual 1', 'Manual 2', 'Manual 3', 'Manual 4', 'Manual 5'],
-            'Blok B': ['B1 Stockfit', 'B1.2 Mesin', 'B1.3 Mesin', 'B1.4 Mesin', 'B3 Cooling Tower', 'B3.2 Mesin', 'B3.3 Mesin', 'B6.1 Toilet', 'B6.2 Toilet', 'B7.1 Toilet', 'B7.2 Toilet'],
-            'Blok D': ['D1 Kantin TKA/Dapur', 'D2.1 Mess Bungalow', 'D2.2 Mess Bungalow', 'D2.3 Mess Bungalow', 'D2.6 Mess Bungalow', 'D2.7 Mess Bungalow', 'D2.8 Mess Bungalow', 'D13 Mess Bungalow', 'D3.1 Mess Bungalow', 'D3.2 Mess Bungalow', 'D4.2 Mess Bungalow', 'D5 Mess Bungalow', 'D5 Bungalow'],
-            'Blok P': ['P1.1 Toilet', 'P1.2 Toilet', 'Galon', 'Send', 'Carbon', 'Sumur Bor', 'P2 Aquaria', 'P4 WWTP', 'P7 Toilet', 'P8 Office Pusat', 'P10 Kantin', 'P11.1 Toilet', 'P11.2 Kantin Dapur', 'P16 Masjid', 'P21 Damkar', 'P9', 'P17 Masjid'],
-            'Blok J': ['J1 Mess Bungalow', 'J2 Mess Bungalow'],
-            'Blok A': ['A10 Toilet', 'A17 Toilet', 'A14 Toilet', 'A22 Toilet', 'A19 Toilet', 'A2 Office II', 'A1 Office I', 'A5.2 Sablon', 'A5.1', 'A5 Lab', 'A23 Cooling Tower'],
-            'Blok F': ['F1 Lab', 'F3.1 Toilet', 'F3.2 Toilet', 'F3.3 Toilet', 'F3.4 Toilet', 'G8.1 Toilet', 'G8.2 Toilet'],
-            'Blok G': ['G12 Cooling Tower', 'G14.1 Mesin', 'G14.2 Cooling Tower', 'G15.1 Toilet', 'G15.2 Toilet'],
-            'Blok H': ['H2 Masjid', 'H4 Kantin', 'H5.1 Toilet', 'H5.2 Dapur', 'H5.3 Toilet'],
-            'Blok E': ['E21 Office', 'E22 Office', 'E7.1 Toilet', 'E7.2 Toilet', 'E8.1 Toilet', 'E8.2 Toilet', 'E9.1 Toilet', 'E9.2 Toilet', 'E10.3 Toilet', 'E10.4 Toilet']
-        };
-
-        // Fungsi untuk menampilkan notifikasi
-        function showNotification(message, isSuccess = false) {
-            const notification = document.getElementById('notification');
-            if (notification) {
-                notification.textContent = message;
-                notification.className = `notification ${isSuccess ? 'success' : ''}`;
-                notification.style.display = 'block';
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                    notification.className = 'notification';
-                }, 5000);
-            } else {
-                console.error('Elemen notification tidak ditemukan');
-            }
+    // Fungsi untuk mengganti tema
+    function toggleTheme() {
+        const body = document.body;
+        const themeIcon = document.getElementById('themeIcon');
+        if (body.classList.contains('dark-theme')) {
+            body.classList.remove('dark-theme');
+            body.classList.add('light-theme');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+            localStorage.setItem('theme', 'light');
+        } else {
+            body.classList.remove('light-theme');
+            body.classList.add('dark-theme');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+            localStorage.setItem('theme', 'dark');
         }
+    }
 
-        // Fungsi untuk mengganti tema
-        function toggleTheme() {
-            const body = document.body;
-            const themeIcon = document.getElementById('themeIcon');
-            if (body.classList.contains('dark-theme')) {
-                body.classList.remove('dark-theme');
-                body.classList.add('light-theme');
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.classList.remove('light-theme');
-                body.classList.add('dark-theme');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-                localStorage.setItem('theme', 'dark');
-            }
-        }
+    // Fungsi untuk mengganti halaman
+    function switchPage(pageId) {
+        document.querySelectorAll('#mainPage, #meterPage, #damagePage').forEach(page => {
+            page.style.display = 'none';
+        });
+        document.getElementById(pageId).style.display = 'block';
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.page === pageId);
+        });
+    }
 
-        // Fungsi untuk mengganti halaman
-        function switchPage(pageId) {
-            document.querySelectorAll('#mainPage, #meterPage, #damagePage').forEach(page => {
-                page.style.display = 'none';
-            });
-            document.getElementById(pageId).style.display = 'block';
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.page === pageId);
-            });
-        }
-
-        // Fungsi untuk login
-        function login() {
-            const nikInput = document.getElementById('nikInput');
-            const nikValue = nikInput.value.trim().toUpperCase();
-            const user = users.find(u => u.nik === nikValue);
-            if (user) {
-                currentNIK = nikValue;
-                currentUserName = user.name;
-                document.getElementById('loginPage').style.display = 'none';
-                switchPage('mainPage');
-                showNotification(`Selamat datang, ${currentUserName}!`, true);
-                updateShiftInfo();
-                updateGreeting();
-                populateFilters();
-                listenReports();
-                ['meterGreeting', 'damageGreeting'].forEach(id => {
-                    document.getElementById(id).textContent = document.getElementById('greeting').textContent;
-                });
-            } else {
-                showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
-            }
-        }
-
-        // Fungsi untuk memperbarui salam
-        function updateGreeting() {
-            const now = new Date();
-            const hour = now.getHours();
-            let greetingText = '';
-            if ((hour >= 19 && hour <= 23) || (hour >= 0 && hour < 5)) {
-                greetingText = `Selamat Malam, ${currentUserName}!`;
-            } else if (hour >= 5 && hour < 8) {
-                greetingText = `Selamat Pagi, ${currentUserName}!`;
-            } else if (hour >= 8 && hour < 17) {
-                greetingText = `Selamat Siang, ${currentUserName}!`;
-            } else {
-                greetingText = `Selamat Sore, ${currentUserName}!`;
-            }
-            document.getElementById('greeting').textContent = greetingText;
-        }
-
-        // Fungsi untuk memperbarui informasi shift
-        function updateShiftInfo() {
-            const now = new Date();
-            const hour = now.getHours();
-            let shiftInfo = 'Di luar jam shift';
-            shifts.forEach(shift => {
-                if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
-                    shiftInfo = `${shift.name} (${shift.startInput}-${shift.endOutput})`;
-                }
-            });
-            document.getElementById('shiftInfo').textContent = shiftInfo;
-        }
-
-        // Fungsi untuk memperbarui waktu
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+    // Fungsi untuk login
+    function login() {
+        const nikInput = document.getElementById('nikInput');
+        const nikValue = nikInput.value.trim().toUpperCase();
+        const user = users.find(u => u.nik === nikValue);
+        if (user) {
+            currentNIK = nikValue;
+            currentUserName = user.name;
+            document.getElementById('loginPage').style.display = 'none';
+            switchPage('mainPage');
+            showNotification(`Selamat datang, ${currentUserName}!`, true);
             updateShiftInfo();
             updateGreeting();
+            populateFilters();
+            listenReports();
+            ['meterGreeting', 'damageGreeting'].forEach(id => {
+                document.getElementById(id).textContent = document.getElementById('greeting').textContent;
+            });
+        } else {
+            showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
         }
+    }
 
-        // Fungsi untuk mengganti tipe checklist
-        function switchType(type) {
-            currentType = type;
-            document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`switch${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
-            const saveButton = document.getElementById('saveChecklistButton');
-            saveButton.textContent = 'Simpan Checklist';
-            delete saveButton.dataset.editId;
-            document.getElementById('checklistForm').reset();
+    // Fungsi untuk memperbarui salam
+    function updateGreeting() {
+        const now = new Date();
+        const hour = now.getHours();
+        let greetingText = '';
+        if ((hour >= 19 && hour <= 23) || (hour >= 0 && hour < 5)) {
+            greetingText = `Selamat Malam, ${currentUserName}!`;
+        } else if (hour >= 5 && hour < 8) {
+            greetingText = `Selamat Pagi, ${currentUserName}!`;
+        } else if (hour >= 8 && hour < 17) {
+            greetingText = `Selamat Siang, ${currentUserName}!`;
+        } else {
+            greetingText = `Selamat Sore, ${currentUserName}!`;
         }
+        document.getElementById('greeting').textContent = greetingText;
+    }
 
-        // Fungsi untuk menampilkan form edit checklist
-        function showEditForm(checklist) {
-            if (checklist.nik !== currentNIK) {
-                showNotification('Anda tidak memiliki izin untuk mengedit laporan ini.');
-                return;
+    // Fungsi untuk memperbarui informasi shift
+    function updateShiftInfo() {
+        const now = new Date();
+        const hour = now.getHours();
+        let shiftInfo = 'Di luar jam shift';
+        shifts.forEach(shift => {
+            if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
+                shiftInfo = `${shift.name} (${shift.startInput}-${shift.endOutput})`;
             }
-            currentType = checklist.shift || 'custom';
-            document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`switch${currentType.charAt(0).toUpperCase() + currentType.slice(1)}`).classList.add('active');
-            document.getElementById('bakRO').value = checklist.bakRO || '';
-            document.getElementById('tinggiRO').value = checklist.tinggiRO || '';
-            document.getElementById('bakWWTP').value = checklist.bakWWTP || '';
-            document.getElementById('tinggiWWTP').value = checklist.tinggiWWTP || '';
-            document.getElementById('pompa').value = checklist.pompa || '';
-            document.getElementById('tinggiPDAM').value = checklist.tinggiPDAM || '';
-            document.getElementById('statusPDAM').value = checklist.statusPDAM || '';
-            document.getElementById('hydrantStatus').value = checklist.hydrantStatus || '';
-            document.getElementById('supplyPDAM').value = checklist.supplyPDAM || '';
-            document.getElementById('meterIndukPDAM').value = checklist.meterIndukPDAM || '';
-            document.getElementById('meterIndukWTP').value = checklist.meterIndukWTP || '';
-            document.getElementById('flowPDAM').value = checklist.flowPDAM || '';
-            document.getElementById('catatan').value = checklist.catatan || '';
-            const saveButton = document.getElementById('saveChecklistButton');
-            saveButton.textContent = 'Update Checklist';
-            saveButton.dataset.editId = checklist.id;
-            document.getElementById('checklistFormContainer').scrollIntoView({ behavior: 'smooth' });
+        });
+        document.getElementById('shiftInfo').textContent = shiftInfo;
+    }
+
+    // Fungsi untuk memperbarui waktu
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+        updateShiftInfo();
+        updateGreeting();
+    }
+
+    // Fungsi untuk mengganti tipe checklist
+    function switchType(type) {
+        currentType = type;
+        document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`switch${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
+        const saveButton = document.getElementById('saveChecklistButton');
+        saveButton.textContent = 'Simpan Checklist';
+        delete saveButton.dataset.editId;
+        document.getElementById('checklistForm').reset();
+    }
+
+    // Fungsi untuk menampilkan form edit checklist
+    function showEditForm(checklist) {
+        if (checklist.nik !== currentNIK) {
+            showNotification('Anda tidak memiliki izin untuk mengedit laporan ini.');
+            return;
         }
+        currentType = checklist.shift || 'custom';
+        document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`switch${currentType.charAt(0).toUpperCase() + currentType.slice(1)}`).classList.add('active');
+        document.getElementById('bakRO').value = checklist.bakRO || '';
+        document.getElementById('tinggiRO').value = checklist.tinggiRO || '';
+        document.getElementById('bakWWTP').value = checklist.bakWWTP || '';
+        document.getElementById('tinggiWWTP').value = checklist.tinggiWWTP || '';
+        document.getElementById('pompa').value = checklist.pompa || '';
+        document.getElementById('tinggiPDAM').value = checklist.tinggiPDAM || '';
+        document.getElementById('statusPDAM').value = checklist.statusPDAM || '';
+        document.getElementById('hydrantStatus').value = checklist.hydrantStatus || '';
+        document.getElementById('supplyPDAM').value = checklist.supplyPDAM || '';
+        document.getElementById('meterIndukPDAM').value = checklist.meterIndukPDAM || '';
+        document.getElementById('meterIndukWTP').value = checklist.meterIndukWTP || '';
+        document.getElementById('flowPDAM').value = checklist.flowPDAM || '';
+        document.getElementById('catatan').value = checklist.catatan || '';
+        const saveButton = document.getElementById('saveChecklistButton');
+        saveButton.textContent = 'Update Checklist';
+        saveButton.dataset.editId = checklist.id;
+        document.getElementById('checklistFormContainer').scrollIntoView({ behavior: 'smooth' });
+    }
 
-        // Fungsi untuk menyimpan checklist
-        async function saveChecklist(event) {
-            event.preventDefault();
-            const now = new Date();
-            const hour = now.getHours();
-            const minute = now.getMinutes();
-            const dateStr = now.toLocaleDateString('id-ID');
-            let currentShift = null;
-            if (currentType !== 'custom') {
-                shifts.forEach(shift => {
-                    if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
-                        currentShift = shift;
-                    }
-                });
-            }
-
-            if (currentType !== 'custom' && !currentShift) {
-                showNotification('Checklist masuk/pulang hanya dapat dilakukan selama jam shift!');
-                return;
-            }
-
-            if (currentType !== 'custom') {
-                const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
-                const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
-                const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
-                const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
-
-                const isValidMasuk = currentType === 'masuk' &&
-                    ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
-                     (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
-
-                const isValidPulang = currentType === 'pulang' &&
-                    ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
-                     (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
-
-                if (!isValidMasuk && !isValidPulang) {
-                    showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}. Silakan coba lagi pada waktu yang sesuai.`);
-                    return;
+    // Fungsi untuk menyimpan checklist
+    async function saveChecklist(event) {
+        event.preventDefault();
+        const now = new Date();
+        const hour = now.getHours();
+        const minute = now.getMinutes();
+        const dateStr = now.toLocaleDateString('id-ID');
+        let currentShift = null;
+        if (currentType !== 'custom') {
+            shifts.forEach(shift => {
+                if (hour >= shift.start || (shift.start > shift.end && hour < shift.end)) {
+                    currentShift = shift;
                 }
-            }
-
-            const user = users.find(u => u.nik === currentNIK);
-            const data = {
-                nik: currentNIK,
-                name: user ? user.name : 'Unknown',
-                date: dateStr,
-                time: now.toLocaleTimeString('id-ID'),
-                shift: currentType,
-                shiftName: currentType === 'custom' ? 'Custom' : currentShift ? currentShift.name : 'Unknown',
-                bakRO: document.getElementById('bakRO').value,
-                tinggiRO: parseFloat(document.getElementById('tinggiRO').value) || 0,
-                bakWWTP: document.getElementById('bakWWTP').value,
-                tinggiWWTP: parseFloat(document.getElementById('tinggiWWTP').value) || 0,
-                pompa: document.getElementById('pompa').value,
-                tinggiPDAM: parseFloat(document.getElementById('tinggiPDAM').value) || 0,
-                statusPDAM: document.getElementById('statusPDAM').value,
-                hydrantStatus: document.getElementById('hydrantStatus').value,
-                supplyPDAM: document.getElementById('supplyPDAM').value,
-                meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value) || 0,
-                meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value) || 0,
-                flowPDAM: parseFloat(document.getElementById('flowPDAM').value) || 0,
-                catatan: document.getElementById('catatan').value || '',
-                createdAt: serverTimestamp()
-            };
-
-            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
-            const missing = required.filter(field => !data[field] && data[field] !== 0);
-
-            if (missing.length > 0) {
-                showNotification('Mohon lengkapi semua field yang wajib diisi!');
-                return;
-            }
-
-            try {
-                const saveButton = document.getElementById('saveChecklistButton');
-                if (saveButton.dataset.editId) {
-                    await updateDoc(doc(db, 'checklists', saveButton.dataset.editId), data);
-                    showNotification('Checklist berhasil diperbarui!', true);
-                    saveButton.textContent = 'Simpan Checklist';
-                    delete saveButton.dataset.editId;
-                } else {
-                    await addDoc(collection(db, 'checklists'), data);
-                    showNotification('Checklist berhasil disimpan!', true);
-                }
-                document.getElementById('checklistForm').reset();
-            } catch (error) {
-                console.error('Gagal menyimpan checklist:', error);
-                showNotification(`Gagal menyimpan checklist: ${error.message}`);
-            }
-        }
-
-        // Fungsi untuk memuat laporan checklist
-        function listenReports() {
-            const filterDate = document.getElementById('filterDate');
-            const filterShift = document.getElementById('filterShift');
-            const filterNIK = document.getElementById('filterNIK');
-            const reportBody = document.getElementById('reportBody');
-            
-            let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'));
-
-            // Apply filters dynamically
-            if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
-            if (filterShift.value) q = query(q, where('shift', '==', filterShift.value));
-            if (filterNIK.value) q = query(q, where('nik', '==', filterNIK.value));
-
-            onSnapshot(q, (snapshot) => {
-                reportBody.innerHTML = '';
-                const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (checklists.length === 0) {
-                    reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data checklist.</td></tr>';
-                } else {
-                    checklists.forEach(c => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${c.date || '-'}</td>
-                            <td>${c.time || '-'}</td>
-                            <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
-                            <td>${c.nik || '-'} - ${c.name || '-'}</td>
-                            <td>${c.catatan || '-'}</td>
-                            <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                            <td><button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>Edit</button></td>
-                        `;
-                        reportBody.appendChild(row);
-                    });
-                }
-            }, (error) => {
-                console.error('Error fetching checklists:', error);
-                showNotification('Gagal memuat laporan checklist.');
             });
         }
 
-        // Fungsi untuk mengisi filter checklist
-        async function populateFilters() {
-            const filterDate = document.getElementById('filterDate');
-            const filterNIK = document.getElementById('filterNIK');
-            const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date', 'desc')));
-            const checklists = snapshot.docs.map(doc => doc.data());
-            const dates = [...new Set(checklists.map(c => c.date))].sort((a, b) => new Date(b) - new Date(a));
-            const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
-            filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
-            filterNIK.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+        if (currentType !== 'custom' && !currentShift) {
+            showNotification('Checklist masuk/pulang hanya dapat dilakukan selama jam shift!');
+            return;
         }
 
-        // Fungsi untuk menampilkan detail checklist
-        function showDetail(data) {
-            const modal = document.getElementById('detailModal');
-            const modalContent = document.getElementById('modalContent');
-            const modalOverlay = document.getElementById('modalOverlay');
-            modalContent.innerHTML = `
-                <ul>
-                    <li><strong>Tanggal:</strong> ${data.date || '-'}</li>
-                    <li><strong>Waktu:</strong> ${data.time || '-'}</li>
-                    <li><strong>Shift:</strong> ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}</li>
-                    <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
-                    <li><strong>1. Bak Distribusi RO</strong>
-                        <ul>
-                            <li>Status: ${data.bakRO || '-'}</li>
-                            <li>Ketinggian: ${data.tinggiRO || 0} cm</li>
-                        </ul>
-                    </li>
-                    <li><strong>2. Bak Input WWTP</strong>
-                        <ul>
-                            <li>Status: ${data.bakWWTP || '-'}</li>
-                            <li>Ketinggian: ${data.tinggiWWTP || 0} cm</li>
-                        </ul>
-                    </li>
-                    <li><strong>3. Pompa Transfer</strong>
-                        <ul>
-                            <li>Status: ${data.pompa || '-'}</li>
-                        </ul>
-                    </li>
-                    <li><strong>4. Bak Input PDAM</strong>
-                        <ul>
-                            <li>Ketinggian: ${data.tinggiPDAM || 0} cm</li>
-                            <li>Status: ${data.statusPDAM || '-'}</li>
-                            <li>Hydrant Status: ${data.hydrantStatus || '-'}</li>
-                        </ul>
-                    </li>
-                    <li><strong>5. Supply Air PDAM</strong>
-                        <ul>
-                            <li>Status: ${data.supplyPDAM || '-'}</li>
-                            <li>Meter Induk PDAM: ${data.meterIndukPDAM || 0}</li>
-                            <li>Meter Induk WTP: ${data.meterIndukWTP || 0}</li>
-                            <li>Flow Rate: ${data.flowPDAM || 0} m³</li>
-                        </ul>
-                    </li>
-                    <li><strong>Catatan:</strong> ${data.catatan || '-'}</li>
-                </ul>
-            `;
-            modal.style.display = 'block';
-            modalOverlay.style.display = 'block';
+        if (currentType !== 'custom') {
+            const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
+            const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
+            const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
+            const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
+
+            const isValidMasuk = currentType === 'masuk' &&
+                ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
+                 (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
+
+            const isValidPulang = currentType === 'pulang' &&
+                ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
+                 (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
+
+            if (!isValidMasuk && !isValidPulang) {
+                showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}. Silakan coba lagi pada waktu yang sesuai.`);
+                return;
+            }
         }
 
-        // Fungsi untuk menutup modal
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
-            document.getElementById('modalOverlay').style.display = 'none';
+        const user = users.find(u => u.nik === currentNIK);
+        const data = {
+            nik: currentNIK,
+            name: user ? user.name : 'Unknown',
+            date: dateStr,
+            time: now.toLocaleTimeString('id-ID'),
+            shift: currentType,
+            shiftName: currentType === 'custom' ? 'Custom' : currentShift ? currentShift.name : 'Unknown',
+            bakRO: document.getElementById('bakRO').value,
+            tinggiRO: parseFloat(document.getElementById('tinggiRO').value) || 0,
+            bakWWTP: document.getElementById('bakWWTP').value,
+            tinggiWWTP: parseFloat(document.getElementById('tinggiWWTP').value) || 0,
+            pompa: document.getElementById('pompa').value,
+            tinggiPDAM: parseFloat(document.getElementById('tinggiPDAM').value) || 0,
+            statusPDAM: document.getElementById('statusPDAM').value,
+            hydrantStatus: document.getElementById('hydrantStatus').value,
+            supplyPDAM: document.getElementById('supplyPDAM').value,
+            meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value) || 0,
+            meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value) || 0,
+            flowPDAM: parseFloat(document.getElementById('flowPDAM').value) || 0,
+            catatan: document.getElementById('catatan').value || '',
+            createdAt: serverTimestamp()
+        };
+
+        const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
+        const missing = required.filter(field => !data[field] && data[field] !== 0);
+
+        if (missing.length > 0) {
+            showNotification('Mohon lengkapi semua field yang wajib diisi!');
+            return;
         }
 
-        // Fungsi untuk share checklist ke WhatsApp
-        function shareChecklist(data) {
-            const message = encodeURIComponent(`
+        try {
+            const saveButton = document.getElementById('saveChecklistButton');
+            if (saveButton.dataset.editId) {
+                await updateDoc(doc(db, 'checklists', saveButton.dataset.editId), data);
+                showNotification('Checklist berhasil diperbarui!', true);
+                saveButton.textContent = 'Simpan Checklist';
+                delete saveButton.dataset.editId;
+            } else {
+                await addDoc(collection(db, 'checklists'), data);
+                showNotification('Checklist berhasil disimpan!', true);
+            }
+            document.getElementById('checklistForm').reset();
+        } catch (error) {
+            console.error('Gagal menyimpan checklist:', error);
+            showNotification(`Gagal menyimpan checklist: ${error.message}`);
+        }
+    }
+
+    // Fungsi untuk memuat laporan checklist
+    function listenReports() {
+        const filterDate = document.getElementById('filterDate');
+        const filterShift = document.getElementById('filterShift');
+        const filterNIK = document.getElementById('filterNIK');
+        const reportBody = document.getElementById('reportBody');
+        
+        let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'));
+
+        if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
+        if (filterShift.value) q = query(q, where('shift', '==', filterShift.value));
+        if (filterNIK.value) q = query(q, where('nik', '==', filterNIK.value));
+
+        onSnapshot(q, (snapshot) => {
+            reportBody.innerHTML = '';
+            const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (checklists.length === 0) {
+                reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data checklist.</td></tr>';
+            } else {
+                checklists.forEach(c => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${c.date || '-'}</td>
+                        <td>${c.time || '-'}</td>
+                        <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
+                        <td>${c.nik || '-'} - ${c.name || '-'}</td>
+                        <td>${c.catatan || '-'}</td>
+                        <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
+                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                        <td><button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>Edit</button></td>
+                    `;
+                    reportBody.appendChild(row);
+                });
+            }
+        }, (error) => {
+            console.error('Error fetching checklists:', error);
+            showNotification('Gagal memuat laporan checklist.');
+        });
+    }
+
+    // Fungsi untuk mengisi filter checklist
+    async function populateFilters() {
+        const filterDate = document.getElementById('filterDate');
+        const filterNIK = document.getElementById('filterNIK');
+        const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date', 'desc')));
+        const checklists = snapshot.docs.map(doc => doc.data());
+        const dates = [...new Set(checklists.map(c => c.date))].sort((a, b) => new Date(b) - new Date(a));
+        const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
+        filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+        filterNIK.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+    }
+
+    // Fungsi untuk menampilkan detail checklist
+    function showDetail(data) {
+        const modal = document.getElementById('detailModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalOverlay = document.getElementById('modalOverlay');
+        modalContent.innerHTML = `
+            <ul>
+                <li><strong>Tanggal:</strong> ${data.date || '-'}</li>
+                <li><strong>Waktu:</strong> ${data.time || '-'}</li>
+                <li><strong>Shift:</strong> ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}</li>
+                <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
+                <li><strong>1. Bak Distribusi RO</strong>
+                    <ul>
+                        <li>Status: ${data.bakRO || '-'}</li>
+                        <li>Ketinggian: ${data.tinggiRO || 0} cm</li>
+                    </ul>
+                </li>
+                <li><strong>2. Bak Input WWTP</strong>
+                    <ul>
+                        <li>Status: ${data.bakWWTP || '-'}</li>
+                        <li>Ketinggian: ${data.tinggiWWTP || 0} cm</li>
+                    </ul>
+                </li>
+                <li><strong>3. Pompa Transfer</strong>
+                    <ul>
+                        <li>Status: ${data.pompa || '-'}</li>
+                    </ul>
+                </li>
+                <li><strong>4. Bak Input PDAM</strong>
+                    <ul>
+                        <li>Ketinggian: ${data.tinggiPDAM || 0} cm</li>
+                        <li>Status: ${data.statusPDAM || '-'}</li>
+                        <li>Hydrant Status: ${data.hydrantStatus || '-'}</li>
+                    </ul>
+                </li>
+                <li><strong>5. Supply Air PDAM</strong>
+                    <ul>
+                        <li>Status: ${data.supplyPDAM || '-'}</li>
+                        <li>Meter Induk PDAM: ${data.meterIndukPDAM || 0}</li>
+                        <li>Meter Induk WTP: ${data.meterIndukWTP || 0}</li>
+                        <li>Flow Rate: ${data.flowPDAM || 0} m³</li>
+                    </ul>
+                </li>
+                <li><strong>Catatan:</strong> ${data.catatan || '-'}</li>
+            </ul>
+        `;
+        modal.style.display = 'block';
+        modalOverlay.style.display = 'block';
+    }
+
+    // Fungsi untuk menutup modal
+    function closeModal() {
+        document.getElementById('detailModal').style.display = 'none';
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    // Fungsi untuk share checklist ke WhatsApp
+    function shareChecklist(data) {
+        const message = encodeURIComponent(`
 Checklist Sistem Air
 • Tanggal: ${data.date || '-'}
 • Waktu: ${data.time || '-'}
@@ -1375,32 +1367,34 @@ Checklist Sistem Air
    • Flow Rate: ${data.flowPDAM || 0} m³
 
 • Catatan: ${data.catatan || '-'}`);
-            window.open(`https://wa.me/?text=${message}`, '_blank');
-        }
+        window.open(`https://wa.me/?text=${message}`, '_blank');
+    }
 
-        // Fungsi untuk mengisi filter blok meter
-        function populateMeterBlockFilter() {
-            const meterFilterBlock = document.getElementById('meterFilterBlock');
-            meterFilterBlock.innerHTML = '<option value="">Semua Blok</option>' +
-                Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
-        }
+    // Fungsi untuk mengisi filter blok meter
+    function populateMeterBlockFilter() {
+        const meterFilterBlock = document.getElementById('meterFilterBlock');
+        meterFilterBlock.innerHTML = '<option value="">Semua Blok</option>' +
+            Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
+    }
 
-        // Fungsi untuk mengisi lokasi meter berdasarkan blok
-        function populateMeterLocations() {
-            const blockSelect = document.getElementById('meterBlock');
-            const locationSelect = document.getElementById('meterLocation');
-            const selectedBlock = blockSelect.value;
-            locationSelect.innerHTML = '<option value="">Pilih Lokasi...</option>';
-            if (selectedBlock && blockLocations[selectedBlock]) {
-                locationSelect.innerHTML += blockLocations[selectedBlock].map(loc => `<option value="${loc}">${loc}</option>`).join('');
-            }
+    // Fungsi untuk mengisi lokasi meter berdasarkan blok
+    function populateMeterLocations() {
+        const blockSelect = document.getElementById('meterBlock');
+        const locationSelect = document.getElementById('meterLocation');
+        const selectedBlock = blockSelect.value;
+        locationSelect.innerHTML = '<option value="">Pilih Lokasi...</option>';
+        if (selectedBlock && blockLocations[selectedBlock]) {
+            locationSelect.innerHTML += blockLocations[selectedBlock].map(loc => `<option value="${loc}">${loc}</option>`).join('');
         }
+    }
 
-        // Fungsi untuk mendapatkan angka meter sebelumnya
-        async function getPreviousMeterReading(block, location, currentDate) {
+    // Fungsi untuk mendapatkan angka meter sebelumnya
+    async function getPreviousMeterReading(block, location, currentDate) {
+        try {
             const previousDay = new Date(currentDate);
             previousDay.setDate(currentDate.getDate() - 1);
             const previousDateStr = previousDay.toLocaleDateString('id-ID');
+            console.log(`Mencari data sebelumnya: Blok=${block}, Lokasi=${location}, Tanggal=${previousDateStr}`);
             const q = query(
                 collection(db, 'meters'),
                 where('block', '==', block),
@@ -1409,39 +1403,74 @@ Checklist Sistem Air
                 orderBy('createdAt', 'desc')
             );
             const snapshot = await getDocs(q);
-            return snapshot.empty ? null : snapshot.docs[0].data().meterReading;
-        }
-
-        // Fungsi untuk menampilkan penggunaan aktual
-        async function updateActualUsage() {
-            const block = document.getElementById('meterBlock').value;
-            const location = document.getElementById('meterLocation').value;
-            const meterReadingInput = document.getElementById('meterReading');
-            const actualUsageDisplay = document.getElementById('actualUsage');
-            if (!block || !location || !meterReadingInput.value) {
-                actualUsageDisplay.textContent = '';
-                return;
-            }
-            const currentReading = parseFloat(meterReadingInput.value) || 0;
-            const previousReading = await getPreviousMeterReading(block, location, new Date());
-            if (previousReading !== null) {
-                const actualUsage = currentReading - previousReading;
-                actualUsageDisplay.textContent = `Penggunaan Aktual: ${actualUsage.toFixed(2)} m³`;
-                actualUsageDisplay.style.color = actualUsage < 0 ? '#F44336' : '#4CAF50';
+            if (!snapshot.empty) {
+                const data = snapshot.docs[0].data();
+                console.log('Data sebelumnya ditemukan:', data);
+                return data.meterReading;
             } else {
-                actualUsageDisplay.textContent = 'Tidak ada data sebelumnya';
+                console.log('Tidak ada data sebelumnya ditemukan');
+                return null;
             }
+        } catch (error) {
+            console.error('Gagal mengambil data meter sebelumnya:', error);
+            return null;
+        }
+    }
+
+    // Fungsi untuk menampilkan penggunaan aktual
+    async function updateActualUsage() {
+        const block = document.getElementById('meterBlock').value;
+        const location = document.getElementById('meterLocation').value;
+        const meterReadingInput = document.getElementById('meterReading');
+        const actualUsageDisplay = document.getElementById('actualUsage');
+        if (!block || !location || !meterReadingInput.value) {
+            actualUsageDisplay.textContent = '';
+            return;
+        }
+        const currentReading = parseFloat(meterReadingInput.value) || 0;
+        const previousReading = await getPreviousMeterReading(block, location, new Date());
+        if (previousReading !== null) {
+            const actualUsage = currentReading - previousReading;
+            actualUsageDisplay.textContent = `Penggunaan Aktual: ${actualUsage.toFixed(2)} m³`;
+            actualUsageDisplay.style.color = actualUsage < 0 ? '#F44336' : '#4CAF50';
+        } else {
+            actualUsageDisplay.textContent = 'Tidak ada data sebelumnya';
+        }
+    }
+
+    // Fungsi untuk menyimpan data meter
+    async function saveMeter(event) {
+        event.preventDefault();
+        const saveButton = document.getElementById('saveMeterButton');
+        saveButton.disabled = true;
+        saveButton.textContent = 'Menyimpan...';
+
+        const now = new Date();
+        const block = document.getElementById('meterBlock').value;
+        const location = document.getElementById('meterLocation').value;
+        const currentReading = parseFloat(document.getElementById('meterReading').value) || 0;
+        const notes = document.getElementById('meterNotes').value || '';
+
+        console.log('Menyimpan data meter:', { block, location, currentReading, notes });
+
+        // Validasi input
+        if (!block || !location || isNaN(currentReading)) {
+            showNotification('Mohon lengkapi semua field yang wajib diisi!');
+            saveButton.disabled = false;
+            saveButton.textContent = 'Simpan Meter';
+            return;
         }
 
-        // Fungsi untuk menyimpan data meter
-        async function saveMeter(event) {
-            event.preventDefault();
-            const now = new Date();
-            const block = document.getElementById('meterBlock').value;
-            const location = document.getElementById('meterLocation').value;
-            const currentReading = parseFloat(document.getElementById('meterReading').value) || 0;
+        try {
             const previousReading = await getPreviousMeterReading(block, location, now);
             const actualUsage = previousReading !== null ? currentReading - previousReading : null;
+
+            if (actualUsage !== null && actualUsage < 0) {
+                showNotification('Angka meter tidak valid: lebih kecil dari pembacaan sebelumnya!');
+                saveButton.disabled = false;
+                saveButton.textContent = 'Simpan Meter';
+                return;
+            }
 
             const data = {
                 nik: currentNIK,
@@ -1452,217 +1481,192 @@ Checklist Sistem Air
                 location,
                 meterReading: currentReading,
                 actualUsage: actualUsage !== null ? actualUsage : 0,
-                notes: document.getElementById('meterNotes').value || '',
+                notes,
                 createdAt: serverTimestamp()
             };
 
-            const required = ['block', 'location', 'meterReading'];
-            const missing = required.filter(field => !data[field] && data[field] !== 0);
-            if (missing.length > 0) {
-                showNotification('Mohon lengkapi semua field yang wajib diisi!');
-                return;
-            }
-            if (actualUsage !== null && actualUsage < 0) {
-                showNotification('Angka meter tidak valid: lebih kecil dari pembacaan sebelumnya!');
-                return;
-            }
+            console.log('Data yang akan disimpan:', data);
+            await addDoc(collection(db, 'meters'), data);
+            showNotification('Data meter berhasil disimpan!', true);
+            document.getElementById('meterForm').reset();
+            document.getElementById('meterLocation').innerHTML = '<option value="">Pilih Lokasi...</option>';
+            document.getElementById('actualUsage').textContent = '';
+        } catch (error) {
+            console.error('Gagal menyimpan data meter:', error);
+            showNotification(`Gagal menyimpan data meter: ${error.message}`);
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = 'Simpan Meter';
+        }
+    }
+    
+    // Fungsi untuk memuat laporan meter
+    function listenMeterReports() {
+        const filterBlock = document.getElementById('meterFilterBlock');
+        const filterDate = document.getElementById('meterFilterDate');
+        const reportBody = document.getElementById('meterReportBody');
 
-            try {
-                showNotification('Menyimpan data meter...', true);
-                await addDoc(collection(db, 'meters'), data);
-                showNotification('Data meter berhasil disimpan!', true);
-                document.getElementById('meterForm').reset();
-                document.getElementById('meterLocation').innerHTML = '<option value="">Pilih Lokasi...</option>';
-                document.getElementById('actualUsage').textContent = '';
-            } catch (error) {
-                console.error('Gagal menyimpan data meter:', error);
-                showNotification('Gagal menyimpan data meter: ' + error.message);
-            }
+        let q = query(collection(db, 'meters'), orderBy('createdAt', 'desc'));
+
+        if (filterBlock.value) {
+            console.log('Menerapkan filter blok:', filterBlock.value);
+            q = query(q, where('block', '==', filterBlock.value));
+        }
+        if (filterDate.value) {
+            console.log('Menerapkan filter tanggal:', filterDate.value);
+            q = query(q, where('date', '==', filterDate.value));
         }
 
-        // Fungsi untuk memuat laporan meter
-        function listenMeterReports() {
-            const filterBlock = document.getElementById('meterFilterBlock');
-            const filterDate = document.getElementById('meterFilterDate');
-            const reportBody = document.getElementById('meterReportBody');
-            
-            let q = query(collection(db, 'meters'), orderBy('createdAt', 'desc'));
-
-            // Apply filters dynamically
-            if (filterBlock.value) q = query(q, where('block', '==', filterBlock.value));
-            if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
-
-            onSnapshot(q, (snapshot) => {
-                reportBody.innerHTML = '';
-                const meters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (meters.length === 0) {
-                    reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data meter.</td></tr>';
-                } else {
-                    meters.forEach(m => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${m.date}</td>
-                            <td>${m.time}</td>
-                            <td>${m.block}</td>
-                            <td>${m.location}</td>
-                            <td>${m.meterReading} m³</td>
-                            <td>${m.actualUsage ? m.actualUsage.toFixed(2) : '-'} m³</td>
-                            <td>${m.notes || '-'}</td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(m).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                        `;
-                        reportBody.appendChild(row);
-                    });
-                }
-            }, (error) => {
-                console.error('Error fetching meter reports:', error);
-                showNotification('Gagal memuat laporan meter.');
-            });
-        }
-        
-        // Fungsi untuk mengisi filter tanggal meter
-        async function populateMeterDateFilter() {
-            const snapshot = await getDocs(query(collection(db, 'meters'), orderBy('date', 'desc')));
-            const dates = [...new Set(snapshot.docs.map(doc => doc.data().date))].sort((a, b) => new Date(b) - new Date(a));
-            document.getElementById('meterFilterDate').innerHTML = '<option value="">Semua Tanggal</option>' +
-                dates.map(d => `<option value="${d}">${d}</option>`).join('');
-        }
-
-        // Fungsi untuk mengisi filter blok kerusakan
-        function populateDamageBlockFilter() {
-            const damageFilterBlock = document.getElementById('damageFilterBlock');
-            damageFilterBlock.innerHTML = '<option value="">Semua Blok</option>' +
-                Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
-        }
-
-        // Fungsi untuk mengisi lokasi kerusakan
-        function populateDamageLocations() {
-            const blockSelect = document.getElementById('damageBlock');
-            const locationSelect = document.getElementById('damageLocation');
-            const selectedBlock = blockSelect.value;
-            locationSelect.innerHTML = '<option value="">Pilih Lokasi...</option>';
-            if (selectedBlock && blockLocations[selectedBlock]) {
-                locationSelect.innerHTML += blockLocations[selectedBlock].map(loc => `<option value="${loc}">${loc}</option>`).join('');
-            }
-        }
-
-        // Fungsi untuk preview foto
-        function previewPhoto(event) {
-            const file = event.target.files[0];
-            const preview = document.getElementById('photoPreview');
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    preview.innerHTML = `<img src="${e.target.result}" style="max-width: 100%; border-radius: 12px; margin-top: 10px;">`;
-                };
-                reader.readAsDataURL(file);
+        console.log('Memulai listener untuk laporan meter');
+        onSnapshot(q, (snapshot) => {
+            console.log('Snapshot diterima, jumlah dokumen:', snapshot.docs.length);
+            reportBody.innerHTML = '';
+            const meters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (meters.length === 0) {
+                console.log('Tidak ada data meter ditemukan');
+                reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data meter.</td></tr>';
             } else {
-                preview.innerHTML = '';
+                meters.forEach(m => {
+                    console.log('Menampilkan data meter:', m);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${m.date || '-'}</td>
+                        <td>${m.time || '-'}</td>
+                        <td>${m.block || '-'}</td>
+                        <td>${m.location || '-'}</td>
+                        <td>${m.meterReading || 0} m³</td>
+                        <td>${m.actualUsage ? m.actualUsage.toFixed(2) : '-'} m³</td>
+                        <td>${m.notes || '-'}</td>
+                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(m).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                    `;
+                    reportBody.appendChild(row);
+                });
             }
+        }, (error) => {
+            console.error('Error fetching meter reports:', error);
+            showNotification('Gagal memuat laporan meter: ' + error.message);
+        });
+    }
+
+    // Fungsi untuk mengisi filter tanggal meter
+    async function populateMeterDateFilter() {
+        const snapshot = await getDocs(query(collection(db, 'meters'), orderBy('date', 'desc')));
+        const dates = [...new Set(snapshot.docs.map(doc => doc.data().date))].sort((a, b) => new Date(b) - new Date(a));
+        document.getElementById('meterFilterDate').innerHTML = '<option value="">Semua Tanggal</option>' +
+            dates.map(d => `<option value="${d}">${d}</option>`).join('');
+    }
+
+    // Fungsi untuk mengisi filter blok kerusakan
+    function populateDamageBlockFilter() {
+        const damageFilterBlock = document.getElementById('damageFilterBlock');
+        damageFilterBlock.innerHTML = '<option value="">Semua Blok</option>' +
+            Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
+    }
+
+    // Fungsi untuk mengisi lokasi kerusakan
+    function populateDamageLocations() {
+        const blockSelect = document.getElementById('damageBlock');
+        const locationSelect = document.getElementById('damageLocation');
+        const selectedBlock = blockSelect.value;
+        locationSelect.innerHTML = '<option value="">Pilih Lokasi...</option>';
+        if (selectedBlock && blockLocations[selectedBlock]) {
+            locationSelect.innerHTML += blockLocations[selectedBlock].map(loc => `<option value="${loc}">${loc}</option>`).join('');
+        }
+    }
+
+    // Fungsi untuk menyimpan laporan kerusakan
+    async function saveDamage(event) {
+        event.preventDefault();
+        const saveButton = document.getElementById('saveDamageButton');
+        saveButton.disabled = true;
+        saveButton.textContent = 'Menyimpan...';
+
+        const now = new Date();
+        const data = {
+            nik: currentNIK,
+            name: currentUserName,
+            date: now.toLocaleDateString('id-ID'),
+            time: now.toLocaleTimeString('id-ID'),
+            damageType: document.getElementById('damageType').value,
+            block: document.getElementById('damageBlock').value,
+            location: document.getElementById('damageLocation').value,
+            specific: document.getElementById('damageSpecific').value,
+            notes: document.getElementById('damageNotes').value || '',
+            createdAt: serverTimestamp()
+        };
+
+        const required = ['damageType', 'block', 'location', 'specific'];
+        const missing = required.filter(field => !data[field]);
+        if (missing.length > 0) {
+            showNotification('Mohon lengkapi semua field yang wajib diisi!');
+            saveButton.disabled = false;
+            saveButton.textContent = 'Simpan Laporan';
+            return;
         }
 
-        // Fungsi untuk menyimpan laporan kerusakan
-        async function saveDamage(event) {
-            event.preventDefault();
-            const now = new Date();
-            const file = document.getElementById('damagePhoto').files[0];
-            let photoURL = '';
-
-            if (file) {
-                const storageRef = ref(storage, `damage_photos/${Date.now()}_${file.name}`);
-                try {
-                    await uploadBytes(storageRef, file);
-                    photoURL = await getDownloadURL(storageRef);
-                } catch (error) {
-                    console.error('Gagal mengunggah foto:', error);
-                    showNotification('Gagal mengunggah foto: ' + error.message);
-                    return;
-                }
-            }
-
-            const data = {
-                nik: currentNIK,
-                name: currentUserName,
-                date: now.toLocaleDateString('id-ID'),
-                time: now.toLocaleTimeString('id-ID'),
-                damageType: document.getElementById('damageType').value,
-                block: document.getElementById('damageBlock').value,
-                location: document.getElementById('damageLocation').value,
-                specific: document.getElementById('damageSpecific').value,
-                notes: document.getElementById('damageNotes').value || '',
-                photoURL,
-                createdAt: serverTimestamp()
-            };
-
-            const required = ['damageType', 'block', 'location', 'specific'];
-            const missing = required.filter(field => !data[field]);
-            if (missing.length > 0) {
-                showNotification('Mohon lengkapi semua field yang wajib diisi!');
-                return;
-            }
-
-            try {
-                showNotification('Menyimpan laporan kerusakan...', true);
-                await addDoc(collection(db, 'damages'), data);
-                showNotification('Laporan kerusakan berhasil disimpan!', true);
-                document.getElementById('damageForm').reset();
-                document.getElementById('damageLocation').innerHTML = '<option value="">Pilih Lokasi...</option>';
-                document.getElementById('photoPreview').innerHTML = '';
-            } catch (error) {
-                console.error('Gagal menyimpan laporan kerusakan:', error);
-                showNotification('Gagal menyimpan laporan: ' + error.message);
-            }
+        try {
+            console.log('Menyimpan laporan kerusakan:', data);
+            await addDoc(collection(db, 'damages'), data);
+            showNotification('Laporan kerusakan berhasil disimpan!', true);
+            document.getElementById('damageForm').reset();
+            document.getElementById('damageLocation').innerHTML = '<option value="">Pilih Lokasi...</option>';
+        } catch (error) {
+            console.error('Gagal menyimpan laporan kerusakan:', error);
+            showNotification('Gagal menyimpan laporan: ' + error.message);
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = 'Simpan Laporan';
         }
+    }
 
-        // Fungsi untuk memuat laporan kerusakan
-        function listenDamageReports() {
-            const filterBlock = document.getElementById('damageFilterBlock');
-            const filterDate = document.getElementById('damageFilterDate');
-            const reportBody = document.getElementById('damageReportBody');
-            
-            let q = query(collection(db, 'damages'), orderBy('createdAt', 'desc'));
+    // Fungsi untuk memuat laporan kerusakan
+    function listenDamageReports() {
+        const filterBlock = document.getElementById('damageFilterBlock');
+        const filterDate = document.getElementById('damageFilterDate');
+        const reportBody = document.getElementById('damageReportBody');
+        
+        let q = query(collection(db, 'damages'), orderBy('createdAt', 'desc'));
 
-            // Apply filters dynamically
-            if (filterBlock.value) q = query(q, where('block', '==', filterBlock.value));
-            if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
+        if (filterBlock.value) q = query(q, where('block', '==', filterBlock.value));
+        if (filterDate.value) q = query(q, where('date', '==', filterDate.value));
 
-            onSnapshot(q, (snapshot) => {
-                reportBody.innerHTML = '';
-                const damages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (damages.length === 0) {
-                    reportBody.innerHTML = '<tr><td colspan="8">Tidak ada laporan kerusakan.</td></tr>';
-                } else {
-                    damages.forEach(d => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${d.date}</td>
-                            <td>${d.damageType}</td>
-                            <td>${d.block}</td>
-                            <td>${d.location}</td>
-                            <td>${d.specific}</td>
-                            <td>${d.notes || '-'}</td>
-                            <td>${d.photoURL ? `<img src="${d.photoURL}" style="width: 50px; border-radius: 8px; cursor: pointer;" onclick="window.open('${d.photoURL}', '_blank')">` : '-'}</td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(d).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                        `;
-                        reportBody.appendChild(row);
-                    });
-                }
-            }, (error) => {
-                console.error('Error fetching damage reports:', error);
-                showNotification('Gagal memuat laporan kerusakan.');
-            });
-        }
+        onSnapshot(q, (snapshot) => {
+            reportBody.innerHTML = '';
+            const damages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (damages.length === 0) {
+                reportBody.innerHTML = '<tr><td colspan="7">Tidak ada laporan kerusakan.</td></tr>';
+            } else {
+                damages.forEach(d => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${d.date || '-'}</td>
+                        <td>${d.damageType || '-'}</td>
+                        <td>${d.block || '-'}</td>
+                        <td>${d.location || '-'}</td>
+                        <td>${d.specific || '-'}</td>
+                        <td>${d.notes || '-'}</td>
+                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(d).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                    `;
+                    reportBody.appendChild(row);
+                });
+            }
+        }, (error) => {
+            console.error('Error fetching damage reports:', error);
+            showNotification('Gagal memuat laporan kerusakan.');
+        });
+    }
 
-        // Fungsi untuk mengisi filter tanggal kerusakan
-        async function populateDamageDateFilter() {
-            const snapshot = await getDocs(query(collection(db, 'damages'), orderBy('date', 'desc')));
-            const dates = [...new Set(snapshot.docs.map(doc => doc.data().date))].sort((a, b) => new Date(b) - new Date(a));
-            document.getElementById('damageFilterDate').innerHTML = '<option value="">Semua Tanggal</option>' +
-                dates.map(d => `<option value="${d}">${d}</option>`).join('');
-        }
+    // Fungsi untuk mengisi filter tanggal kerusakan
+    async function populateDamageDateFilter() {
+        const snapshot = await getDocs(query(collection(db, 'damages'), orderBy('date', 'desc')));
+        const dates = [...new Set(snapshot.docs.map(doc => doc.data().date))].sort((a, b) => new Date(b) - new Date(a));
+        document.getElementById('damageFilterDate').innerHTML = '<option value="">Semua Tanggal</option>' +
+            dates.map(d => `<option value="${d}">${d}</option>`).join('');
+    }
 
-        // Fungsi untuk share laporan meter ke WhatsApp
-        function shareMeter(data) {
-            const message = encodeURIComponent(`
+    // Fungsi untuk share laporan meter ke WhatsApp
+    function shareMeter(data) {
+        const message = encodeURIComponent(`
 Laporan Meter Air
 • Tanggal: ${data.date}
 • Waktu: ${data.time}
@@ -1671,110 +1675,105 @@ Laporan Meter Air
 • Angka Meter: ${data.meterReading} m³
 • Penggunaan Aktual: ${data.actualUsage ? data.actualUsage.toFixed(2) : '-'} m³
 • Catatan: ${data.notes || '-'}`);
-            window.open(`https://wa.me/?text=${message}`, '_blank');
-        }
+        window.open(`https://wa.me/?text=${message}`, '_blank');
+    }
 
-        // Fungsi untuk share laporan kerusakan ke WhatsApp
-        function shareDamage(data) {
-            const message = encodeURIComponent(`
+    // Fungsi untuk share laporan kerusakan ke WhatsApp
+    function shareDamage(data) {
+        const message = encodeURIComponent(`
 Laporan Kerusakan
 • Tanggal: ${data.date}
 • Jenis Kerusakan: ${data.damageType}
 • Blok: ${data.block}
 • Lokasi: ${data.location}
 • Spesifik Lokasi: ${data.specific}
-• Catatan: ${data.notes || '-'}
-• Foto: ${data.photoURL || '-'}`);
-            window.open(`https://wa.me/?text=${message}`, '_blank');
-        }
+• Catatan: ${data.notes || '-'}`);
+        window.open(`https://wa.me/?text=${message}`, '_blank');
+    }
 
-        // Inisialisasi aplikasi
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.body.classList.add(`${savedTheme}-theme`);
-            document.getElementById('themeIcon').classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+    // Inisialisasi aplikasi
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.body.classList.add(`${savedTheme}-theme`);
+        document.getElementById('themeIcon').classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
 
-            document.getElementById('loginButton').addEventListener('click', login);
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => switchPage(item.dataset.page));
-            });
-
-            document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
-            document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
-            document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
-            document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
-
-            document.getElementById('reportTable').addEventListener('click', (e) => {
-                const detailBtn = e.target.closest('.detail-btn');
-                const whatsappBtn = e.target.closest('.whatsapp-btn');
-                const editBtn = e.target.closest('.edit-btn');
-                if (detailBtn) {
-                    const data = JSON.parse(detailBtn.getAttribute('data-detail'));
-                    showDetail(data);
-                }
-                if (whatsappBtn) {
-                    const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
-                    shareChecklist(data);
-                }
-                if (editBtn && !editBtn.disabled) {
-                    const data = JSON.parse(editBtn.getAttribute('data-detail'));
-                    showEditForm(data);
-                }
-            });
-
-            document.getElementById('modalClose').addEventListener('click', closeModal);
-            document.getElementById('modalOverlay').addEventListener('click', closeModal);
-
-            document.getElementById('meterBlock').addEventListener('change', () => {
-                populateMeterLocations();
-                updateActualUsage();
-            });
-            document.getElementById('meterLocation').addEventListener('change', updateActualUsage);
-            document.getElementById('meterReading').addEventListener('input', updateActualUsage);
-            document.getElementById('meterForm').addEventListener('submit', saveMeter);
-
-            document.getElementById('meterTable').addEventListener('click', (e) => {
-                const whatsappBtn = e.target.closest('.whatsapp-btn');
-                if (whatsappBtn) {
-                    const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
-                    shareMeter(data);
-                }
-            });
-
-            document.getElementById('meterFilterBlock').addEventListener('change', listenMeterReports);
-            document.getElementById('meterFilterDate').addEventListener('change', listenMeterReports);
-
-            document.getElementById('damageBlock').addEventListener('change', populateDamageLocations);
-            document.getElementById('damagePhoto').addEventListener('change', previewPhoto);
-            document.getElementById('damageForm').addEventListener('submit', saveDamage);
-
-            document.getElementById('damageTable').addEventListener('click', (e) => {
-                const whatsappBtn = e.target.closest('.whatsapp-btn');
-                if (whatsappBtn) {
-                    const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
-                    shareDamage(data);
-                }
-            });
-
-            document.getElementById('damageFilterBlock').addEventListener('change', listenDamageReports);
-            document.getElementById('damageFilterDate').addEventListener('change', listenDamageReports);
-
-            document.getElementById('filterDate').addEventListener('change', listenReports);
-            document.getElementById('filterShift').addEventListener('change', listenReports);
-            document.getElementById('filterNIK').addEventListener('change', listenReports);
-
-            populateFilters();
-            listenReports();
-            populateMeterBlockFilter();
-            populateMeterDateFilter();
-            listenMeterReports();
-            populateDamageBlockFilter();
-            populateDamageDateFilter();
-            listenDamageReports();
-
-            setInterval(updateTime, 1000);
+        document.getElementById('loginButton').addEventListener('click', login);
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => switchPage(item.dataset.page));
         });
-    </script>
+
+        document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
+        document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
+        document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
+        document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
+
+        document.getElementById('reportTable').addEventListener('click', (e) => {
+            const detailBtn = e.target.closest('.detail-btn');
+            const whatsappBtn = e.target.closest('.whatsapp-btn');
+            const editBtn = e.target.closest('.edit-btn');
+            if (detailBtn) {
+                const data = JSON.parse(detailBtn.getAttribute('data-detail'));
+                showDetail(data);
+            }
+            if (whatsappBtn) {
+                const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
+                shareChecklist(data);
+            }
+            if (editBtn && !editBtn.disabled) {
+                const data = JSON.parse(editBtn.getAttribute('data-detail'));
+                showEditForm(data);
+            }
+        });
+
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modalOverlay').addEventListener('click', closeModal);
+
+        document.getElementById('meterBlock').addEventListener('change', () => {
+            populateMeterLocations();
+            updateActualUsage();
+        });
+        document.getElementById('meterLocation').addEventListener('change', updateActualUsage);
+        document.getElementById('meterReading').addEventListener('input', updateActualUsage);
+        document.getElementById('meterForm').addEventListener('submit', saveMeter);
+
+        document.getElementById('meterTable').addEventListener('click', (e) => {
+            const whatsappBtn = e.target.closest('.whatsapp-btn');
+            if (whatsappBtn) {
+                const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
+                shareMeter(data);
+            }
+        });
+
+        document.getElementById('meterFilterBlock').addEventListener('change', listenMeterReports);
+        document.getElementById('meterFilterDate').addEventListener('change', listenMeterReports);
+
+        document.getElementById('damageBlock').addEventListener('change', populateDamageLocations);
+        document.getElementById('damageForm').addEventListener('submit', saveDamage);
+
+        document.getElementById('damageTable').addEventListener('click', (e) => {
+            const whatsappBtn = e.target.closest('.whatsapp-btn');
+            if (whatsappBtn) {
+                const data = JSON.parse(whatsappBtn.getAttribute('data-detail'));
+                shareDamage(data);
+            }
+        });
+
+        document.getElementById('filterDate').addEventListener('change', listenReports);
+        document.getElementById('filterShift').addEventListener('change', listenReports);
+        document.getElementById('filterNIK').addEventListener('change', listenReports);
+
+        populateFilters();
+        listenReports();
+        populateMeterBlockFilter();
+        populateMeterDateFilter();
+        listenMeterReports();
+        populateDamageBlockFilter();
+        populateDamageDateFilter();
+        listenDamageReports();
+
+        setInterval(updateTime, 1000);
+    });
+</script>
 </body>
 </html>
