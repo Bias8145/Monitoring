@@ -1380,6 +1380,7 @@
             document.getElementById('supplyPDAM').value = checklist.supplyPDAM || '';
             document.getElementById('meterIndukPDAM').value = checklist.meterIndukPDAM || '';
             document.getElementById('meterIndukWTP').value = checklist.meterIndukWTP || '';
+           document.getElementById('PDAM').value = checklist.PDAM || '';
             document.getElementById('flowPDAM').value = checklist.flowPDAM || '';
             document.getElementById('catatan').value = checklist.catatan || '';
             const saveButton = document.getElementById('saveChecklistButton');
@@ -1448,12 +1449,13 @@
                 supplyPDAM: document.getElementById('supplyPDAM').value,
                 meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value) || 0,
                 meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value) || 0,
+                PDAM: parseFloat(document.getElementById('PDAM').value) || 0,
                 flowPDAM: parseFloat(document.getElementById('flowPDAM').value) || 0,
                 catatan: document.getElementById('catatan').value || '',
                 createdAt: serverTimestamp()
             };
 
-            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'flowPDAM'];
+            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'PDAM', 'flowPDAM'];
             const missing = required.filter(field => !data[field] && data[field] !== 0);
 
             if (missing.length > 0) {
