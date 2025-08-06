@@ -791,8 +791,13 @@
                 </div>
                 <div class="form-group">
                     <div class="input-group">
-                        <input type="number" id="flowPDAM" placeholder="Flow Rate Input (m³)" required>
+                        <input type="number" id="PDAM" placeholder="Flow Input PDAM (m³)" required>
                         <div class="unit">m³</div>
+                    </div>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="number" id="flowPDAM" placeholder="Rate Input (m³/j) isi 0 jika pdam off" required>
+                        <div class="unit">m³/j</div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -1565,7 +1570,8 @@
                             <li>Status: ${data.supplyPDAM || '-'}</li>
                             <li>Meter Induk PDAM: ${data.meterIndukPDAM || 0}</li>
                             <li>Meter Induk WTP: ${data.meterIndukWTP || 0}</li>
-                            <li>Flow Rate: ${data.flowPDAM || 0} m³</li>
+                            <li>Flow Input: ${data.PDAM || 0} m³</li>
+                            <li>Flow Rate: ${data.flowPDAM || 0} m³/j</li>
                         </ul>
                     </li>
                     <li><strong>Catatan:</strong> ${data.catatan || '-'}</li>
@@ -1610,7 +1616,8 @@ Checklist Sistem Air
    • Status: ${data.supplyPDAM || '-'}
    • Meter Induk PDAM: ${data.meterIndukPDAM || 0}
    • Meter Induk WTP: ${data.meterIndukWTP || 0}
-   • Flow Rate: ${data.flowPDAM || 0} m³
+   • Flow Input: ${data.flowPDAM || 0} m³
+   • Flow Rate: ${data.flowPDAM || 0} m³/j
 
 • Catatan: ${data.catatan || '-'}`);
             window.open(`https://wa.me/?text=${message}`, '_blank');
