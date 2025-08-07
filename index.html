@@ -734,6 +734,30 @@
             .nav-item i {
                 font-size: 16px;
             }
+            
+            #educationContent {
+            font-size: 12px;
+            line-height: 1.4;
+            max-width: 100%;
+            overflow-wrap: break-word;
+            }
+
+            #educationContent table {
+            width: 100%;
+            display: block;
+            overflow-x: auto;
+            font-size: 9px;
+            border-collapse: collapse;
+            margin: 12px 0;
+            }
+
+            #educationContent th,
+            #educationContent td {
+            padding: 4px 6px;
+            word-break: break-word;
+            text-align: left;
+            border: 1px solid rgba(0,0,0,0.1);
+            }
         }
     </style>
 </head>
@@ -1195,30 +1219,35 @@
     </div>
     
     <!-- Halaman Katalog Edukasi -->
-    <div id="educationPage" class="container" style="display: none;">
-        <div class="header">
-            <div class="greeting" id="educationGreeting">Selamat Pagi, User!</div>
-            <h1>Katalog Edukasi</h1>
-            <div class="subtitle">Informasi dan Edukasi Air</div>
-        </div>
-        <div class="card">
-            <div class="form-group">
-                <input type="text" id="educationSearch" placeholder="Cari Konten Edukasi...">
-            </div>
-            <div class="form-group">
-                <select id="educationCategory" required>
-                    <option value="">Pilih Kategori...</option>
-                    <option value="K3">K3</option>
-                    <option value="Spesifikasi Pipa">Spesifikasi Pipa</option>
-                    <option value="Baku Mutu Air">Baku Mutu Air</option>
-                    <option value="Ranah Penggunaan Air">Ranah Penggunaan Air</option>
-                    <option value="Konsumsi Harian Air">Konsumsi Harian Air</option>
-                    <option value="Water Treatment Plant">Water Treatment Plant</option>
-                </select>
-            </div>
-            <div id="educationContent"></div>
-        </div>
+<div id="educationPage" class="container" style="display: none;">
+    <div class="header">
+        <div class="greeting" id="educationGreeting">Selamat Pagi, User!</div>
+        <h1>Katalog Edukasi</h1>
+        <div class="subtitle">Informasi dan Edukasi Sistem Air</div>
     </div>
+    <div class="card">
+        <div class="form-group">
+            <input type="text" id="educationSearch" placeholder="Cari Konten Edukasi...">
+        </div>
+        <div class="form-group">
+            <select id="educationCategory" required>
+                <option value="">Pilih Kategori...</option>
+                <option value="K3">K3</option>
+                <option value="Perpipaan">Perpipaan</option>
+                <option value="Mesin Hydran">Mesin Hydran</option>
+                <option value="Pompa">Pompa</option>
+                <option value="Jenis Jaringan">Jenis Jaringan</option>
+                <option value="Jenis Valve">Jenis Valve</option>
+                <option value="Jenis Hydran">Jenis Hydran</option>
+                <option value="Jenis Water Meter">Jenis Water Meter</option>
+                <option value="Baku Mutu Air">Baku Mutu Air</option>
+                <option value="Konsumsi Harian Air">Konsumsi Harian Air</option>
+                <option value="Water Treatment Plant">Water Treatment Plant</option>
+            </select>
+        </div>
+        <div id="educationContent"></div>
+    </div>
+</div>
 
     <!-- Halaman Manajemen Data (hanya untuk CA00383) -->
     <div id="dataManagementPage" class="container" style="display: none;">
@@ -2131,34 +2160,638 @@ function loadEducationContent() {
 
     const educationData = {
         K3: [
-            { title: 'Prosedur Keselamatan Kerja', content: 'Pastikan semua pekerja menggunakan APD (helm, sepatu keselamatan, sarung tangan) saat bekerja di area WTP. Periksa kondisi peralatan sebelum digunakan.' },
-            { title: 'Penanganan Kebocoran', content: 'Jika terjadi kebocoran, segera matikan sumber air terdekat dan laporkan ke supervisor. Gunakan alat pelindung diri saat menangani kebocoran.' }
+            {
+                title: 'Prosedur Keselamatan Kerja di WTP',
+                content: `
+                    <p>Prosedur keselamatan kerja di Water Treatment Plant (WTP) sangat penting untuk mencegah kecelakaan dan memastikan operasi yang aman. Berikut adalah langkah-langkah utama:</p>
+                    <ul>
+                        <li><strong>Penggunaan APD:</strong> Selalu gunakan helm keselamatan (SNI 1039:2016), sepatu safety, sarung tangan tahan air, dan kacamata pelindung saat melakukan inspeksi atau pemeliharaan peralatan seperti pompa, valve, dan hydran.</li>
+                        <li><strong>Pemeriksaan Awal:</strong> Lakukan pengecekan terhadap potensi bahaya seperti kebocoran gas, tekanan tinggi (>10 bar), atau permukaan licin sebelum memulai pekerjaan.</li>
+                        <li><strong>Lockout-Tagout (LOTO):</strong> Terapkan prosedur LOTO untuk mengisolasi peralatan listrik atau hidrolik selama pemeliharaan. Pastikan semua pekerja mengetahui status peralatan melalui tag yang jelas.</li>
+                        <li><strong>Pelatihan Rutin:</strong> Lakukan pelatihan K3 setiap 6 bulan untuk memastikan pemahaman terhadap risiko spesifik di WTP, seperti paparan bahan kimia atau kebocoran pipa.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Sebelum memeriksa pompa transfer, pastikan pompa dalam status OFF dan pasang tag LOTO untuk mencegah aktivasi tak sengaja.</p>
+                `
+            },
+            {
+                title: 'Penanganan Darurat Kebocoran',
+                content: `
+                    <p>Kebocoran pipa atau hydran dapat menyebabkan kehilangan air yang signifikan dan risiko keselamatan. Berikut adalah SOP penanganan darurat:</p>
+                    <ol>
+                        <li><strong>Identifikasi Kebocoran:</strong> Gunakan alat deteksi kebocoran (misalnya, akustik leak detector) untuk menentukan lokasi kebocoran dengan akurat.</li>
+                        <li><strong>Isolasi Aliran:</strong> Matikan valve terdekat (gate valve atau ball valve) untuk menghentikan aliran air ke area kebocoran.</li>
+                        <li><strong>Pengamanan Area:</strong> Pasang tanda peringatan dan batasi akses ke area kebocoran untuk mencegah kecelakaan.</li>
+                        <li><strong>Laporan:</strong> Laporkan kejadian ke supervisor melalui sistem pelaporan digital (misalnya, aplikasi ini) dan sertakan detail lokasi, jenis kebocoran, dan dampaknya.</li>
+                        <li><strong>Perbaikan Sementara:</strong> Gunakan clamp pipa atau sealant untuk menutup kebocoran sementara sebelum perbaikan permanen.</li>
+                    </ol>
+                    <p><strong>Contoh Kasus:</strong> Kebocoran pada pipa HDPE di Blok A dapat menyebabkan kehilangan air 0.5 m³/jam. Dengan isolasi cepat, kehilangan dapat dikurangi hingga perbaikan selesai dalam 2 jam.</p>
+                `
+            },
+            {
+                title: 'Pemantauan Lingkungan Kerja',
+                content: `
+                    <p>Pemantauan lingkungan kerja di WTP bertujuan untuk memastikan kondisi operasional yang aman dan efisien. Parameter yang perlu dipantau meliputi:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Standar Aman</th>
+                                <th>Alat Ukur</th>
+                                <th>Frekuensi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Suhu</td>
+                                <td>20-30°C</td>
+                                <td>Termometer Digital</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>Kelembapan</td>
+                                <td>40-60%</td>
+                                <td>Higrometer</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>Kebisingan</td>
+                                <td>< 85 dB</td>
+                                <td>Sound Level Meter</td>
+                                <td>Mingguan</td>
+                            </tr>
+                            <tr>
+                                <td>Ventilasi</td>
+                                <td>Udara segar > 10 m³/menit</td>
+                                <td>Anemometer</td>
+                                <td>Mingguan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Metode Monitoring:</strong> Gunakan sensor IoT untuk pemantauan real-time dan catat data dalam checklist harian untuk analisis tren lingkungan kerja.</p>
+                    <p><strong>Risiko:</strong> Suhu tinggi (>30°C) dapat menyebabkan overheating pompa, sedangkan kelembapan rendah (<40%) meningkatkan risiko korosi pada pipa.</p>
+                `
+            }
         ],
-        'Spesifikasi Pipa': [
-            { title: 'Jenis Pipa', content: 'Pipa yang digunakan di sistem air meliputi PVC, HDPE, dan stainless steel, masing-masing dengan spesifikasi tekanan dan ketahanan korosi yang berbeda.' },
-            { title: 'Ukuran Pipa', content: 'Ukuran pipa bervariasi dari 1/2 inci hingga 6 inci, tergantung pada kebutuhan distribusi air.' }
+        'Perpipaan': [
+            {
+                title: 'Jenis Pipa dan Spesifikasi Teknis',
+                content: `
+                    <p>Pipa merupakan komponen utama dalam sistem distribusi air di WTP. Berikut adalah jenis pipa yang umum digunakan beserta spesifikasi teknisnya:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Jenis Pipa</th>
+                                <th>Material</th>
+                                <th>Tekanan Maksimum</th>
+                                <th>Kegunaan</th>
+                                <th>Kelebihan</th>
+                                <th>Kekurangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PVC</td>
+                                <td>Polyvinyl Chloride</td>
+                                <td>10 bar</td>
+                                <td>Distribusi air bersih</td>
+                                <td>Ringan, tahan korosi</td>
+                                <td>Rentan terhadap suhu tinggi</td>
+                            </tr>
+                            <tr>
+                                <td>HDPE</td>
+                                <td>High-Density Polyethylene</td>
+                                <td>16 bar</td>
+                                <td>Distribusi air WWTP/PDAM</td>
+                                <td>Fleksibel, tahan tekanan</td>
+                                <td>Biaya awal tinggi</td>
+                            </tr>
+                            <tr>
+                                <td>Stainless Steel</td>
+                                <td>Baja Tahan Karat</td>
+                                <td>25 bar</td>
+                                <td>Air bertekanan tinggi</td>
+                                <td>Tahan korosi, kuat</td>
+                                <td>Berat, mahal</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Pemilihan Pipa:</strong> Pilih pipa berdasarkan tekanan operasional (gunakan pressure gauge untuk verifikasi) dan jenis air (misalnya, air WWTP membutuhkan pipa tahan korosi seperti HDPE).</p>
+                    <p><strong>Standar:</strong> Pastikan pipa memenuhi SNI 0068:2015 untuk pipa air minum.</p>
+                `
+            },
+            {
+                title: 'Pemeliharaan dan Inspeksi Pipa',
+                content: `
+                    <p>Pemeliharaan pipa diperlukan untuk mencegah kebocoran, korosi, dan penurunan efisiensi sistem. Berikut adalah prosedur pemeliharaan:</p>
+                    <ul>
+                        <li><strong>Inspeksi Visual:</strong> Periksa pipa setiap minggu untuk mendeteksi tanda-tanda korosi, retak, atau kebocoran pada sambungan.</li>
+                        <li><strong>Pengukuran Tekanan:</strong> Gunakan pressure gauge untuk memastikan tekanan pipa berada dalam batas aman (biasanya 2-10 bar, tergantung jenis pipa).</li>
+                        <li><strong>Pembersihan:</strong> Lakukan flushing pipa setiap 3 bulan untuk menghilangkan endapan yang dapat menyebabkan penyumbatan.</li>
+                        <li><strong>Penggantian Komponen:</strong> Ganti seal atau sambungan yang aus setiap 1-2 tahun, tergantung pada frekuensi penggunaan.</li>
+                    </ul>
+                    <p><strong>Alat Bantu:</strong> Gunakan alat deteksi kebocoran berbasis akustik atau kamera inspeksi untuk memeriksa pipa bawah tanah.</p>
+                    <p><strong>Contoh Aplikasi:</strong> Pada pipa HDPE di Blok C, inspeksi mingguan mengidentifikasi kebocoran kecil yang menyebabkan kehilangan air 0.2 m³/hari, yang diperbaiki dengan clamp pipa dalam waktu 1 jam.</p>
+                `
+            },
+            {
+                title: 'Estimasi Kehilangan Air di Pipa',
+                content: `
+                    <p>Kehilangan air akibat kebocoran adalah masalah umum dalam sistem distribusi. Berikut adalah metode untuk menghitung dan meminimalkan kehilangan air:</p>
+                    <ul>
+                        <li><strong>Rumus Kehilangan Air:</strong> Kehilangan (%) = [(Meter Induk - Total Meter Distribusi) / Meter Induk] × 100.</li>
+                        <li><strong>Langkah Perhitungan:</strong>
+                            <ol>
+                                <li>Catat pembacaan meter induk PDAM (misalnya, 1000 m³).</li>
+                                <li>Jumlahkan pembacaan meter distribusi di semua blok (misalnya, 950 m³).</li>
+                                <li>Hitung kehilangan: [(1000 - 950) / 1000] × 100 = 5%.</li>
+                            </ol>
+                        </li>
+                        <li><strong>Analisis Penyebab:</strong> Kebocoran dapat disebabkan oleh sambungan longgar, korosi, atau tekanan berlebih. Gunakan data historis dari laporan kerusakan untuk mengidentifikasi pola.</li>
+                        <li><strong>Pencegahan:</strong> Pasang sensor tekanan dan flow meter untuk mendeteksi anomali aliran secara real-time.</li>
+                    </ul>
+                    <p><strong>Contoh Kasus:</strong> Kehilangan air 5% di Blok A menunjukkan adanya kebocoran pada sambungan pipa PVC. Setelah perbaikan, kehilangan turun menjadi <1%.</p>
+                    <p><strong>Standar:</strong> Menurut ISO 24512:2007, kehilangan air di sistem distribusi idealnya <10%.</p>
+                `
+            }
+        ],
+        'Mesin Hydran': [
+            {
+                title: 'Fungsi dan Spesifikasi Mesin Hydran',
+                content: `
+                    <p>Mesin hydran adalah komponen kritis untuk menyediakan air bertekanan tinggi, terutama untuk kebutuhan pemadam kebakaran. Berikut adalah spesifikasi utama:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Nilai Standar</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tekanan Operasional</td>
+                                <td>6-10 bar</td>
+                                <td>Diukur dengan pressure gauge</td>
+                            </tr>
+                            <tr>
+                                <td>Laju Alir</td>
+                                <td>20-40 L/detik</td>
+                                <td>Untuk kebutuhan darurat</td>
+                            </tr>
+                            <tr>
+                                <td>Material</td>
+                                <td>Baja atau kuningan</td>
+                                <td>Tahan korosi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Fungsi:</strong> Hydran memastikan pasokan air yang cepat dan andal untuk keadaan darurat. Pastikan hydran selalu dalam kondisi siap pakai dengan memeriksa tekanan dan status katup.</p>
+                    <p><strong>Standar:</strong> Hydran harus memenuhi SNI 03-1745-2000 untuk sistem proteksi kebakaran.</p>
+                `
+            },
+            {
+                title: 'Pemeliharaan dan Uji Coba Hydran',
+                content: `
+                    <p>Pemeliharaan rutin diperlukan untuk memastikan hydran berfungsi optimal. Berikut adalah prosedur pemeliharaan:</p>
+                    <ul>
+                        <li><strong>Pemeriksaan Katup:</strong> Periksa katup hydran (biasanya gate valve) setiap bulan untuk memastikan tidak ada kebocoran atau penyumbatan.</li>
+                        <li><strong>Pembersihan Nozzle:</strong> Bersihkan nozzle hydran dengan air bertekanan rendah untuk menghilangkan kotoran atau karat.</li>
+                        <li><strong>Uji Alir:</strong> Lakukan uji alir setiap 6 bulan dengan menghubungkan selang ke hydran dan mengukur laju alir menggunakan flow meter.</li>
+                        <li><strong>Pelumasan:</strong> Oleskan pelumas pada mekanisme katup untuk mencegah korosi dan memastikan operasi yang lancar.</li>
+                    </ul>
+                    <p><strong>Contoh Uji Coba:</strong> Uji alir pada hydran pilar di Blok P menunjukkan laju alir 30 L/detik pada tekanan 8 bar, sesuai dengan standar.</p>
+                    <p><strong>Risiko:</strong> Penyumbatan nozzle dapat mengurangi laju alir hingga 50%, sehingga memengaruhi efektivitas pemadam kebakaran.</p>
+                `
+            },
+            {
+                title: 'Monitoring dan Pelaporan Hydran',
+                content: `
+                    <p>Monitoring hydran dilakukan untuk memastikan kesiapan sistem dalam keadaan darurat. Berikut adalah langkah-langkahnya:</p>
+                    <ul>
+                        <li><strong>Pencatatan Status:</strong> Catat status ON/OFF hydran dan tekanan operasional (bar) dalam checklist harian melalui aplikasi ini.</li>
+                        <li><strong>Penggunaan Sensor:</strong> Pasang sensor tekanan pada hydran untuk memantau tekanan secara real-time. Data dapat diintegrasikan dengan sistem IoT untuk notifikasi otomatis.</li>
+                        <li><strong>Pelaporan:</strong> Laporkan anomali seperti penurunan tekanan (<6 bar) atau kebocoran ke supervisor melalui fitur pelaporan kerusakan.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Hydran di Blok H menunjukkan tekanan 5 bar, di bawah standar. Setelah pemeriksaan, ditemukan kebocoran kecil pada katup yang diperbaiki dalam 2 jam.</p>
+                    <p><strong>Standar:</strong> Tekanan hydran harus diperiksa sesuai NFPA 25 untuk sistem proteksi kebakaran.</p>
+                `
+            }
+        ],
+        'Pompa': [
+            {
+                title: 'Jenis dan Spesifikasi Pompa',
+                content: `
+                    <p>Pompa adalah komponen kunci dalam sistem WTP untuk transfer dan distribusi air. Berikut adalah jenis pompa yang umum digunakan:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Jenis Pompa</th>
+                                <th>Kapasitas (m³/jam)</th>
+                                <th>Head (m)</th>
+                                <th>Kegunaan</th>
+                                <th>Material</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sentrifugal</td>
+                                <td>10-100</td>
+                                <td>10-50</td>
+                                <td>Transfer air volume besar</td>
+                                <td>Baja tahan karat</td>
+                            </tr>
+                            <tr>
+                                <td>Submersible</td>
+                                <td>5-50</td>
+                                <td>20-100</td>
+                                <td>Sumur bor, bak WWTP</td>
+                                <td>Stainless steel</td>
+                            </tr>
+                            <tr>
+                                <td>Booster</td>
+                                <td>5-30</td>
+                                <td>30-100</td>
+                                <td>Meningkatkan tekanan</td>
+                                <td>Baja atau kuningan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Pemilihan Pompa:</strong> Pilih pompa berdasarkan kebutuhan laju alir dan tekanan. Contoh: Pompa booster cocok untuk distribusi air ke Blok A dengan tekanan rendah (<2 bar).</p>
+                    <p><strong>Standar:</strong> Pompa harus memenuhi ISO 5199:2002 untuk performa dan keandalan.</p>
+                `
+            },
+            {
+                title: 'Pemeliharaan Pompa',
+                content: `
+                    <p>Pemeliharaan pompa diperlukan untuk menjaga efisiensi dan mencegah kerusakan. Berikut adalah prosedur pemeliharaan:</p>
+                    <ul>
+                        <li><strong>Pemeriksaan Seal:</strong> Periksa seal mekanis setiap bulan untuk mendeteksi kebocoran. Ganti seal jika ditemukan keausan.</li>
+                        <li><strong>Monitoring Getaran:</strong> Gunakan vibration meter untuk mengukur getaran pompa. Getaran >4 mm/s menunjukkan masalah bantalan atau ketidakseimbangan.</li>
+                        <li><strong>Pengukuran Suhu:</strong> Gunakan termometer inframerah untuk memantau suhu motor pompa (<80°C untuk operasi normal).</li>
+                        <li><strong>Pelumasan:</strong> Ganti oli pelumas setiap 3-6 bulan atau setelah 2000 jam operasi, sesuai spesifikasi pompa.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Pompa sentrifugal di Blok P menunjukkan getaran 5 mm/s. Setelah pemeriksaan, bantalan diganti, mengembalikan getaran ke <2 mm/s.</p>
+                    <p><strong>Risiko:</strong> Kebocoran seal dapat menyebabkan kehilangan air hingga 0.3 m³/jam dan kerusakan motor.</p>
+                `
+            },
+            {
+                title: 'Monitoring Efisiensi Pompa',
+                content: `
+                    <p>Monitoring efisiensi pompa penting untuk mengoptimalkan penggunaan energi dan air. Berikut adalah metode perhitungan dan monitoring:</p>
+                    <ul>
+                        <li><strong>Rumus Efisiensi:</strong> Efisiensi (%) = [(Laju Alir × Head × 9.81 × Densitas Air) / Daya Listrik] × 100.</li>
+                        <li><strong>Langkah Monitoring:</strong>
+                            <ol>
+                                <li>Ukur laju alir (m³/jam) menggunakan flow meter.</li>
+                                <li>Ukur head (m) menggunakan pressure gauge.</li>
+                                <li>Ukur daya listrik (kW) menggunakan power meter.</li>
+                                <li>Hitung efisiensi dan bandingkan dengan spesifikasi pompa (biasanya 70-85%).</li>
+                            </ol>
+                        </li>
+                        <li><strong>Penggunaan Sensor:</strong> Pasang sensor IoT untuk memantau laju alir dan daya secara real-time. Data dapat diintegrasikan dengan aplikasi ini untuk analisis tren.</li>
+                    </ul>
+                    <p><strong>Contoh Kasus:</strong> Pompa di Blok E memiliki laju alir 50 m³/jam, head 20 m, dan daya 15 kW. Efisiensi dihitung: [(50 × 20 × 9.81 × 1000) / (15 × 1000)] × 100 = 65%. Penurunan efisiensi menunjukkan perlunya pembersihan impeller.</p>
+                    <p><strong>Standar:</strong> Efisiensi pompa ideal sesuai ISO 9906:2012 adalah >70%.</p>
+                `
+            }
+        ],
+        'Jenis Jaringan': [
+            {
+                title: 'Jaringan Distribusi Air',
+                content: `
+                    <p>Jaringan distribusi air menghubungkan sumber air (PDAM, WTP) ke pengguna akhir di berbagai blok. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Struktur:</strong> Terdiri dari pipa induk (diameter 4-6 inci) dan pipa cabang (diameter 1-2 inci) untuk distribusi ke Blok A, B, C, dll.</li>
+                        <li><strong>Tekanan Operasional:</strong> Harus dijaga antara 2-6 bar untuk memastikan aliran merata. Gunakan pressure gauge di titik-titik kritis (misalnya, sambungan blok).</li>
+                        <li><strong>Monitoring:</strong> Catat pembacaan meter distribusi harian untuk mendeteksi anomali aliran, seperti kehilangan air akibat kebocoran.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Jaringan distribusi di Blok C menunjukkan penurunan tekanan dari 4 bar ke 1.5 bar, mengindikasikan penyumbatan pada pipa cabang.</p>
+                    <p><strong>Standar:</strong> Desain jaringan harus sesuai SNI 03-7065-2005 untuk sistem perpipaan air minum.</p>
+                `
+            },
+            {
+                title: 'Jaringan WWTP',
+                content: `
+                    <p>Jaringan WWTP mengelola aliran air limbah dari berbagai blok ke bak penampungan atau unit pengolahan. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Struktur:</strong> Terdiri dari pipa pengumpul (diameter 3-6 inci) dan pipa distribusi menuju bak WWTP. Pipa HDPE sering digunakan karena tahan terhadap korosi.</li>
+                        <li><strong>Pemantauan Aliran:</strong> Gunakan flow meter untuk memastikan tidak ada penyumbatan. Laju alir normal untuk WWTP adalah 10-50 m³/jam, tergantung kapasitas.</li>
+                        <li><strong>Pencegahan Penyumbatan:</strong> Lakukan flushing jaringan setiap bulan dan periksa manhole untuk menghilangkan endapan.</li>
+                    </ul>
+                    <p><strong>Contoh Kasus:</strong> Penyumbatan pada jaringan WWTP di Blok P menyebabkan penurunan aliran dari 30 m³/jam ke 10 m³/jam. Pembersihan manhole mengembalikan aliran normal.</p>
+                    <p><strong>Standar:</strong> Jaringan WWTP harus memenuhi Peraturan Menteri PU No. 01/PRT/M/2014 tentang pengelolaan air limbah.</p>
+                `
+            },
+            {
+                title: 'Jaringan PDAM',
+                content: `
+                    <p>Jaringan PDAM menyediakan air bersih dari sumber eksternal ke bak input WTP. Berikut adalah aspek utamanya:</p>
+                    <ul>
+                        <li><strong>Struktur:</strong> Pipa induk PDAM (diameter 6-8 inci) terhubung ke bak input dengan water meter induk untuk monitoring konsumsi.</li>
+                        <li><strong>Pemantauan Konsumsi:</strong> Catat pembacaan meter induk PDAM harian untuk estimasi konsumsi. Contoh: Konsumsi harian 500 m³ untuk kebutuhan domestik dan industri.</li>
+                        <li><strong>Deteksi Anomali:</strong> Bandingkan pembacaan meter induk dengan meter distribusi untuk mendeteksi kebocoran atau penggunaan tidak sah.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Pembacaan meter induk PDAM 1000 m³ dan total meter distribusi 950 m³ menunjukkan kehilangan 5%, yang memicu inspeksi kebocoran.</p>
+                    <p><strong>Standar:</strong> Monitoring jaringan PDAM harus sesuai SNI 7507:2011 untuk pengelolaan air minum.</p>
+                `
+            }
+        ],
+        'Jenis Valve': [
+            {
+                title: 'Gate Valve',
+                content: `
+                    <p>Gate valve digunakan untuk mengisolasi aliran air secara penuh. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Fungsi:</strong> Cocok untuk aplikasi ON/OFF penuh, seperti mengisolasi pipa selama pemeliharaan.</li>
+                        <li><strong>Spesifikasi:</strong> Tekanan maksimum 16 bar, material kuningan atau stainless steel, diameter 1-6 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa kebocoran pada seal setiap 3 bulan dan oleskan pelumas pada spindel untuk mencegah korosi.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Gate valve pada pipa induk di Blok A digunakan untuk mengisolasi aliran selama perbaikan kebocoran, mencegah kehilangan air 0.5 m³/jam.</p>
+                    <p><strong>Standar:</strong> Gate valve harus memenuhi SNI 01-3538-1994 untuk katup air.</p>
+                `
+            },
+            {
+                title: 'Ball Valve',
+                content: `
+                    <p>Ball valve memungkinkan pengaturan aliran cepat dengan mekanisme putar 90 derajat. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Fungsi:</strong> Ideal untuk sistem distribusi yang membutuhkan respons cepat, seperti pengaturan aliran ke hydran.</li>
+                        <li><strong>Spesifikasi:</strong> Tekanan maksimum 10 bar, material PVC atau kuningan, diameter 0.5-4 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa bola katup untuk memastikan tidak ada keausan atau kebocoran setiap 6 bulan.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Ball valve pada jaringan Blok C digunakan untuk mengatur aliran ke toilet, mengurangi konsumsi air dari 10 m³/hari ke 8 m³/hari.</p>
+                    <p><strong>Standar:</strong> Ball valve harus sesuai dengan ISO 7121:2016 untuk performa katup.</p>
+                `
+            },
+            {
+                title: 'Check Valve',
+                content: `
+                    <p>Check valve mencegah aliran balik untuk melindungi pompa dan sistem distribusi. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Fungsi:</strong> Memastikan aliran searah, terutama pada sistem pompa atau jaringan WWTP.</li>
+                        <li><strong>Spesifikasi:</strong> Tekanan maksimum 12 bar, material stainless steel atau kuningan, diameter 1-4 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa mekanisme pegas atau flap setiap 3 bulan untuk mencegah kebocoran balik.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Check valve pada pompa submersible di Blok P mencegah aliran balik, menjaga efisiensi pompa pada 80%.</p>
+                    <p><strong>Standar:</strong> Check valve harus memenuhi SNI 01-3538-1994 untuk katup air.</p>
+                `
+            }
+        ],
+        'Jenis Hydran': [
+            {
+                title: 'Hydran Pilar',
+                content: `
+                    <p>Hydran pilar digunakan di area terbuka untuk kebutuhan darurat seperti pemadam kebakaran. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Tekanan 6-10 bar, laju alir 20-40 L/detik, memiliki 2-3 outlet, material kuningan atau baja.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa outlet dan katup setiap bulan, lakukan uji alir setiap 6 bulan.</li>
+                        <li><strong>Monitoring:</strong> Catat tekanan operasional menggunakan pressure gauge untuk memastikan kesiapan.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Hydran pilar di Blok P diuji dengan tekanan 8 bar dan laju alir 35 L/detik, memenuhi standar NFPA 25.</p>
+                    <p><strong>Standar:</strong> Hydran pilar harus sesuai SNI 03-1745-2000.</p>
+                `
+            },
+            {
+                title: 'Hydran Bawah Tanah',
+                content: `
+                    <p>Hydran bawah tanah dipasang untuk estetika dan keamanan di area publik. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Tekanan 6-8 bar, laju alir 15-30 L/detik, memerlukan kunci khusus untuk akses, material stainless steel.</li>
+                        <li><strong>Pemeliharaan:</strong> Bersihkan penutup hydran setiap bulan untuk mencegah korosi dan pastikan kunci akses berfungsi.</li>
+                        <li><strong>Monitoring:</strong> Uji tekanan dan laju alir setiap 6 bulan untuk memastikan performa.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Hydran bawah tanah di Blok H diuji dengan laju alir 25 L/detik, memenuhi kebutuhan darurat.</p>
+                    <p><strong>Standar:</strong> Hydran bawah tanah harus sesuai SNI 03-1745-2000.</p>
+                `
+            },
+            {
+                title: 'Hydran Dinding',
+                content: `
+                    <p>Hydran dinding dipasang di dalam gedung untuk kebutuhan darurat dalam ruangan. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Tekanan 4-6 bar, laju alir 10-20 L/detik, material kuningan, diameter outlet 1-2 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa katup dan selang setiap 3 bulan untuk memastikan aksesibilitas dan fungsi.</li>
+                        <li><strong>Monitoring:</strong> Catat status operasional dalam checklist harian untuk memastikan kesiapan.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Hydran dinding di Blok E diuji dengan tekanan 5 bar, cocok untuk kebutuhan dalam ruangan.</p>
+                    <p><strong>Standar:</strong> Hydran dinding harus sesuai SNI 03-1745-2000.</p>
+                `
+            }
+        ],
+        'Jenis Water Meter': [
+            {
+                title: 'Water Meter Mekanis',
+                content: `
+                    <p>Water meter mekanis mengukur aliran air berdasarkan putaran turbin. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Akurasi ±2%, cocok untuk air bersih dengan TSS <50 ppm, diameter 0.5-4 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Bersihkan turbin setiap 6 bulan untuk mencegah penyumbatan oleh sedimen.</li>
+                        <li><strong>Monitoring:</strong> Catat pembacaan harian dan bandingkan dengan data historis untuk mendeteksi anomali.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Water meter mekanis di Blok A menunjukkan konsumsi 100 m³/hari, sesuai dengan kebutuhan domestik.</p>
+                    <p><strong>Standar:</strong> Water meter harus sesuai SNI 2547:2008 untuk alat ukur air.</p>
+                `
+            },
+            {
+                title: 'Water Meter Ultrasonik',
+                content: `
+                    <p>Water meter ultrasonik menggunakan gelombang suara untuk mengukur aliran air. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Akurasi ±1%, tahan terhadap sedimen, cocok untuk air WWTP, diameter 1-6 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Kalibrasi setiap 12 bulan untuk memastikan akurasi pengukuran.</li>
+                        <li><strong>Monitoring:</strong> Gunakan fitur telemetri untuk mengirim data aliran ke sistem pusat secara real-time.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Water meter ultrasonik di Blok P mengukur aliran WWTP 30 m³/jam dengan akurasi tinggi, mendeteksi anomali aliran.</p>
+                    <p><strong>Standar:</strong> Water meter ultrasonik harus sesuai ISO 4064:2014.</p>
+                `
+            },
+            {
+                title: 'Water Meter Elektromagnetik',
+                content: `
+                    <p>Water meter elektromagnetik mengukur aliran dengan medan magnet. Berikut adalah karakteristiknya:</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Akurasi ±0.5%, cocok untuk air dengan kandungan logam tinggi, diameter 2-8 inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa elektroda setiap 6 bulan untuk mencegah korosi dan kalibrasi setiap 12 bulan.</li>
+                        <li><strong>Monitoring:</strong> Integrasikan dengan sistem SCADA untuk analisis data aliran secara real-time.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Water meter elektromagnetik di Blok H mengukur aliran air industri 50 m³/jam dengan akurasi tinggi.</p>
+                    <p><strong>Standar:</strong> Water meter elektromagnetik harus sesuai ISO 4064:2014.</p>
+                `
+            }
         ],
         'Baku Mutu Air': [
-            { title: 'Standar Air Bersih', content: 'Air bersih harus memenuhi standar pH 6.5-8.5, tidak berbau, dan bebas dari kontaminan biologis.' },
-            { title: 'Pengujian Air', content: 'Lakukan pengujian air secara berkala untuk memastikan kualitas air sesuai baku mutu.' }
-        ],
-        'Ranah Penggunaan Air': [
-            { title: 'Domestik', content: 'Air digunakan untuk kebutuhan toilet, kantin, dan mess karyawan.' },
-            { title: 'Industri', content: 'Air digunakan untuk cooling tower, mesin produksi, dan laboratorium.' }
+            {
+                title: 'Standar Kualitas Air',
+                content: `
+                    <p>Kualitas air harus memenuhi standar untuk memastikan aman digunakan. Berikut adalah parameter utama:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Standar</th>
+                                <th>Alat Ukur</th>
+                                <th>Frekuensi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>pH</td>
+                                <td>6.5-8.5</td>
+                                <td>pH Meter</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>TDS</td>
+                                <td>< 500 ppm</td>
+                                <td>TDS Meter</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>Turbiditas</td>
+                                <td>< 5 NTU</td>
+                                <td>Turbidimeter</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>E. coli</td>
+                                <td>0 CFU/100 mL</td>
+                                <td>Kit Uji Bakteri</td>
+                                <td>Mingguan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Pengujian:</strong> Lakukan pengujian rutin menggunakan alat portabel dan kirim sampel ke laboratorium setiap bulan untuk verifikasi.</p>
+                    <p><strong>Standar:</strong> Kualitas air harus sesuai Permenkes No. 492/Menkes/Per/IV/2010.</p>
+                `
+            },
+            {
+                title: 'Monitoring dan Analisis Kualitas Air',
+                content: `
+                    <p>Monitoring kualitas air dilakukan untuk memastikan air aman untuk distribusi. Berikut adalah prosedurnya:</p>
+                    <ul>
+                        <li><strong>Pengambilan Sampel:</strong> Ambil sampel air dari bak RO, WWTP, dan PDAM setiap hari pada titik distribusi utama.</li>
+                        <li><strong>Pengukuran Parameter:</strong> Gunakan alat ukur pH, TDS, dan turbiditas untuk memantau kualitas air secara real-time.</li>
+                        <li><strong>Analisis Tren:</strong> Simpan data kualitas air dalam database (misalnya, aplikasi ini) untuk analisis tren bulanan.</li>
+                        <li><strong>Tindakan Korektif:</strong> Jika pH <6.5 atau TDS >500 ppm, lakukan penyesuaian di WTP atau laporkan ke supervisor.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Pengukuran TDS di Blok A menunjukkan 600 ppm, memicu pembersihan filter RO untuk mengembalikan TDS ke <500 ppm.</p>
+                    <p><strong>Standar:</strong> Monitoring harus sesuai ISO 5667-5:2006 untuk pengambilan sampel air.</p>
+                `
+            }
         ],
         'Konsumsi Harian Air': [
-            { title: 'Konsumsi Rata-rata', content: 'Konsumsi air harian rata-rata adalah 100-150 liter per orang untuk kebutuhan domestik.' },
-            { title: 'Penghematan Air', content: 'Gunakan air secara efisien dengan memeriksa kebocoran secara rutin.' }
+            {
+                title: 'Estimasi Konsumsi Air',
+                content: `
+                    <p>Estimasi konsumsi air penting untuk perencanaan distribusi dan penghematan. Berikut adalah metode estimasi:</p>
+                    <ul>
+                        <li><strong>Konsumsi Domestik:</strong> Rata-rata 100-150 L/orang/hari untuk kebutuhan toilet, kantin, dan mess.</li>
+                        <li><strong>Konsumsi Industri:</strong> Rata-rata 500-1000 L/jam untuk cooling tower, mesin, dan laboratorium.</li>
+                        <li><strong>Rumus Estimasi:</strong> Total Konsumsi = (Jumlah Pengguna × Konsumsi per Orang) + (Kapasitas Mesin × Jam Operasi).</li>
+                        <li><strong>Data Historis:</strong> Gunakan data meter induk dan distribusi dari aplikasi ini untuk memprediksi konsumsi harian.</li>
+                    </ul>
+                    <p><strong>Contoh Perhitungan:</strong> Untuk 100 karyawan (150 L/orang) dan cooling tower (800 L/jam × 8 jam), total konsumsi = (100 × 150) + (800 × 8) = 21,400 L/hari.</p>
+                    <p><strong>Standar:</strong> Estimasi konsumsi harus sesuai SNI 7507:2011.</p>
+                `
+            },
+            {
+                title: 'Strategi Penghematan Air',
+                content: `
+                    <p>Penghematan air dilakukan untuk mengurangi pemborosan dan biaya operasional. Berikut adalah strategi utama:</p>
+                    <ul>
+                        <li><strong>Deteksi Kebocoran:</strong> Bandingkan pembacaan meter induk dan distribusi harian untuk mendeteksi kehilangan air >5%.</li>
+                        <li><strong>Audit Air:</strong> Lakukan audit bulanan untuk mengidentifikasi penggunaan berlebih di blok tertentu (misalnya, toilet di Blok C).</li>
+                        <li><strong>Penggunaan Teknologi:</strong> Pasang flow restrictor pada kran dan gunakan sensor aliran untuk memantau konsumsi real-time.</li>
+                        <li><strong>Edukasi Pengguna:</strong> Sosialisasikan pentingnya penghematan air kepada karyawan melalui pelatihan rutin.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Pemasangan flow restrictor di Blok E mengurangi konsumsi toilet dari 10 m³/hari ke 7 m³/hari.</p>
+                    <p><strong>Standar:</strong> Penghematan air harus sesuai ISO 46001:2019 untuk manajemen air.</p>
+                `
+            }
         ],
         'Water Treatment Plant': [
-            { title: 'Proses WTP', content: 'Proses WTP meliputi koagulasi, flokulasi, sedimentasi, filtrasi, dan disinfeksi untuk menghasilkan air bersih.' },
-            { title: 'Pemeliharaan WTP', content: 'Lakukan pembersihan filter dan pengecekan pompa secara berkala untuk menjaga efisiensi WTP.' }
+            {
+                title: 'Estimasi Kebutuhan Air',
+                content: `
+                    <p>Estimasi kebutuhan air di WTP dilakukan untuk memastikan pasokan memadai. Berikut adalah metode estimasi:</p>
+                    <ul>
+                        <li><strong>Rumus Estimasi:</strong> Kebutuhan Harian = (Rata-rata Pemakaian Harian × Jumlah Hari) + Buffer (10-20%).</li>
+                        <li><strong>Data Historis:</strong> Gunakan data meter induk dan distribusi dari aplikasi ini untuk menghitung rata-rata pemakaian (misalnya, 500 m³/hari).</li>
+                        <li><strong>Faktor Penyesuaian:</strong> Pertimbangkan peningkatan konsumsi selama musim kemarau (+15%) atau operasi mesin tambahan.</li>
+                        <li><strong>Contoh Perhitungan:</strong> Untuk rata-rata 500 m³/hari dan buffer 15%, kebutuhan = 500 × 1.15 = 575 m³/hari.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Estimasi untuk Blok A dan B menunjukkan kebutuhan 600 m³/hari, memicu penyesuaian pasokan PDAM.</p>
+                    <p><strong>Standar:</strong> Estimasi harus sesuai ISO 24512:2007 untuk pengelolaan air.</p>
+                `
+            },
+            {
+                title: 'Monitoring Sistem WTP',
+                content: `
+                    <p>Monitoring sistem WTP dilakukan untuk memastikan operasi yang efisien dan andal. Berikut adalah parameter utama:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Standar</th>
+                                <th>Alat Ukur</th>
+                                <th>Frekuensi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Laju Alir Pompa</td>
+                                <td>10-100 m³/jam</td>
+                                <td>Flow Meter</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>Tekanan Pipa</td>
+                                <td>2-6 bar</td>
+                                <td>Pressure Gauge</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>Ketinggian Bak</td>
+                                <td>50-200 cm</td>
+                                <td>Level Sensor</td>
+                                <td>Harian</td>
+                            </tr>
+                            <tr>
+                                <td>Kualitas Air</td>
+                                <td>pH 6.5-8.5, TDS <500 ppm</td>
+                                <td>pH/TDS Meter</td>
+                                <td>Harian</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><strong>Metode Monitoring:</strong> Gunakan sensor IoT untuk pengumpulan data real-time dan integrasikan dengan aplikasi ini untuk analisis tren.</p>
+                    <p><strong>Contoh Aplikasi:</strong> Penurunan ketinggian bak RO ke 40 cm memicu aktivasi pompa booster untuk menjaga pasokan.</p>
+                    <p><strong>Standar:</strong> Monitoring WTP harus sesuai ISO 24512:2007.</p>
+                `
+            },
+            {
+                title: 'Pemeliharaan Sistem Monitoring',
+                content: `
+                    <p>Pemeliharaan alat monitoring diperlukan untuk memastikan akurasi data. Berikut adalah prosedurnya:</p>
+                    <ul>
+                        <li><strong>Kalibrasi Flow Meter:</strong> Kalibrasi setiap 6 bulan menggunakan alat standar untuk memastikan akurasi ±1%.</li>
+                        <li><strong>Pemeriksaan Pressure Gauge:</strong> Kalibrasi setiap 6 bulan dan periksa kebocoran pada sambungan.</li>
+                        <li><strong>Pembersihan Sensor Level:</strong> Bersihkan sensor ketinggian bak setiap 3 bulan untuk mencegah endapan yang mengganggu pengukuran.</li>
+                        <li><strong>Pembaruan Sistem:</strong> Perbarui perangkat lunak aplikasi ini setiap tahun untuk mendukung fitur monitoring baru.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Kalibrasi flow meter di Blok P meningkatkan akurasi pengukuran dari ±3% ke ±1%, mengurangi kesalahan estimasi.</p>
+                    <p><strong>Standar:</strong> Pemeliharaan alat ukur harus sesuai ISO 10012:2003 untuk sistem pengukuran.</p>
+                `
+            }
         ]
     };
 
     let filteredData = educationData[category] || [];
     if (search) {
-        filteredData = filteredData.filter(item => item.title.toLowerCase().includes(search) || item.content.toLowerCase().includes(search));
+        filteredData = filteredData.filter(item => 
+            item.title.toLowerCase().includes(search) || 
+            item.content.toLowerCase().includes(search)
+        );
     }
 
     contentDiv.innerHTML = filteredData.length > 0 ? filteredData.map(item => `
@@ -2166,14 +2799,17 @@ function loadEducationContent() {
             <div class="accordion-header">${item.title}</div>
             <div class="accordion-content">${item.content}</div>
         </div>
-    `).join('') : '<p>Tidak ada konten yang sesuai.</p>';
+    `).join('') : '<p>Tidak ada konten yang sesuai dengan pencarian atau kategori yang dipilih.</p>';
 
     document.querySelectorAll('.accordion-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const content = header.nextElementSibling;
-            content.classList.toggle('active');
-        });
+        header.removeEventListener('click', toggleAccordion); // Hapus event listener sebelumnya untuk mencegah duplikasi
+        header.addEventListener('click', toggleAccordion);
     });
+}
+
+function toggleAccordion(event) {
+    const content = event.currentTarget.nextElementSibling;
+    content.classList.toggle('active');
 }
 
 async function deleteData() {
