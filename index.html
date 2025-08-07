@@ -1672,17 +1672,17 @@
                     <li><strong>Waktu:</strong> ${data.time || '-'}</li>
                     <li><strong>Shift:</strong> ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}</li>
                     <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
-                    <li><strong>1. Bak Distribusi RO:</strong> ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)</li>
-                    <li><strong>2. Bak Distribusi WWTP:</strong> ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)</li>
-                    <li><strong>3. Pompa Transfer:</strong> ${data.pompa || '-'}</li>
-                    <li><strong>4. Bak Input PDAM:</strong> ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)</li>
-                    <li><strong>5. Hydrant Status:</strong> ${data.hydrantStatus || '-'}</li>
-                    <li><strong>6. Supply Air PDAM:</strong> ${data.supplyPDAM || '-'}</li>
-                    <li><strong>7. Meter Induk PDAM:</strong> ${data.meterIndukPDAM || 0} m³</li>
-                    <li><strong>8. Meter Induk WTP:</strong> ${data.meterIndukWTP || 0} m³</li>
-                    <li><strong>9. Flow Input PDAM:</strong> ${data.PDAM || 0} m³</li>
-                    <li><strong>10. Flow Rate PDAM:</strong> ${data.flowPDAM || 0} m³/j</li>
-                    <li><strong>11. Catatan:</strong> ${data.catatan || '-'}</li>
+                    <li><strong>Bak Distribusi RO:</strong> ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)</li>
+                    <li><strong>Bak Distribusi WWTP:</strong> ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)</li>
+                    <li><strong>Pompa Transfer:</strong> ${data.pompa || '-'}</li>
+                    <li><strong>Bak Input PDAM:</strong> ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)</li>
+                    <li><strong>Hydrant Status:</strong> ${data.hydrantStatus || '-'}</li>
+                    <li><strong>Supply Air PDAM:</strong> ${data.supplyPDAM || '-'}</li>
+                    <li><strong>Meter Induk PDAM:</strong> ${data.meterIndukPDAM || 0} m³</li>
+                    <li><strong>Meter Induk WTP:</strong> ${data.meterIndukWTP || 0} m³</li>
+                    <li><strong>Flow Input PDAM:</strong> ${data.PDAM || 0} m³</li>
+                    <li><strong>Flow Rate PDAM:</strong> ${data.flowPDAM || 0} m³/j</li>
+                    <li><strong>Catatan:</strong> ${data.catatan || '-'}</li>
                 </ul>
             `;
             modal.style.display = 'block';
@@ -1696,11 +1696,12 @@
         
         function shareChecklist(data) {
     const message = `
-Laporan Checklist
-Tanggal: ${data.date || '-'}
-Waktu: ${data.time || '-'}
-Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
-Penginput: ${data.nik || '-'} - ${data.name || '-'}
+• Laporan Checklist
+• Tanggal: ${data.date || '-'}
+• Waktu: ${data.time || '-'}
+• Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
+• Penginput: ${data.nik || '-'} - ${data.name || '-'}
+
 1. Bak Distribusi RO: ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)
 2. Bak Distribusi WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
 3. Pompa Transfer: ${data.pompa || '-'}
@@ -1711,7 +1712,8 @@ Penginput: ${data.nik || '-'} - ${data.name || '-'}
 8. Meter Induk WTP: ${data.meterIndukWTP || 0} m³
 9. Flow Input PDAM: ${data.PDAM || 0} m³
 10. Flow Rate PDAM: ${data.flowPDAM || 0} m³/j
-11. Catatan: ${data.catatan || '-'}
+
+Catatan: ${data.catatan || '-'}
     `.trim();
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
@@ -2287,12 +2289,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
             const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
             const message = `
-Laporan Meter Lapangan
-Tanggal: ${data.date || '-'}
-Waktu: ${data.time || '-'}
-Blok: ${data.block || '-'}
-Lokasi: ${data.location || '-'}
-Angka Meter: ${data.meterReading || 0} m³
+• Laporan Meter Lapangan
+• Tanggal: ${data.date || '-'}
+• Waktu: ${data.time || '-'}
+• Blok: ${data.block || '-'}
+• Lokasi: ${data.location || '-'}
+• Angka Meter: ${data.meterReading || 0} m³
+
 Catatan: ${data.notes || '-'}
             `.trim();
             const encodedMessage = encodeURIComponent(message);
@@ -2304,12 +2307,13 @@ Catatan: ${data.notes || '-'}
         if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
             const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
             const message = `
-Laporan Kerusakan
-Tanggal: ${data.date || '-'}
-Jenis Kerusakan: ${data.damageType || '-'}
-Blok: ${data.block || '-'}
-Lokasi: ${data.location || '-'}
-Spesifik: ${data.specific || '-'}
+• Laporan Kerusakan
+• Tanggal: ${data.date || '-'}
+• Jenis Kerusakan: ${data.damageType || '-'}
+• Blok: ${data.block || '-'}
+• Lokasi: ${data.location || '-'}
+• Spesifik: ${data.specific || '-'}
+
 Catatan: ${data.notes || '-'}
             `.trim();
             const encodedMessage = encodeURIComponent(message);
