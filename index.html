@@ -11,6 +11,7 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* CSS tetap sama seperti sebelumnya */
         * {
             margin: 0;
             padding: 0;
@@ -29,7 +30,6 @@
             transition: background 0.3s ease;
         }
 
-        /* Tema Terang */
         body.light-theme {
             background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
             color: #333;
@@ -106,7 +106,6 @@
             background: rgba(76, 175, 80, 0.1);
         }
 
-        /* Tema Gelap */
         body.dark-theme {
             background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
             color: #e0e0e0;
@@ -1008,7 +1007,7 @@
             <div class="pagination" id="meterPagination"></div>
         </div>
     </div>
-
+    
     <!-- Halaman Laporan Kerusakan -->
     <div id="damagePage" class="container" style="display: none;">
         <div class="header">
@@ -1243,7 +1242,7 @@
             <button class="btn delete-data-btn" id="deleteDataButton">Hapus Data</button>
         </div>
     </div>
-
+    
     <!-- Modal untuk Detail Laporan -->
     <div id="modalOverlay" class="modal-overlay"></div>
     <div id="detailModal" class="modal">
@@ -1332,18 +1331,6 @@
             }
         }
 
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -1376,6 +1363,14 @@
             if (pageId === 'dataManagementPage' && currentNIK !== 'CA00383') {
                 showNotification('Hanya NIK CA00383 yang dapat mengakses manajemen data.');
                 switchPage('mainPage');
+            }
+            if (pageId === 'meterPage') {
+                listenMeterReports(1);
+                populateMeterFilterDate();
+            }
+            if (pageId === 'damagePage') {
+                listenDamageReports(1);
+                populateDamageFilterDate();
             }
         }
 
@@ -1579,11 +1574,17 @@
         }
 
         async function getLastVisibleDoc(collectionName, page, limit) {
-            const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'), limit(limit * (page - 1)));
-            const snapshot = await getDocs(q);
-            return snapshot.docs[snapshot.docs.length - 1];
+            try {
+                const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'), limit(limit * (page - 1)));
+                const snapshot = await getDocs(q);
+                return snapshot.docs[snapshot.docs.length - 1];
+            } catch (error) {
+                console.error(`Error getting last visible doc for ${collectionName}:`, error);
+                showNotification(`Gagal memuat dokumen terakhir untuk ${collectionName}.`);
+                return null;
+            }
         }
-
+        
         async function listenReports(page = 1) {
             const filterDate = document.getElementById('filterDate').value;
             const filterShift = document.getElementById('filterShift').value;
@@ -1594,55 +1595,71 @@
             let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
             if (page > 1) {
                 const lastVisible = await getLastVisibleDoc('checklists', page, ITEMS_PER_PAGE);
-                q = query(q, startAfter(lastVisible));
+                if (lastVisible) {
+                    q = query(q, startAfter(lastVisible));
+                }
             }
             if (filterDate) q = query(q, where('date', '==', filterDate));
             if (filterShift) q = query(q, where('shift', '==', filterShift));
             if (filterNIK) q = query(q, where('nik', '==', filterNIK));
 
-            onSnapshot(q, async (snapshot) => {
-                reportBody.innerHTML = '';
-                const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (checklists.length === 0) {
-                    reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data checklist.</td></tr>';
-                } else {
-                    checklists.forEach(c => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${c.date || '-'}</td>
-                            <td>${c.time || '-'}</td>
-                            <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
-                            <td>${c.nik || '-'} - ${c.name || '-'}</td>
-                            <td>${c.catatan || '-'}</td>
-                            <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                            <td><button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>Edit</button></td>
-                        `;
-                        reportBody.appendChild(row);
-                    });
-                }
+            try {
+                onSnapshot(q, async (snapshot) => {
+                    console.log('Checklist snapshot:', snapshot.docs.map(doc => doc.data()));
+                    reportBody.innerHTML = '';
+                    const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    if (checklists.length === 0) {
+                        console.log('No checklist data found for current filters');
+                        reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data checklist.</td></tr>';
+                    } else {
+                        checklists.forEach(c => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${c.date || '-'}</td>
+                                <td>${c.time || '-'}</td>
+                                <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
+                                <td>${c.nik || '-'} - ${c.name || '-'}</td>
+                                <td>${c.catatan || '-'}</td>
+                                <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
+                                <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                                <td><button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>Edit</button></td>
+                            `;
+                            reportBody.appendChild(row);
+                        });
+                    }
 
-                const totalDocs = (await getDocs(query(collection(db, 'checklists')))).size;
-                pagination.innerHTML = `
-                    <button onclick="listenReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
-                    <span>Halaman ${page}</span>
-                    <button onclick="listenReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
-                `;
-            }, (error) => {
-                console.error('Error fetching checklists:', error);
-                showNotification('Gagal memuat laporan checklist.');
-            });
+                    const totalDocs = (await getDocs(query(collection(db, 'checklists')))).size;
+                    pagination.innerHTML = `
+                        <button onclick="listenReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
+                        <span>Halaman ${page}</span>
+                        <button onclick="listenReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
+                    `;
+                }, (error) => {
+                    console.error('Error in listenReports:', error);
+                    showNotification(`Gagal memuat laporan checklist: ${error.message}`);
+                });
+            } catch (error) {
+                console.error('Error setting up checklist listener:', error);
+                showNotification(`Gagal mengatur listener checklist: ${error.message}`);
+            }
         }
 
         async function populateFilters() {
-            const filterDate = document.getElementById('filterDate');
-            const filterNIK = document.getElementById('filterNIK');
-            const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date', 'desc')));
-            const checklists = snapshot.docs.map(doc => doc.data());
-            const dates = [...new Set(checklists.map(c => c.date))].sort((a, b) => new Date(b) - new Date(a));
-            const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
-            filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
-            filterNIK.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+            console.log('Populating checklist filters...');
+            try {
+                const filterDate = document.getElementById('filterDate');
+                const filterNIK = document.getElementById('filterNIK');
+                const snapshot = await getDocs(query(collection(db, 'checklists'), orderBy('date', 'desc')));
+                const checklists = snapshot.docs.map(doc => doc.data());
+                console.log('Checklist dates:', checklists.map(c => c.date));
+                const dates = [...new Set(checklists.map(c => c.date))].sort((a, b) => new Date(b) - new Date(a));
+                const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
+                filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+                filterNIK.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
+            } catch (error) {
+                console.error('Error populating checklist filters:', error);
+                showNotification(`Gagal memuat filter checklist: ${error.message}`);
+            }
         }
 
         function showDetail(data) {
@@ -1676,275 +1693,302 @@
             document.getElementById('detailModal').style.display = 'none';
             document.getElementById('modalOverlay').style.display = 'none';
         }
-
+        
         function shareChecklist(data) {
-            const message = encodeURIComponent(`
-Checklist Sistem Air
-• Tanggal: ${data.date || '-'}
-• Waktu: ${data.time || '-'}
-• Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
-• Penginput: ${data.nik || '-'} - ${data.name || '-'}
+    const message = `
+Laporan Checklist
+Tanggal: ${data.date || '-'}
+Waktu: ${data.time || '-'}
+Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
+Penginput: ${data.nik || '-'} - ${data.name || '-'}
+1. Bak Distribusi RO: ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)
+2. Bak Distribusi WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
+3. Pompa Transfer: ${data.pompa || '-'}
+4. Bak Input PDAM: ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)
+5. Hydrant Status: ${data.hydrantStatus || '-'}
+6. Supply Air PDAM: ${data.supplyPDAM || '-'}
+7. Meter Induk PDAM: ${data.meterIndukPDAM || 0} m³
+8. Meter Induk WTP: ${data.meterIndukWTP || 0} m³
+9. Flow Input PDAM: ${data.PDAM || 0} m³
+10. Flow Rate PDAM: ${data.flowPDAM || 0} m³/j
+11. Catatan: ${data.catatan || '-'}
+    `.trim();
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+}
 
-1. Bak Distribusi RO
-   • Status: ${data.bakRO || '-'}
-   • Ketinggian: ${data.tinggiRO || 0} cm
-
-2. Bak Distribusi WWTP
-   • Status: ${data.bakWWTP || '-'}
-   • Ketinggian: ${data.tinggiWWTP || 0} cm
-
-3. Pompa Transfer
-   • Status: ${data.pompa || '-'}
-
-4. Bak Input PDAM
-   • Ketinggian: ${data.tinggiPDAM || 0} cm
-   • Status: ${data.statusPDAM || '-'}
-   • Hydrant Status: ${data.hydrantStatus || '-'}
-
-5. Supply Air PDAM
-   • Status: ${data.supplyPDAM || '-'}
-   • Meter Induk PDAM: ${data.meterIndukPDAM || 0}
-   • Meter Induk WTP: ${data.meterIndukWTP || 0}
-   • Flow Input: ${data.PDAM || 0} m³
-   • Flow Rate: ${data.flowPDAM || 0} m³/j
-
-• Catatan: ${data.catatan || '-'}`);
-            const url = `https://wa.me/?text=${message}`;
-            window.open(url, '_blank');
-        }
-
-        async function saveMeter(event) {
-            event.preventDefault();
-            const saveButton = document.getElementById('saveMeterButton');
-            saveButton.classList.add('loading');
-            const now = new Date();
-            const data = {
-                nik: currentNIK,
-                name: currentUserName,
-                date: now.toLocaleDateString('id-ID'),
-                time: now.toLocaleTimeString('id-ID'),
-                block: document.getElementById('meterBlock').value,
-                location: document.getElementById('meterLocation').value,
-                meterReading: parseFloat(document.getElementById('meterReading').value) || 0,
-                notes: document.getElementById('meterNotes').value || '',
-                createdAt: serverTimestamp()
-            };
-
-            const required = ['block', 'location', 'meterReading'];
-            const missing = required.filter(field => !data[field] && data[field] !== 0);
-
-            if (missing.length > 0) {
-                showNotification('Mohon lengkapi semua field yang wajib diisi!');
-                saveButton.classList.remove('loading');
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, 'meters'), data);
-                showNotification('Data meter berhasil disimpan!', true);
-                document.getElementById('meterForm').reset();
-                document.getElementById('actualUsage').textContent = '';
-                listenMeterReports(1);
-            } catch (error) {
-                console.error('Gagal menyimpan data meter:', error);
-                showNotification(`Gagal menyimpan data meter: ${error.message}`);
-            } finally {
-                saveButton.classList.remove('loading');
-            }
-        }
-
-        async function listenMeterReports(page = 1) {
-            const filterBlock = document.getElementById('meterFilterBlock').value;
-            const filterDate = document.getElementById('meterFilterDate').value;
-            const reportBody = document.getElementById('meterReportBody');
-            const pagination = document.getElementById('meterPagination');
-
-            let q = query(collection(db, 'meters'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
-            if (page > 1) {
-                const lastVisible = await getLastVisibleDoc('meters', page, ITEMS_PER_PAGE);
-                q = query(q, startAfter(lastVisible));
-            }
-            if (filterBlock) q = query(q, where('block', '==', filterBlock));
-            if (filterDate) q = query(q, where('date', '==', filterDate));
-
-            onSnapshot(q, async (snapshot) => {
-                reportBody.innerHTML = '';
-                const meters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (meters.length === 0) {
-                    reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data meter.</td></tr>';
-                } else {
-                    for (const m of meters) {
-                        const actualUsage = await calculateActualUsage(m.block, m.location, m.meterReading, m.date);
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${m.date || '-'}</td>
-                            <td>${m.time || '-'}</td>
-                            <td>${m.block || '-'}</td>
-                            <td>${m.location || '-'}</td>
-                            <td>${m.meterReading || 0} m³</td>
-                            <td>${actualUsage !== null ? actualUsage.toFixed(2) + ' m³' : '-'}</td>
-                            <td>${m.notes || '-'}</td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(m).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                        `;
-                        reportBody.appendChild(row);
-                    }
-                }
-
-                const totalDocs = (await getDocs(query(collection(db, 'meters')))).size;
-                pagination.innerHTML = `
-                    <button onclick="listenMeterReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
-                    <span>Halaman ${page}</span>
-                    <button onclick="listenMeterReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
-                `;
-            }, (error) => {
-                console.error('Error fetching meters:', error);
-                showNotification('Gagal memuat laporan meter.');
-            });
-        }
-
-        async function calculateActualUsage(block, location, currentReading, currentDate) {
-            const q = query(
-                collection(db, 'meters'),
-                where('block', '==', block),
-                where('location', '==', location),
-                where('date', '<', currentDate),
-                orderBy('date', 'desc'),
-                limit(1)
-            );
-            const snapshot = await getDocs(q);
-            if (snapshot.empty) return null;
-            const previous = snapshot.docs[0].data();
-            return currentReading - previous.meterReading;
-        }
-
-        function shareMeter(data) {
-            const message = encodeURIComponent(`
-Laporan Meter Lapangan
-• Tanggal: ${data.date || '-'}
-• Waktu: ${data.time || '-'}
-• Blok: ${data.block || '-'}
-• Lokasi: ${data.location || '-'}
-• Angka Meter: ${data.meterReading || 0} m³
-• Catatan: ${data.notes || '-'}`);
-            const url = `https://wa.me/?text=${message}`;
-            window.open(url, '_blank');
-        }
-
-        async function saveDamage(event) {
-            event.preventDefault();
-            const saveButton = document.getElementById('saveDamageButton');
-            saveButton.classList.add('loading');
-            const now = new Date();
-            const data = {
-                nik: currentNIK,
-                name: currentUserName,
-                date: now.toLocaleDateString('id-ID'),
-                time: now.toLocaleTimeString('id-ID'),
-                damageType: document.getElementById('damageType').value,
-                block: document.getElementById('damageBlock').value,
-                location: document.getElementById('damageLocation').value,
-                specific: document.getElementById('damageSpecific').value,
-                notes: document.getElementById('damageNotes').value || '',
-                createdAt: serverTimestamp()
-            };
-
-            const required = ['damageType', 'block', 'location', 'specific'];
-            const missing = required.filter(field => !data[field]);
-
-            if (missing.length > 0) {
-                showNotification('Mohon lengkapi semua field yang wajib diisi!');
-                saveButton.classList.remove('loading');
-                return;
-            }
-
-            try {
-                await addDoc(collection(db, 'damages'), data);
-                showNotification('Laporan kerusakan berhasil disimpan!', true);
-                document.getElementById('damageForm').reset();
-                listenDamageReports(1);
-            } catch (error) {
-                console.error('Gagal menyimpan laporan kerusakan:', error);
-                showNotification(`Gagal menyimpan laporan kerusakan: ${error.message}`);
-            } finally {
-                saveButton.classList.remove('loading');
-            }
-        }
-
-        async function listenDamageReports(page = 1) {
-            const filterBlock = document.getElementById('damageFilterBlock').value;
-            const filterDate = document.getElementById('damageFilterDate').value;
-            const reportBody = document.getElementById('damageReportBody');
-            const pagination = document.getElementById('damagePagination');
-
-            let q = query(collection(db, 'damages'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
-            if (page > 1) {
-                const lastVisible = await getLastVisibleDoc('damages', page, ITEMS_PER_PAGE);
-                q = query(q, startAfter(lastVisible));
-            }
-            if (filterBlock) q = query(q, where('block', '==', filterBlock));
-            if (filterDate) q = query(q, where('date', '==', filterDate));
-
-            onSnapshot(q, async (snapshot) => {
-                reportBody.innerHTML = '';
-                const damages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (damages.length === 0) {
-                    reportBody.innerHTML = '<tr><td colspan="7">Tidak ada data kerusakan.</td></tr>';
-                } else {
-                    damages.forEach(d => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${d.date || '-'}</td>
-                            <td>${d.damageType || '-'}</td>
-                            <td>${d.block || '-'}</td>
-                            <td>${d.location || '-'}</td>
-                            <td>${d.specific || '-'}</td>
-                            <td>${d.notes || '-'}</td>
-                            <td><button class="whatsapp-btn" data-detail='${JSON.stringify(d).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                        `;
-                        reportBody.appendChild(row);
-                    });
-                }
-
-                const totalDocs = (await getDocs(query(collection(db, 'damages')))).size;
-                pagination.innerHTML = `
-                    <button onclick="listenDamageReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
-                    <span>Halaman ${page}</span>
-                    <button onclick="listenDamageReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
-                `;
-            }, (error) => {
-                console.error('Error fetching damages:', error);
-                showNotification('Gagal memuat laporan kerusakan.');
-            });
-        }
-
-        function shareDamage(data) {
-            const message = encodeURIComponent(`
-Laporan Kerusakan
-• Tanggal: ${data.date || '-'}
-• Jenis Kerusakan: ${data.damageType || '-'}
-• Blok: ${data.block || '-'}
-• Lokasi: ${data.location || '-'}
-• Spesifik: ${data.specific || '-'}
-• Catatan: ${data.notes || '-'}`);
-            const url = `https://wa.me/?text=${message}`;
-            window.open(url, '_blank');
-        }
-
-        async function calculateEstimation(event) {
+async function saveMeter(event) {
     event.preventDefault();
-    const calculateButton = document.getElementById('calculateEstimationButton');
-    calculateButton.classList.add('loading');
-    try {
-        let avgUsage, totalUsage, tankStatus, supplyStatus, projectedUsage;
+    const saveButton = document.getElementById('saveMeterButton');
+    saveButton.classList.add('loading');
+    const now = new Date();
+    const data = {
+        nik: currentNIK,
+        name: currentUserName,
+        date: now.toLocaleDateString('id-ID'),
+        time: now.toLocaleTimeString('id-ID'),
+        block: document.getElementById('meterBlock').value,
+        location: document.getElementById('meterLocation').value,
+        meterReading: parseFloat(document.getElementById('meterReading').value) || 0,
+        notes: document.getElementById('meterNotes').value || '',
+        createdAt: serverTimestamp()
+    };
 
-        // Parameter kapasitas bak (dalam m³)
-        const TANK_CAPACITY_RO = 1200; // 5m × 20m × 12m = 1200 m³ (1.200.000 liter)
-        const TANK_CAPACITY_WWTP = 45; // 3m × 5m × 3m = 45 m³ (45.000 liter)
-        const TANK_CAPACITY_PDAM = 1200; // 5m × 20m × 12m = 1200 m³ (1.200.000 liter)
-        const TANK_HEIGHT_RO = 500; // Tinggi maksimum RO (cm)
-        const TANK_HEIGHT_WWTP = 300; // Tinggi maksimum WWTP (cm)
-        const TANK_HEIGHT_PDAM = 500; // Tinggi maksimum PDAM (cm)
-        const SAFE_LEVEL = 0.3; // Tingkat aman bak (30% dari kapasitas)
+    try {
+        console.log('Menyimpan data meter:', data);
+        await addDoc(collection(db, 'meters'), data);
+        showNotification('Data meter berhasil disimpan!', true);
+        document.getElementById('meterForm').reset();
+        document.getElementById('actualUsage').innerHTML = '';
+        listenMeterReports(1);
+    } catch (error) {
+        console.error('Gagal menyimpan data meter:', error);
+        showNotification(`Gagal menyimpan data meter: ${error.message}`);
+    } finally {
+        saveButton.classList.remove('loading');
+    }
+}
+
+async function saveDamage(event) {
+    event.preventDefault();
+    const saveButton = document.getElementById('saveDamageButton');
+    saveButton.classList.add('loading');
+    const now = new Date();
+    const data = {
+        nik: currentNIK,
+        name: currentUserName,
+        date: now.toLocaleDateString('id-ID'),
+        time: now.toLocaleTimeString('id-ID'),
+        damageType: document.getElementById('damageType').value,
+        block: document.getElementById('damageBlock').value,
+        location: document.getElementById('damageLocation').value,
+        specific: document.getElementById('damageSpecific').value,
+        notes: document.getElementById('damageNotes').value || '',
+        createdAt: serverTimestamp()
+    };
+
+    try {
+        console.log('Menyimpan data kerusakan:', data);
+        await addDoc(collection(db, 'damages'), data);
+        showNotification('Laporan kerusakan berhasil disimpan!', true);
+        document.getElementById('damageForm').reset();
+        listenDamageReports(1);
+    } catch (error) {
+        console.error('Gagal menyimpan laporan kerusakan:', error);
+        showNotification(`Gagal menyimpan laporan kerusakan: ${error.message}`);
+    } finally {
+        saveButton.classList.remove('loading');
+    }
+}
+
+async function calculateActualUsage(block, location, currentReading, currentDate) {
+    try {
+        const q = query(
+            collection(db, 'meters'),
+            where('block', '==', block),
+            where('location', '==', location),
+            where('date', '<', currentDate),
+            orderBy('date', 'desc'),
+            limit(1)
+        );
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {
+            const previous = snapshot.docs[0].data();
+            return currentReading - (previous.meterReading || 0);
+        }
+        return null;
+    } catch (error) {
+        console.error('Gagal menghitung aktual pemakaian:', error);
+        return null;
+    }
+}
+
+async function listenMeterReports(page = 1) {
+    const filterBlock = document.getElementById('meterFilterBlock').value;
+    const filterDate = document.getElementById('meterFilterDate').value;
+    const reportBody = document.getElementById('meterReportBody');
+    const pagination = document.getElementById('meterPagination');
+
+    let q = query(collection(db, 'meters'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
+    if (page > 1) {
+        try {
+            const lastVisible = await getLastVisibleDoc('meters', page, ITEMS_PER_PAGE);
+            if (lastVisible) {
+                q = query(q, startAfter(lastVisible));
+            }
+        } catch (error) {
+            console.error('Error getting last visible doc for meters:', error);
+            showNotification('Gagal memuat dokumen terakhir untuk meter.');
+            return;
+        }
+    }
+    if (filterBlock) q = query(q, where('block', '==', filterBlock));
+    if (filterDate) q = query(q, where('date', '==', filterDate));
+
+    try {
+        onSnapshot(q, async (snapshot) => {
+            console.log('Meter snapshot:', snapshot.docs.map(doc => doc.data()));
+            reportBody.innerHTML = '';
+            const meters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (meters.length === 0) {
+                console.log('No meter data found for current filters');
+                reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data meter.</td></tr>';
+            } else {
+                for (const m of meters) {
+                    const actualUsage = await calculateActualUsage(m.block, m.location, m.meterReading, m.date);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${m.date || '-'}</td>
+                        <td>${m.time || '-'}</td>
+                        <td>${m.block || '-'}</td>
+                        <td>${m.location || '-'}</td>
+                        <td>${m.meterReading || 0} m³</td>
+                        <td>${actualUsage !== null ? actualUsage.toFixed(2) + ' m³' : '-'}</td>
+                        <td>${m.notes || '-'}</td>
+                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(m).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                    `;
+                    reportBody.appendChild(row);
+                }
+            }
+            const totalDocs = (await getDocs(query(collection(db, 'meters')))).size;
+            pagination.innerHTML = `
+                <button onclick="listenMeterReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
+                <span>Halaman ${page}</span>
+                <button onclick="listenMeterReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
+            `;
+        }, (error) => {
+            console.error('Error in listenMeterReports:', error);
+            showNotification(`Gagal memuat laporan meter: ${error.message}`);
+        });
+    } catch (error) {
+        console.error('Error setting up meter listener:', error);
+        showNotification(`Gagal mengatur listener meter: ${error.message}`);
+    }
+}
+
+async function listenDamageReports(page = 1) {
+    const filterBlock = document.getElementById('damageFilterBlock').value;
+    const filterDate = document.getElementById('damageFilterDate').value;
+    const reportBody = document.getElementById('damageReportBody');
+    const pagination = document.getElementById('damagePagination');
+
+    let q = query(collection(db, 'damages'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
+    if (page > 1) {
+        try {
+            const lastVisible = await getLastVisibleDoc('damages', page, ITEMS_PER_PAGE);
+            if (lastVisible) {
+                q = query(q, startAfter(lastVisible));
+            }
+        } catch (error) {
+            console.error('Error getting last visible doc for damages:', error);
+            showNotification('Gagal memuat dokumen terakhir untuk kerusakan.');
+            return;
+        }
+    }
+    if (filterBlock) q = query(q, where('block', '==', filterBlock));
+    if (filterDate) q = query(q, where('date', '==', filterDate));
+
+    try {
+        onSnapshot(q, async (snapshot) => {
+            console.log('Damage snapshot:', snapshot.docs.map(doc => doc.data()));
+            reportBody.innerHTML = '';
+            const damages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (damages.length === 0) {
+                console.log('No damage data found for current filters');
+                reportBody.innerHTML = '<tr><td colspan="7">Tidak ada data kerusakan.</td></tr>';
+            } else {
+                damages.forEach(d => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${d.date || '-'}</td>
+                        <td>${d.damageType || '-'}</td>
+                        <td>${d.block || '-'}</td>
+                        <td>${d.location || '-'}</td>
+                        <td>${d.specific || '-'}</td>
+                        <td>${d.notes || '-'}</td>
+                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(d).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                    `;
+                    reportBody.appendChild(row);
+                });
+            }
+            const totalDocs = (await getDocs(query(collection(db, 'damages')))).size;
+            pagination.innerHTML = `
+                <button onclick="listenDamageReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
+                <span>Halaman ${page}</span>
+                <button onclick="listenDamageReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
+            `;
+        }, (error) => {
+            console.error('Error in listenDamageReports:', error);
+            showNotification(`Gagal memuat laporan kerusakan: ${error.message}`);
+        });
+    } catch (error) {
+        console.error('Error setting up damage listener:', error);
+        showNotification(`Gagal mengatur listener kerusakan: ${error.message}`);
+    }
+}
+
+async function populateMeterFilterDate() {
+    console.log('Populating meter filter date...');
+    try {
+        const filterDate = document.getElementById('meterFilterDate');
+        const snapshot = await getDocs(query(collection(db, 'meters'), orderBy('date', 'desc')));
+        const meters = snapshot.docs.map(doc => doc.data());
+        console.log('Meter dates:', meters.map(m => m.date));
+        const dates = [...new Set(meters.map(m => m.date))].sort((a, b) => new Date(b) - new Date(a));
+        filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+    } catch (error) {
+        console.error('Error populating meter filter date:', error);
+        showNotification(`Gagal memuat filter tanggal meter: ${error.message}`);
+    }
+}
+
+async function populateDamageFilterDate() {
+    console.log('Populating damage filter date...');
+    try {
+        const filterDate = document.getElementById('damageFilterDate');
+        const snapshot = await getDocs(query(collection(db, 'damages'), orderBy('date', 'desc')));
+        const damages = snapshot.docs.map(doc => doc.data());
+        console.log('Damage dates:', damages.map(d => d.date));
+        const dates = [...new Set(damages.map(d => d.date))].sort((a, b) => new Date(b) - new Date(a));
+        filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
+    } catch (error) {
+        console.error('Error populating damage filter date:', error);
+        showNotification(`Gagal memuat filter tanggal kerusakan: ${error.message}`);
+    }
+}
+
+function populateMeterFilterBlock() {
+    const filterBlock = document.getElementById('meterFilterBlock');
+    filterBlock.innerHTML = '<option value="">Semua Blok</option>' + Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
+}
+
+function populateDamageFilterBlock() {
+    const filterBlock = document.getElementById('damageFilterBlock');
+    filterBlock.innerHTML = '<option value="">Semua Blok</option>' + Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
+}
+
+function populateLocations(selectId, block) {
+    const select = document.getElementById(selectId);
+    select.innerHTML = '<option value="">Pilih Lokasi...</option>';
+    if (block && blockLocations[block]) {
+        select.innerHTML += blockLocations[block].map(loc => `<option value="${loc}">${loc}</option>`).join('');
+    }
+}
+
+async function calculateEstimation(event) {
+    event.preventDefault();
+    const button = document.getElementById('calculateEstimationButton');
+    button.classList.add('loading');
+    try {
+        const resultDiv = document.getElementById('estimationResult');
+        const avgUsageSpan = document.getElementById('avgUsage');
+        const totalUsageSpan = document.getElementById('totalUsage');
+        const tankStatusSpan = document.getElementById('tankStatus');
+        const supplyStatusSpan = document.getElementById('supplyStatus');
+        const projectedUsageSpan = document.getElementById('projectedUsage');
+
+        let avgUsage, totalUsage, tankStatus, supplyStatus, projectedUsage;
 
         if (estimationMode === 'auto') {
             const block = document.getElementById('estimationBlock').value;
@@ -1952,54 +1996,69 @@ Laporan Kerusakan
             const timeRange = parseInt(document.getElementById('estimationTimeRange').value);
 
             if (!block || !date || !timeRange) {
-                showNotification('Mohon lengkapi semua field!');
-                calculateButton.classList.remove('loading');
+                showNotification('Mohon lengkapi semua field untuk estimasi otomatis!');
                 return;
             }
 
-            // Ambil data checklist dan meter untuk blok dan tanggal tertentu
-            let qChecklist = query(collection(db, 'checklists'), where('date', '==', date));
-            let qMeter = query(collection(db, 'meters'), where('block', '==', block), where('date', '==', date));
-            const checklistSnapshot = await getDocs(qChecklist);
-            const meterSnapshot = await getDocs(qMeter);
+            const startDate = new Date(date);
+            startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(startDate);
+            endDate.setHours(23, 59, 59, 999);
 
-            const checklists = checklistSnapshot.docs.map(doc => doc.data());
-            const meters = meterSnapshot.docs.map(doc => doc.data());
+            const q = query(
+                collection(db, 'meters'),
+                where('block', '==', block),
+                where('date', '>=', startDate.toLocaleDateString('id-ID')),
+                where('date', '<=', endDate.toLocaleDateString('id-ID')),
+                orderBy('date', 'asc')
+            );
 
-            // Estimasi berdasarkan data checklist
-            const flowPDAM = checklists.reduce((sum, c) => sum + (c.flowPDAM || 0), 0) / (checklists.length || 1);
-            const tinggiRO = checklists.reduce((sum, c) => sum + (c.tinggiRO || 0), 0) / (checklists.length || 1);
-            const tinggiWWTP = checklists.reduce((sum, c) => sum + (c.tinggiWWTP || 0), 0) / (checklists.length || 1);
-            const tinggiPDAM = checklists.reduce((sum, c) => sum + (c.tinggiPDAM || 0), 0) / (checklists.length || 1);
+            const snapshot = await getDocs(q);
+            const meterData = snapshot.docs.map(doc => doc.data());
+            console.log('Meter data for estimation:', meterData);
 
-            // Estimasi berdasarkan data meter
-            const meterReadings = meters.map(m => m.meterReading).sort((a, b) => a - b);
-            const usageDiff = meterReadings.length > 1 ? meterReadings[meterReadings.length - 1] - meterReadings[0] : 0;
+            if (meterData.length < 2) {
+                showNotification('Data meter tidak cukup untuk estimasi otomatis!');
+                return;
+            }
 
-            // Menghitung persentase kapasitas bak
-            const roPercentage = (tinggiRO / TANK_HEIGHT_RO) * 100;
-            const wwtpPercentage = (tinggiWWTP / TANK_HEIGHT_WWTP) * 100;
-            const pdamPercentage = (tinggiPDAM / TANK_HEIGHT_PDAM) * 100;
+            const readings = meterData.map(d => d.meterReading || 0);
+            const times = meterData.map(d => new Date(`${d.date} ${d.time}`));
+            const usageDiff = readings.slice(1).map((r, i) => r - readings[i]);
+            const timeDiff = times.slice(1).map((t, i) => (t - times[i]) / 1000 / 3600);
+            avgUsage = usageDiff.reduce((sum, u, i) => sum + u / timeDiff[i], 0) / usageDiff.length;
+            totalUsage = avgUsage * timeRange;
 
-            // Status bak
-            tankStatus = `RO: ${roPercentage.toFixed(2)}% (Kapasitas: ${TANK_CAPACITY_RO} m³), WWTP: ${wwtpPercentage.toFixed(2)}% (Kapasitas: ${TANK_CAPACITY_WWTP} m³), PDAM: ${pdamPercentage.toFixed(2)}% (Kapasitas: ${TANK_CAPACITY_PDAM} m³)`;
+            const latestChecklist = (await getDocs(query(collection(db, 'checklists'), where('date', '==', date), orderBy('createdAt', 'desc'), limit(1)))).docs[0]?.data();
+            tankStatus = latestChecklist ? `${latestChecklist.bakRO} (RO: ${latestChecklist.tinggiRO} cm), ${latestChecklist.bakWWTP} (WWTP: ${latestChecklist.tinggiWWTP} cm)` : 'Data tidak tersedia';
+            supplyStatus = latestChecklist ? latestChecklist.supplyPDAM : 'Data tidak tersedia';
+            projectedUsage = avgUsage * 24;
 
-            // Status kecukupan suplai
-            const isTankSafe = roPercentage >= SAFE_LEVEL * 100 && wwtpPercentage >= SAFE_LEVEL * 100 && pdamPercentage >= SAFE_LEVEL * 100;
-            const isFlowAdequate = flowPDAM >= usageDiff / (timeRange || 1);
-            supplyStatus = isTankSafe && isFlowAdequate ? 'Memadai' : 'Perhatian: Suplai atau bak di bawah aman';
-
-            // Perhitungan pemakaian
-            avgUsage = usageDiff / (timeRange || 1); // m³/jam
-            totalUsage = avgUsage * timeRange; // m³
-            projectedUsage = avgUsage * 24; // Proyeksi untuk 24 jam
-
-            // Visualisasi dengan Chart.js
-            const labels = Array.from({ length: timeRange }, (_, i) => `Jam ${i + 1}`);
-            const data = Array.from({ length: timeRange }, () => avgUsage);
-            updateChart(labels, data);
+            if (usageChart) {
+                usageChart.destroy();
+            }
+            const ctx = document.getElementById('usageChart').getContext('2d');
+            usageChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: times.map(t => t.toLocaleTimeString('id-ID')),
+                    datasets: [{
+                        label: 'Pemakaian Air (m³)',
+                        data: readings,
+                        borderColor: '#4CAF50',
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Waktu' } },
+                        y: { title: { display: true, text: 'Pemakaian (m³)' } }
+                    }
+                }
+            });
         } else {
-            // Estimasi manual
             const tinggiRO = parseFloat(document.getElementById('manualTinggiRO').value) || 0;
             const tinggiWWTP = parseFloat(document.getElementById('manualTinggiWWTP').value) || 0;
             const tinggiPDAM = parseFloat(document.getElementById('manualTinggiPDAM').value) || 0;
@@ -2009,396 +2068,259 @@ Laporan Kerusakan
                 parseFloat(document.getElementById('meterReading2').value) || 0,
                 parseFloat(document.getElementById('meterReading3').value) || 0,
                 parseFloat(document.getElementById('meterReading4').value) || 0
-            ].filter(v => v > 0);
+            ].filter(r => r > 0);
 
             if (meterReadings.length < 2) {
                 showNotification('Masukkan setidaknya dua pembacaan meter untuk estimasi manual!');
-                calculateButton.classList.remove('loading');
                 return;
             }
+            
+            const usageDiff = meterReadings.slice(1).map((r, i) => r - meterReadings[i]);
+            avgUsage = usageDiff.reduce((sum, u) => sum + u, 0) / usageDiff.length;
+            totalUsage = avgUsage;
+            tankStatus = `RO: ${tinggiRO} cm, WWTP: ${tinggiWWTP} cm, PDAM: ${tinggiPDAM} cm`;
+            supplyStatus = flowPDAM > 0 ? 'Menyala' : 'Mati';
+            projectedUsage = avgUsage * 24;
 
-            // Menghitung persentase kapasitas bak
-            const roPercentage = (tinggiRO / TANK_HEIGHT_RO) * 100;
-            const wwtpPercentage = (tinggiWWTP / TANK_HEIGHT_WWTP) * 100;
-            const pdamPercentage = (tinggiPDAM / TANK_HEIGHT_PDAM) * 100;
-
-            // Status bak
-            tankStatus = `RO: ${roPercentage.toFixed(2)}% (Kapasitas: ${TANK_CAPACITY_RO} m³), WWTP: ${wwtpPercentage.toFixed(2)}% (Kapasitas: ${TANK_CAPACITY_WWTP} m³), PDAM: ${pdamPercentage.toFixed(2)}% (Kapasitas: ${TANK_CAPACITY_PDAM} m³)`;
-
-            // Perhitungan pemakaian
-            const usageDiff = meterReadings[meterReadings.length - 1] - meterReadings[0];
-            avgUsage = usageDiff / 4; // Asumsi 4 jam interval
-            totalUsage = usageDiff; // Total berdasarkan perbedaan
-            projectedUsage = avgUsage * 24; // Proyeksi untuk 24 jam
-
-            // Status kecukupan suplai
-            const isTankSafe = roPercentage >= SAFE_LEVEL * 100 && wwtpPercentage >= SAFE_LEVEL * 100 && pdamPercentage >= SAFE_LEVEL * 100;
-            const isFlowAdequate = flowPDAM >= avgUsage;
-            supplyStatus = isTankSafe && isFlowAdequate ? 'Memadai' : 'Perhatian: Suplai atau bak di bawah aman';
-
-            // Visualisasi dengan Chart.js
-            const labels = ['Pembacaan 1', 'Pembacaan 2', 'Pembacaan 3', 'Pembacaan 4'].slice(0, meterReadings.length);
-            updateChart(labels, meterReadings);
-        }
-
-        document.getElementById('avgUsage').textContent = avgUsage.toFixed(2);
-        document.getElementById('totalUsage').textContent = totalUsage.toFixed(2);
-        document.getElementById('tankStatus').textContent = tankStatus;
-        document.getElementById('supplyStatus').textContent = supplyStatus;
-        document.getElementById('projectedUsage').textContent = projectedUsage.toFixed(2);
-        document.getElementById('estimationResult').style.display = 'block';
-        showNotification('Estimasi pemakaian berhasil dihitung!', true);
-    } catch (error) {
-        console.error('Gagal menghitung estimasi:', error);
-        showNotification(`Gagal menghitung estimasi: ${error.message}`);
-    } finally {
-        calculateButton.classList.remove('loading');
-    }
-}
-
-        function updateChart(labels, data) {
-            const ctx = document.getElementById('usageChart').getContext('2d');
             if (usageChart) {
                 usageChart.destroy();
             }
+            const ctx = document.getElementById('usageChart').getContext('2d');
             usageChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: meterReadings.map((_, i) => `Pembacaan ${i + 1}`),
                     datasets: [{
                         label: 'Pemakaian Air (m³)',
-                        data: data,
+                        data: meterReadings,
                         borderColor: '#4CAF50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                        fill: true,
-                        tension: 0.4
+                        fill: false
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Pemakaian (m³)' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Waktu' }
-                        }
+                        x: { title: { display: true, text: 'Pembacaan' } },
+                        y: { title: { display: true, text: 'Pemakaian (m³)' } }
                     }
                 }
             });
         }
 
-        const educationData = [
-            {
-                category: "K3",
-                title: "Tips Aman Bekerja di Area WTP",
-                description: "1. Gunakan APD lengkap (helm, sarung tangan, sepatu anti-slip). 2. Pastikan ventilasi memadai untuk mencegah paparan gas berbahaya. 3. Lakukan inspeksi rutin terhadap peralatan listrik untuk mencegah korsleting. 4. Ikuti prosedur lockout-tagout (LOTO) saat maintenance pompa atau pipa. 5. Selalu siapkan jalur evakuasi di area WTP.",
-                source: "https://www.ilo.org/jakarta/areasofwork/WCMS_627455/lang--en/index.htm"
-            },
-            {
-                category: "Water Treatment Plant",
-                title: "Optimalisasi Pengolahan Air Domestik",
-                description: "1. Gunakan koagulan seperti PAC (Polyaluminium Chloride) untuk mengendapkan kotoran. 2. Pastikan dosis kimia sesuai dengan volume air (biasanya 5-10 ppm). 3. Lakukan backwash filter secara rutin setiap 48 jam untuk mencegah penyumbatan. 4. Monitor parameter pH dan kekeruhan setiap shift. 5. Gunakan UV sterilizer untuk memastikan air bebas bakteri.",
-                source: "https://www.who.int/water_sanitation_health/publications/drinking-water-quality-guidelines/en/"
-            },
-            {
-                category: "Water Treatment Plant",
-                title: "Pemeliharaan Sistem RO untuk Air Domestik",
-                description: "1. Ganti membran RO setiap 1-2 tahun tergantung pada kualitas air baku. 2. Bersihkan pre-filter setiap bulan untuk mencegah penurunan tekanan. 3. Monitor TDS (Total Dissolved Solids) untuk memastikan kualitas air keluaran di bawah 50 ppm. 4. Pastikan pompa tekanan tinggi beroperasi pada 10-15 bar. 5. Catat semua parameter operasional untuk analisis tren.",
-                source: "https://www.lenntech.com/processes/reverse-osmosis.htm"
-            },
-            {
-                category: "Baku Mutu Air",
-                title: "Standar Kualitas Air Minum",
-                description: "Kualitas air minum harus memenuhi parameter pH 6.5-8.5, TDS < 500 ppm, dan bebas dari kontaminan bakteri seperti E. coli. Lakukan pengujian rutin menggunakan alat TDS meter dan pH meter.",
-                source: "https://www.who.int/water_sanitation_health/publications/drinking-water-quality-guidelines/en/"
-            }
-        ];
+        avgUsageSpan.textContent = avgUsage.toFixed(2);
+        totalUsageSpan.textContent = totalUsage.toFixed(2);
+        tankStatusSpan.textContent = tankStatus;
+        supplyStatusSpan.textContent = supplyStatus;
+        projectedUsageSpan.textContent = projectedUsage.toFixed(2);
+        resultDiv.style.display = 'block';
+    } catch (error) {
+        console.error('Gagal menghitung estimasi:', error);
+        showNotification(`Gagal menghitung estimasi: ${error.message}`);
+    } finally {
+        button.classList.remove('loading');
+    }
+}
 
-        async function importEducationData() {
-            for (const data of educationData) {
-                try {
-                    const q = query(
-                        collection(db, 'education'),
-                        where('title', '==', data.title),
-                        where('category', '==', data.category)
-                    );
-                    const snapshot = await getDocs(q);
-                    if (snapshot.empty) {
-                        await addDoc(collection(db, 'education'), { ...data, createdAt: serverTimestamp() });
-                        console.log(`Berhasil menambahkan: ${data.title}`);
-                    } else {
-                        console.log(`Konten ${data.title} sudah ada, dilewati.`);
-                    }
-                } catch (error) {
-                    console.error(`Gagal menambahkan ${data.title}:`, error);
-                }
-            }
-        }
+function loadEducationContent() {
+    const search = document.getElementById('educationSearch').value.toLowerCase();
+    const category = document.getElementById('educationCategory').value;
+    const contentDiv = document.getElementById('educationContent');
 
-        async function loadEducationContent() {
-            const educationContent = document.getElementById('educationContent');
-            const searchQuery = document.getElementById('educationSearch').value.toLowerCase();
-            const categoryFilter = document.getElementById('educationCategory').value;
+    const educationData = {
+        K3: [
+            { title: 'Prosedur Keselamatan Kerja', content: 'Pastikan semua pekerja menggunakan APD (helm, sepatu keselamatan, sarung tangan) saat bekerja di area WTP. Periksa kondisi peralatan sebelum digunakan.' },
+            { title: 'Penanganan Kebocoran', content: 'Jika terjadi kebocoran, segera matikan sumber air terdekat dan laporkan ke supervisor. Gunakan alat pelindung diri saat menangani kebocoran.' }
+        ],
+        'Spesifikasi Pipa': [
+            { title: 'Jenis Pipa', content: 'Pipa yang digunakan di sistem air meliputi PVC, HDPE, dan stainless steel, masing-masing dengan spesifikasi tekanan dan ketahanan korosi yang berbeda.' },
+            { title: 'Ukuran Pipa', content: 'Ukuran pipa bervariasi dari 1/2 inci hingga 6 inci, tergantung pada kebutuhan distribusi air.' }
+        ],
+        'Baku Mutu Air': [
+            { title: 'Standar Air Bersih', content: 'Air bersih harus memenuhi standar pH 6.5-8.5, tidak berbau, dan bebas dari kontaminan biologis.' },
+            { title: 'Pengujian Air', content: 'Lakukan pengujian air secara berkala untuk memastikan kualitas air sesuai baku mutu.' }
+        ],
+        'Ranah Penggunaan Air': [
+            { title: 'Domestik', content: 'Air digunakan untuk kebutuhan toilet, kantin, dan mess karyawan.' },
+            { title: 'Industri', content: 'Air digunakan untuk cooling tower, mesin produksi, dan laboratorium.' }
+        ],
+        'Konsumsi Harian Air': [
+            { title: 'Konsumsi Rata-rata', content: 'Konsumsi air harian rata-rata adalah 100-150 liter per orang untuk kebutuhan domestik.' },
+            { title: 'Penghematan Air', content: 'Gunakan air secara efisien dengan memeriksa kebocoran secara rutin.' }
+        ],
+        'Water Treatment Plant': [
+            { title: 'Proses WTP', content: 'Proses WTP meliputi koagulasi, flokulasi, sedimentasi, filtrasi, dan disinfeksi untuk menghasilkan air bersih.' },
+            { title: 'Pemeliharaan WTP', content: 'Lakukan pembersihan filter dan pengecekan pompa secara berkala untuk menjaga efisiensi WTP.' }
+        ]
+    };
 
-            let q = query(collection(db, 'education'), orderBy('createdAt', 'desc'));
-            if (categoryFilter) q = query(q, where('category', '==', categoryFilter));
+    let filteredData = educationData[category] || [];
+    if (search) {
+        filteredData = filteredData.filter(item => item.title.toLowerCase().includes(search) || item.content.toLowerCase().includes(search));
+    }
 
-            const snapshot = await getDocs(q);
-            educationContent.innerHTML = '';
-            let filteredData = snapshot.docs.map(doc => doc.data());
+    contentDiv.innerHTML = filteredData.length > 0 ? filteredData.map(item => `
+        <div class="accordion">
+            <div class="accordion-header">${item.title}</div>
+            <div class="accordion-content">${item.content}</div>
+        </div>
+    `).join('') : '<p>Tidak ada konten yang sesuai.</p>';
 
-            if (searchQuery) {
-                filteredData = filteredData.filter(data => 
-                    data.title.toLowerCase().includes(searchQuery) || 
-                    data.description.toLowerCase().includes(searchQuery)
-                );
-            }
-
-            if (filteredData.length === 0) {
-                educationContent.innerHTML = '<p>Tidak ada konten edukasi yang ditemukan.</p>';
-            } else {
-                filteredData.forEach(data => {
-                    const accordion = document.createElement('div');
-                    accordion.className = 'accordion';
-                    accordion.innerHTML = `
-                        <div class="accordion-header">
-                            <span>${data.title} (${data.category})</span>
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                        <div class="accordion-content">
-                            <p>${data.description}</p>
-                            <a href="${data.source}" target="_blank">Baca Selengkapnya</a>
-                        </div>
-                    `;
-                    educationContent.appendChild(accordion);
-                });
-
-                document.querySelectorAll('.accordion-header').forEach(header => {
-                    header.addEventListener('click', () => {
-                        const content = header.nextElementSibling;
-                        content.classList.toggle('active');
-                        const chevron = header.querySelector('i');
-                        chevron.classList.toggle('fa-chevron-down');
-                        chevron.classList.toggle('fa-chevron-up');
-                    });
-                });
-            }
-        }
-
-        async function deleteData(event) {
-            event.preventDefault();
-            const deleteButton = document.getElementById('deleteDataButton');
-            deleteButton.classList.add('loading');
-            const dataType = document.getElementById('dataType').value;
-            const deleteDate = document.getElementById('dataDeleteDate').value;
-
-            if (!dataType || !deleteDate) {
-                showNotification('Mohon pilih tipe data dan tanggal!');
-                deleteButton.classList.remove('loading');
-                return;
-            }
-
-            if (currentNIK !== 'CA00383') {
-                showNotification('Hanya NIK CA00383 yang dapat menghapus data.');
-                deleteButton.classList.remove('loading');
-                return;
-            }
-
-            try {
-                const q = query(collection(db, dataType), where('date', '==', deleteDate));
-                const snapshot = await getDocs(q);
-                if (snapshot.empty) {
-                    showNotification('Tidak ada data untuk tanggal tersebut.');
-                    deleteButton.classList.remove('loading');
-                    return;
-                }
-
-                for (const doc of snapshot.docs) {
-                    await deleteDoc(doc.ref);
-                }
-                showNotification(`Data ${dataType} untuk tanggal ${deleteDate} berhasil dihapus!`, true);
-                document.getElementById('dataManagementPage').style.display = 'none';
-                switchPage('mainPage');
-            } catch (error) {
-                console.error('Gagal menghapus data:', error);
-                showNotification(`Gagal menghapus data: ${error.message}`);
-            } finally {
-                deleteButton.classList.remove('loading');
-            }
-        }
-        
-        function populateBlockLocations(blockSelectId, locationSelectId) {
-            const blockSelect = document.getElementById(blockSelectId);
-            const locationSelect = document.getElementById(locationSelectId);
-            blockSelect.addEventListener('change', () => {
-                const block = blockSelect.value;
-                locationSelect.innerHTML = '<option value="">Pilih Lokasi...</option>';
-                if (block && blockLocations[block]) {
-                    blockLocations[block].forEach(loc => {
-                        const option = document.createElement('option');
-                        option.value = loc;
-                        option.textContent = loc;
-                        locationSelect.appendChild(option);
-                    });
-                }
-            });
-        }
-
-        function populateMeterFilterBlock() {
-            const filterBlock = document.getElementById('meterFilterBlock');
-            filterBlock.innerHTML = '<option value="">Semua Blok</option>';
-            Object.keys(blockLocations).forEach(block => {
-                const option = document.createElement('option');
-                option.value = block;
-                option.textContent = block;
-                filterBlock.appendChild(option);
-            });
-        }
-
-        function populateDamageFilterBlock() {
-            const filterBlock = document.getElementById('damageFilterBlock');
-            filterBlock.innerHTML = '<option value="">Semua Blok</option>';
-            Object.keys(blockLocations).forEach(block => {
-                const option = document.createElement('option');
-                option.value = block;
-                option.textContent = block;
-                filterBlock.appendChild(option);
-            });
-        }
-
-        async function populateMeterFilterDate() {
-            const filterDate = document.getElementById('meterFilterDate');
-            const snapshot = await getDocs(query(collection(db, 'meters'), orderBy('date', 'desc')));
-            const meters = snapshot.docs.map(doc => doc.data());
-            const dates = [...new Set(meters.map(m => m.date))].sort((a, b) => new Date(b) - new Date(a));
-            filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
-        }
-
-        async function populateDamageFilterDate() {
-            const filterDate = document.getElementById('damageFilterDate');
-            const snapshot = await getDocs(query(collection(db, 'damages'), orderBy('date', 'desc')));
-            const damages = snapshot.docs.map(doc => doc.data());
-            const dates = [...new Set(damages.map(d => d.date))].sort((a, b) => new Date(b) - new Date(a));
-            filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
-        }
-
-        function toggleEstimationMode(mode) {
-            estimationMode = mode;
-            document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`switch${mode.charAt(0).toUpperCase() + mode.slice(1)}Estimation`).classList.add('active');
-            document.getElementById('autoEstimationFields').style.display = mode === 'auto' ? 'block' : 'none';
-            document.getElementById('manualEstimationFields').style.display = mode === 'manual' ? 'block' : 'none';
-            document.getElementById('estimationResult').style.display = 'none';
-            if (usageChart) {
-                usageChart.destroy();
-                usageChart = null;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.body.classList.add(`${savedTheme}-theme`);
-            document.getElementById('themeIcon').classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
-
-            document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', () => switchPage(item.dataset.page));
-            });
-            document.getElementById('loginButton').addEventListener('click', login);
-            document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
-            document.getElementById('meterForm').addEventListener('submit', saveMeter);
-            document.getElementById('damageForm').addEventListener('submit', saveDamage);
-            document.getElementById('estimationForm').addEventListener('submit', calculateEstimation);
-            document.getElementById('deleteDataButton').addEventListener('click', deleteData);
-
-            document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
-            document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
-            document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
-
-            document.getElementById('switchAutoEstimation').addEventListener('click', () => toggleEstimationMode('auto'));
-            document.getElementById('switchManualEstimation').addEventListener('click', () => toggleEstimationMode('manual'));
-
-            document.getElementById('modalClose').addEventListener('click', closeModal);
-            document.getElementById('modalOverlay').addEventListener('click', closeModal);
-
-            document.getElementById('reportTable').addEventListener('click', (e) => {
-                if (e.target.classList.contains('detail-btn')) {
-                    const data = JSON.parse(e.target.dataset.detail.replace(/&apos;/g, "'"));
-                    showDetail(data);
-                } else if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
-                    const data = JSON.parse((e.target.dataset.detail || e.target.parentElement.dataset.detail).replace(/&apos;/g, "'"));
-                    shareChecklist(data);
-                } else if (e.target.classList.contains('edit-btn')) {
-                    const data = JSON.parse(e.target.dataset.detail.replace(/&apos;/g, "'"));
-                    showEditForm(data);
-                }
-            });
-
-            document.getElementById('meterTable').addEventListener('click', (e) => {
-                if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
-                    const data = JSON.parse((e.target.dataset.detail || e.target.parentElement.dataset.detail).replace(/&apos;/g, "'"));
-                    shareMeter(data);
-                }
-            });
-
-            document.getElementById('damageTable').addEventListener('click', (e) => {
-                if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
-                    const data = JSON.parse((e.target.dataset.detail || e.target.parentElement.dataset.detail).replace(/&apos;/g, "'"));
-                    shareDamage(data);
-                }
-            });
-
-            const debouncedListenReports = debounce(listenReports, 300);
-            document.getElementById('filterDate').addEventListener('change', () => debouncedListenReports(1));
-            document.getElementById('filterShift').addEventListener('change', () => debouncedListenReports(1));
-            document.getElementById('filterNIK').addEventListener('change', () => debouncedListenReports(1));
-
-            const debouncedListenMeterReports = debounce(listenMeterReports, 300);
-            document.getElementById('meterFilterBlock').addEventListener('change', () => debouncedListenMeterReports(1));
-            document.getElementById('meterFilterDate').addEventListener('change', () => debouncedListenMeterReports(1));
-
-            const debouncedListenDamageReports = debounce(listenDamageReports, 300);
-            document.getElementById('damageFilterBlock').addEventListener('change', () => debouncedListenDamageReports(1));
-            document.getElementById('damageFilterDate').addEventListener('change', () => debouncedListenDamageReports(1));
-
-            const debouncedLoadEducationContent = debounce(loadEducationContent, 300);
-            document.getElementById('educationSearch').addEventListener('input', debouncedLoadEducationContent);
-            document.getElementById('educationCategory').addEventListener('change', debouncedLoadEducationContent);
-
-            document.getElementById('meterBlock').addEventListener('change', async () => {
-                const actualUsage = await calculateActualUsage(
-                    document.getElementById('meterBlock').value,
-                    document.getElementById('meterLocation').value,
-                    parseFloat(document.getElementById('meterReading').value) || 0,
-                    new Date().toLocaleDateString('id-ID')
-                );
-                document.getElementById('actualUsage').textContent = actualUsage !== null ? `Pemakaian Aktual: ${actualUsage.toFixed(2)} m³` : 'Tidak ada data sebelumnya';
-            });
-
-            document.getElementById('meterReading').addEventListener('input', async () => {
-                const actualUsage = await calculateActualUsage(
-                    document.getElementById('meterBlock').value,
-                    document.getElementById('meterLocation').value,
-                    parseFloat(document.getElementById('meterReading').value) || 0,
-                    new Date().toLocaleDateString('id-ID')
-                );
-                document.getElementById('actualUsage').textContent = actualUsage !== null ? `Pemakaian Aktual: ${actualUsage.toFixed(2)} m³` : 'Tidak ada data sebelumnya';
-            });
-
-            setInterval(updateTime, 1000);
-            updateTime();
-            populateBlockLocations('meterBlock', 'meterLocation');
-            populateBlockLocations('damageBlock', 'damageLocation');
-            populateBlockLocations('estimationBlock', 'estimationLocation');
-            populateMeterFilterBlock();
-            populateDamageFilterBlock();
-            populateMeterFilterDate();
-            populateDamageFilterDate();
-            importEducationData();
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
         });
-    </script>
+    });
+}
+
+async function deleteData() {
+    const dataType = document.getElementById('dataType').value;
+    const deleteDate = document.getElementById('dataDeleteDate').value;
+    const button = document.getElementById('deleteDataButton');
+    button.classList.add('loading');
+
+    if (!dataType || !deleteDate) {
+        showNotification('Mohon pilih tipe data dan tanggal!');
+        button.classList.remove('loading');
+        return;
+    }
+
+    try {
+        const q = query(collection(db, dataType), where('date', '==', new Date(deleteDate).toLocaleDateString('id-ID')));
+        const snapshot = await getDocs(q);
+        const batch = snapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(batch);
+        showNotification(`Data ${dataType} untuk tanggal ${deleteDate} berhasil dihapus!`, true);
+        if (dataType === 'checklists') listenReports(1);
+        if (dataType === 'meters') {
+            listenMeterReports(1);
+            populateMeterFilterDate();
+        }
+        if (dataType === 'damages') {
+            listenDamageReports(1);
+            populateDamageFilterDate();
+        }
+    } catch (error) {
+        console.error('Gagal menghapus data:', error);
+        showNotification(`Gagal menghapus data: ${error.message}`);
+    } finally {
+        button.classList.remove('loading');
+    }
+}
+
+// Inisialisasi aplikasi
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.add(`${savedTheme}-theme`);
+    document.getElementById('themeIcon').classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+
+    document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+    document.getElementById('loginButton').addEventListener('click', login);
+    document.getElementById('nikInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') login();
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => switchPage(item.dataset.page));
+    });
+
+    document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
+    document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
+    document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
+
+    document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
+    document.getElementById('meterForm').addEventListener('submit', saveMeter);
+    document.getElementById('damageForm').addEventListener('submit', saveDamage);
+    document.getElementById('estimationForm').addEventListener('submit', calculateEstimation);
+    document.getElementById('deleteDataButton').addEventListener('submit', deleteData);
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', closeModal);
+
+    document.getElementById('meterBlock').addEventListener('change', (e) => populateLocations('meterLocation', e.target.value));
+    document.getElementById('damageBlock').addEventListener('change', (e) => populateLocations('damageLocation', e.target.value));
+
+    // Nonaktifkan debounce untuk filter checklist
+    document.getElementById('filterDate').addEventListener('change', () => listenReports(1));
+    document.getElementById('filterShift').addEventListener('change', () => listenReports(1));
+    document.getElementById('filterNIK').addEventListener('change', () => listenReports(1));
+
+    document.getElementById('meterFilterBlock').addEventListener('change', () => listenMeterReports(1));
+    document.getElementById('meterFilterDate').addEventListener('change', () => listenMeterReports(1));
+    document.getElementById('damageFilterBlock').addEventListener('change', () => listenDamageReports(1));
+    document.getElementById('damageFilterDate').addEventListener('change', () => listenDamageReports(1));
+
+    document.getElementById('switchAutoEstimation').addEventListener('click', () => {
+        estimationMode = 'auto';
+        document.getElementById('switchAutoEstimation').classList.add('active');
+        document.getElementById('switchManualEstimation').classList.remove('active');
+        document.getElementById('autoEstimationFields').style.display = 'block';
+        document.getElementById('manualEstimationFields').style.display = 'none';
+    });
+
+    document.getElementById('switchManualEstimation').addEventListener('click', () => {
+        estimationMode = 'manual';
+        document.getElementById('switchManualEstimation').classList.add('active');
+        document.getElementById('switchAutoEstimation').classList.remove('active');
+        document.getElementById('manualEstimationFields').style.display = 'block';
+        document.getElementById('autoEstimationFields').style.display = 'none';
+    });
+
+    document.getElementById('educationSearch').addEventListener('input', loadEducationContent);
+    document.getElementById('educationCategory').addEventListener('change', loadEducationContent);
+
+    document.getElementById('reportBody').addEventListener('click', (e) => {
+        if (e.target.classList.contains('detail-btn')) {
+            showDetail(JSON.parse(e.target.dataset.detail));
+        }
+        if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
+            const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
+            shareChecklist(data);
+        }
+        if (e.target.classList.contains('edit-btn')) {
+            showEditForm(JSON.parse(e.target.dataset.detail));
+        }
+    });
+
+    document.getElementById('meterReportBody').addEventListener('click', (e) => {
+        if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
+            const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
+            const message = `
+Laporan Meter Lapangan
+Tanggal: ${data.date || '-'}
+Waktu: ${data.time || '-'}
+Blok: ${data.block || '-'}
+Lokasi: ${data.location || '-'}
+Angka Meter: ${data.meterReading || 0} m³
+Catatan: ${data.notes || '-'}
+            `.trim();
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        }
+    });
+
+    document.getElementById('damageReportBody').addEventListener('click', (e) => {
+        if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
+            const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
+            const message = `
+Laporan Kerusakan
+Tanggal: ${data.date || '-'}
+Jenis Kerusakan: ${data.damageType || '-'}
+Blok: ${data.block || '-'}
+Lokasi: ${data.location || '-'}
+Spesifik: ${data.specific || '-'}
+Catatan: ${data.notes || '-'}
+            `.trim();
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+        }
+    });
+
+    populateMeterFilterBlock();
+    populateDamageFilterBlock();
+    setInterval(updateTime, 1000);
+});
+</script>
 </body>
 </html>
