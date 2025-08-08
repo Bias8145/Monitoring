@@ -2079,19 +2079,37 @@ async function saveDamage(event) {
 
 async function calculateActualUsage(block, location, currentReading, currentDate) {
     try {
+        // Query untuk mendapatkan pembacaan meter sebelumnya
         const q = query(
             collection(db, 'meters'),
             where('block', '==', block),
             where('location', '==', location),
-            where('date', '<', currentDate),
-            orderBy('date', 'desc'),
-            limit(1)
+            orderBy('createdAt', 'desc'),
+            limit(10) // Ambil 10 data terakhir untuk mencari yang sebelumnya
         );
         const snapshot = await getDocs(q);
+        
         if (!snapshot.empty) {
-            const previous = snapshot.docs[0].data();
-            return currentReading - (previous.meterReading || 0);
+            const allData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            // Cari data sebelumnya berdasarkan tanggal
+            let previousReading = null;
+            for (let i = 0; i < allData.length; i++) {
+                const data = allData[i];
+                // Bandingkan tanggal (skip data dengan tanggal yang sama)
+                if (data.date !== currentDate && data.meterReading < currentReading) {
+                    previousReading = data.meterReading;
+                    break;
+                }
+            }
+            
+            if (previousReading !== null) {
+                const actual = currentReading - previousReading;
+                return actual > 0 ? actual : 0; // Pastikan tidak negatif
+            }
         }
+        
+        // Jika tidak ada data sebelumnya, return null
         return null;
     } catch (error) {
         console.error('Gagal menghitung aktual pemakaian:', error);
