@@ -3001,9 +3001,9 @@ Catatan: ${data.notes || '-'}
 
     // Fungsi menghitung status dari ketinggian air
     function hitungStatus(ketinggian) {
-        if (ketinggian >= 110) return "Memadai";
-        if (ketinggian >= 90) return "Mencukupi";
-        return "Tidak Memadai";
+        if (ketinggian >= 110) return "Optimal";
+        if (ketinggian >= 90) return "Normal";
+        return "Rendah";
     }
 
     // Fungsi memperbarui tampilan dan hidden value
