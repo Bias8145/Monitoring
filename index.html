@@ -846,14 +846,14 @@
                 <div class="section-divider"></div>
                 <div class="form-group">
                     <select id="bakWWTP" required>
-                        <option value="">Pilih Kondisi Bak Distribusi WWTP...</option>
+                        <option value="">Pilih Kondisi Bak Tampung WWTP...</option>
                         <option value="Memadai">Memadai</option>
                         <option value="Tidak Memadai">Tidak Memadai</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <div class="input-group">
-                        <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Distribusi WWTP (cm)" required>
+                        <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" required>
                         <div class="unit">cm</div>
                     </div>
                 </div>
@@ -1161,7 +1161,7 @@
                     </div>
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="number" id="manualTinggiWWTP" placeholder="Ketinggian Bak Distribusi WWTP (cm)" min="0">
+                            <input type="number" id="manualTinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" min="0">
                             <div class="unit">cm</div>
                         </div>
                     </div>
@@ -1702,7 +1702,7 @@
                     <li><strong>Shift:</strong> ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}</li>
                     <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
                     <li><strong>Bak Distribusi RO:</strong> ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)</li>
-                    <li><strong>Bak Distribusi WWTP:</strong> ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)</li>
+                    <li><strong>Bak Tampung WWTP:</strong> ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)</li>
                     <li><strong>Pompa Transfer:</strong> ${data.pompa || '-'}</li>
                     <li><strong>Bak Input PDAM:</strong> ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)</li>
                     <li><strong>Hydrant Status:</strong> ${data.hydrantStatus || '-'}</li>
@@ -1732,7 +1732,7 @@
 • Penginput: ${data.nik || '-'} - ${data.name || '-'}
 
 1. Bak Distribusi RO: ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)
-2. Bak Distribusi WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
+2. Bak Tampung WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
 3. Pompa Transfer: ${data.pompa || '-'}
 4. Bak Input PDAM: ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)
 5. Hydrant Status: ${data.hydrantStatus || '-'}
