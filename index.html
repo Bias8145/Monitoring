@@ -758,6 +758,10 @@
             text-align: left;
             border: 1px solid rgba(0,0,0,0.1);
             }
+            
+            #reportSection {
+              margin-top: 48px;
+            }
         }
     </style>
 </head>
@@ -884,6 +888,27 @@
                         <option value="">Pilih Status Hydrant...</option>
                         <option value="ON">ON</option>
                         <option value="OFF">OFF</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="AStatus" required>
+                        <option value="">Pilih Status Penggunaan Air Blok A...</option>
+                        <option value="PDAM">PDAM</option>
+                        <option value="RO">RO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="EStatus" required>
+                        <option value="">Pilih Status Penggunaan Air Blok E...</option>
+                        <option value="PDAM">PDAM</option>
+                        <option value="RO">RO</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="damkar" required>
+                        <option value="">Pilih Status Penggunaan Air Damkar...</option>
+                        <option value="PDAM">PDAM</option>
+                        <option value="RO">RO</option>
                     </select>
                 </div>
                 <div class="section-divider"></div>
@@ -1110,113 +1135,91 @@
         </div>
     </div>
 
-    <!-- Halaman Estimasi Pemakaian Air -->
-    <div id="estimationPage" class="container" style="display: none;">
-        <div class="header">
-            <div class="greeting" id="estimationGreeting">Selamat Pagi, User!</div>
-            <h1>Estimasi Pemakaian Air</h1>
-            <div class="subtitle">Perhitungan dan Visualisasi</div>
+  <!-- Halaman Estimasi Pemakaian Air -->
+<div id="estimationPage" class="container" style="display: none; padding: 20px;">
+  <div class="header" style="margin-bottom: 20px;">
+    <div class="greeting" id="estimationGreeting" style="margin-bottom: 6px;">Selamat Pagi, User!</div>
+    <h1 style="margin-bottom: 4px;">Estimasi Pemakaian Air</h1>
+    <div class="subtitle">Perhitungan Manual Berdasarkan Data Bak dan Meter</div>
+  </div>
+
+  <div class="card" style="padding: 20px;">
+    <form id="estimationForm">
+      <!-- Tinggi Bak -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">Data Tinggi Bak (cm)</label>
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO" min="0" max="300" step="1" required>
+          <div class="unit">cm</div>
         </div>
-        <div class="card">
-            <div class="switch-type">
-                <button class="switch-btn active" id="switchAutoEstimation">Otomatis</button>
-                <button class="switch-btn" id="switchManualEstimation">Manual</button>
-            </div>
-            <form id="estimationForm">
-                <div id="autoEstimationFields">
-                    <div class="filter-group">
-                        <select id="estimationBlock" required>
-                            <option value="">Pilih Blok...</option>
-                            <option value="Induk">Induk</option>
-                            <option value="Blok A">Blok A</option>
-                            <option value="Blok B">Blok B</option>
-                            <option value="Blok C">Blok C</option>
-                            <option value="Blok D">Blok D</option>
-                            <option value="Blok E">Blok E</option>
-                            <option value="Blok F">Blok F</option>
-                            <option value="Blok G">Blok G</option>
-                            <option value="Blok H">Blok H</option>
-                            <option value="Blok P">Blok P</option>
-                            <option value="Blok J">Blok J</option>
-                        </select>
-                        <input type="date" id="estimationDate" required>
-                        <select id="estimationTimeRange" required>
-                            <option value="">Pilih Rentang Waktu...</option>
-                            <option value="1">1 Jam</option>
-                            <option value="2">2 Jam</option>
-                            <option value="3">3 Jam</option>
-                            <option value="4">4 Jam</option>
-                            <option value="6">6 Jam</option>
-                            <option value="12">12 Jam</option>
-                            <option value="24">24 Jam</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="manualEstimationFields" style="display: none;">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="manualTinggiRO" placeholder="Ketinggian Bak RO (cm)" min="0">
-                            <div class="unit">cm</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="manualTinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" min="0">
-                            <div class="unit">cm</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="manualTinggiPDAM" placeholder="Ketinggian Bak Input PDAM (cm)" min="0">
-                            <div class="unit">cm</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="manualFlowPDAM" placeholder="Flow PDAM (m³)" min="0">
-                            <div class="unit">m³</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="meterReading1" placeholder="Pembacaan Meter 1 (m³)" min="0">
-                            <div class="unit">m³</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="meterReading2" placeholder="Pembacaan Meter 2 (m³)" min="0">
-                            <div class="unit">m³</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="meterReading3" placeholder="Pembacaan Meter 3 (m³)" min="0">
-                            <div class="unit">m³</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="number" id="meterReading4" placeholder="Pembacaan Meter 4 (m³)" min="0">
-                            <div class="unit">m³</div>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="btn" id="calculateEstimationButton">Hitung Estimasi</button>
-            </form>
-            <div class="estimation-result" id="estimationResult" style="display: none;">
-                <h3>Hasil Estimasi</h3>
-                <p><strong>Rata-rata Pemakaian per Jam:</strong> <span id="avgUsage"></span> m³</p>
-                <p><strong>Estimasi Pemakaian Total:</strong> <span id="totalUsage"></span> m³</p>
-                <p><strong>Status Bak:</strong> <span id="tankStatus"></span></p>
-                <p><strong>Kecukupan Suplai Air:</strong> <span id="supplyStatus"></span></p>
-                <p><strong>Proyeksi Kebutuhan Air (24 Jam):</strong> <span id="projectedUsage"></span> m³</p>
-            </div>
-            <div class="chart-container">
-                <canvas id="usageChart"></canvas>
-            </div>
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak WWTP" min="0" max="500" step="1" required>
+          <div class="unit">cm</div>
         </div>
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
+          <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak PDAM" min="0" max="500" step="1" required>
+          <div class="unit">cm</div>
+        </div>
+      </div>
+
+      <!-- Data Meter -->
+      <div class="section-divider" style="border-top: 1px solid #eee; margin: 24px 0;"></div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">Data Water Meter (m³)</label>
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <input type="number" id="meterStart" placeholder="Pembacaan Awal (jam lalu)" min="0" step="0.01" required>
+          <div class="unit">m³</div>
+        </div>
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+          <input type="number" id="meterEnd" placeholder="Pembacaan Akhir (sekarang)" min="0" step="0.01" required>
+          <div class="unit">m³</div>
+        </div>
+
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
+          <input type="number" id="estimationHours" placeholder="Durasi Estimasi (contoh: 4)" min="1" step="1" required>
+          <div class="unit">jam</div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" id="calculateEstimationButton" style="margin-top: 10px;">Hitung Estimasi</button>
+    </form>
+
+    <!-- Hasil Estimasi -->
+    <div class="estimation-result" id="estimationResult" style="display: none; margin-top: 30px;">
+      <h3 style="margin-bottom: 20px;">Hasil Estimasi Pemakaian Air</h3>
+
+      <div style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+        <p><strong>Konsumsi <span id="hoursUsed">0</span> Jam:</strong> <span id="consumption4h"></span> m³</p>
+        <p><strong>Estimasi Pemakaian per Jam:</strong> <span id="avgPerHour"></span></p>
+      </div>
+
+      <div style="background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+        <p><strong>Status Bak RO:</strong> <span id="statusRO"></span></p>
+        <p><strong>Status Bak WWTP:</strong> <span id="statusWWTP"></span></p>
+        <p><strong>Status Bak PDAM:</strong> <span id="statusPDAM"></span></p>
+      </div>
+
+      <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+        <p><strong>Proyeksi 24 Jam:</strong> <span id="projection24h"></span> m³</p>
+        <p><strong>Rekomendasi:</strong> <span id="recommendation"></span></p>
+      </div>
+
+      <!-- Prediksi Forecast -->
+      <div id="forecastTable" style="margin-top: 25px;"></div>
     </div>
+
+    <!-- Grafik -->
+    <div class="chart-container" style="margin-top: 30px;">
+      <canvas id="usageChart"></canvas>
+    </div>
+  </div>
+</div>
     
     <!-- Halaman Katalog Edukasi -->
 <div id="educationPage" class="container" style="display: none;">
@@ -1321,7 +1324,6 @@
         let currentType = 'masuk';
         let currentNIK = '';
         let currentUserName = '';
-        let estimationMode = 'auto';
         let usageChart = null;
         const ITEMS_PER_PAGE = 10;
 
@@ -1493,6 +1495,9 @@
             document.getElementById('tinggiPDAM').value = checklist.tinggiPDAM || '';
             document.getElementById('statusPDAM').value = checklist.statusPDAM || '';
             document.getElementById('hydrantStatus').value = checklist.hydrantStatus || '';
+            document.getElementById('AStatus').value = checklist.AStatus || '';
+            document.getElementById('EStatus').value = checklist.EStatus || '';
+            document.getElementById('damkar').value = checklist.damkar || '';
             document.getElementById('supplyPDAM').value = checklist.supplyPDAM || '';
             document.getElementById('meterIndukPDAM').value = checklist.meterIndukPDAM || '';
             document.getElementById('meterIndukWTP').value = checklist.meterIndukWTP || '';
@@ -1565,6 +1570,9 @@
                 tinggiPDAM: parseFloat(document.getElementById('tinggiPDAM').value) || 0,
                 statusPDAM: document.getElementById('statusPDAM').value,
                 hydrantStatus: document.getElementById('hydrantStatus').value,
+                AStatus: document.getElementById('AStatus').value,
+                EStatus: document.getElementById('EStatus').value,
+                damkar: document.getElementById('damkar').value,
                 supplyPDAM: document.getElementById('supplyPDAM').value,
                 meterIndukPDAM: parseFloat(document.getElementById('meterIndukPDAM').value) || 0,
                 meterIndukWTP: parseFloat(document.getElementById('meterIndukWTP').value) || 0,
@@ -1574,7 +1582,7 @@
                 createdAt: serverTimestamp()
             };
 
-            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'PDAM', 'flowPDAM'];
+            const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'AStatus', 'EStatus', 'damkar', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'PDAM', 'flowPDAM'];
             const missing = required.filter(field => !data[field] && data[field] !== 0);
 
             if (missing.length > 0) {
@@ -1706,6 +1714,9 @@
                     <li><strong>Pompa Transfer:</strong> ${data.pompa || '-'}</li>
                     <li><strong>Bak Input PDAM:</strong> ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)</li>
                     <li><strong>Hydrant Status:</strong> ${data.hydrantStatus || '-'}</li>
+                    <li><strong>Supply Air Blok A:</strong> ${data.AStatus || '-'}</li>
+                    <li><strong>Supply Air Blok E:</strong> ${data.EStatus || '-'}</li>
+                    <li><strong>Supply Air Blok Damkar:</strong> ${data.damkar || '-'}</li>
                     <li><strong>Supply Air PDAM:</strong> ${data.supplyPDAM || '-'}</li>
                     <li><strong>Meter Induk PDAM:</strong> ${data.meterIndukPDAM || 0} m³</li>
                     <li><strong>Meter Induk WTP:</strong> ${data.meterIndukWTP || 0} m³</li>
@@ -1736,11 +1747,14 @@
 3. Pompa Transfer: ${data.pompa || '-'}
 4. Bak Input PDAM: ${data.statusPDAM || '-'} (Ketinggian: ${data.tinggiPDAM || 0} cm)
 5. Hydrant Status: ${data.hydrantStatus || '-'}
-6. Supply Air PDAM: ${data.supplyPDAM || '-'}
-7. Meter Induk PDAM: ${data.meterIndukPDAM || 0} m³
-8. Meter Induk WTP: ${data.meterIndukWTP || 0} m³
-9. Flow Input PDAM: ${data.PDAM || 0} m³
-10. Flow Rate PDAM: ${data.flowPDAM || 0} m³/j
+6. Supply Air Blok A: ${data.AStatus || '-'}
+7. Supply Air Blok E: ${data.EStatus || '-'}
+8. Supply Air Damkar: ${data.damkar || '-'}
+9. Supply Air PDAM: ${data.supplyPDAM || '-'}
+10. Meter Induk PDAM: ${data.meterIndukPDAM || 0} m³
+11. Meter Induk WTP: ${data.meterIndukWTP || 0} m³
+12. Flow Input PDAM: ${data.PDAM || 0} m³
+13. Flow Rate PDAM: ${data.flowPDAM || 0} m³/j
 
 Catatan: ${data.catatan || '-'}
     `.trim();
@@ -2011,140 +2025,122 @@ async function calculateEstimation(event) {
     event.preventDefault();
     const button = document.getElementById('calculateEstimationButton');
     button.classList.add('loading');
+
     try {
-        const resultDiv = document.getElementById('estimationResult');
-        const avgUsageSpan = document.getElementById('avgUsage');
-        const totalUsageSpan = document.getElementById('totalUsage');
-        const tankStatusSpan = document.getElementById('tankStatus');
-        const supplyStatusSpan = document.getElementById('supplyStatus');
-        const projectedUsageSpan = document.getElementById('projectedUsage');
+        const tinggiRO = parseFloat(document.getElementById('tinggiRO').value) || 0;
+        const tinggiWWTP = parseFloat(document.getElementById('tinggiWWTP').value) || 0;
+        const tinggiPDAM = parseFloat(document.getElementById('tinggiPDAM').value) || 0;
+        const meterStart = parseFloat(document.getElementById('meterStart').value) || 0;
+        const meterEnd = parseFloat(document.getElementById('meterEnd').value) || 0;
+        const estimationHours = parseFloat(document.getElementById('estimationHours').value) || 0;
 
-        let avgUsage, totalUsage, tankStatus, supplyStatus, projectedUsage;
-
-        if (estimationMode === 'auto') {
-            const block = document.getElementById('estimationBlock').value;
-            const date = document.getElementById('estimationDate').value;
-            const timeRange = parseInt(document.getElementById('estimationTimeRange').value);
-
-            if (!block || !date || !timeRange) {
-                showNotification('Mohon lengkapi semua field untuk estimasi otomatis!');
-                return;
-            }
-
-            const startDate = new Date(date);
-            startDate.setHours(0, 0, 0, 0);
-            const endDate = new Date(startDate);
-            endDate.setHours(23, 59, 59, 999);
-
-            const q = query(
-                collection(db, 'meters'),
-                where('block', '==', block),
-                where('date', '>=', startDate.toLocaleDateString('id-ID')),
-                where('date', '<=', endDate.toLocaleDateString('id-ID')),
-                orderBy('date', 'asc')
-            );
-
-            const snapshot = await getDocs(q);
-            const meterData = snapshot.docs.map(doc => doc.data());
-            console.log('Meter data for estimation:', meterData);
-
-            if (meterData.length < 2) {
-                showNotification('Data meter tidak cukup untuk estimasi otomatis!');
-                return;
-            }
-
-            const readings = meterData.map(d => d.meterReading || 0);
-            const times = meterData.map(d => new Date(`${d.date} ${d.time}`));
-            const usageDiff = readings.slice(1).map((r, i) => r - readings[i]);
-            const timeDiff = times.slice(1).map((t, i) => (t - times[i]) / 1000 / 3600);
-            avgUsage = usageDiff.reduce((sum, u, i) => sum + u / timeDiff[i], 0) / usageDiff.length;
-            totalUsage = avgUsage * timeRange;
-
-            const latestChecklist = (await getDocs(query(collection(db, 'checklists'), where('date', '==', date), orderBy('createdAt', 'desc'), limit(1)))).docs[0]?.data();
-            tankStatus = latestChecklist ? `${latestChecklist.bakRO} (RO: ${latestChecklist.tinggiRO} cm), ${latestChecklist.bakWWTP} (WWTP: ${latestChecklist.tinggiWWTP} cm)` : 'Data tidak tersedia';
-            supplyStatus = latestChecklist ? latestChecklist.supplyPDAM : 'Data tidak tersedia';
-            projectedUsage = avgUsage * 24;
-
-            if (usageChart) {
-                usageChart.destroy();
-            }
-            const ctx = document.getElementById('usageChart').getContext('2d');
-            usageChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: times.map(t => t.toLocaleTimeString('id-ID')),
-                    datasets: [{
-                        label: 'Pemakaian Air (m³)',
-                        data: readings,
-                        borderColor: '#4CAF50',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { title: { display: true, text: 'Waktu' } },
-                        y: { title: { display: true, text: 'Pemakaian (m³)' } }
-                    }
-                }
-            });
-        } else {
-            const tinggiRO = parseFloat(document.getElementById('manualTinggiRO').value) || 0;
-            const tinggiWWTP = parseFloat(document.getElementById('manualTinggiWWTP').value) || 0;
-            const tinggiPDAM = parseFloat(document.getElementById('manualTinggiPDAM').value) || 0;
-            const flowPDAM = parseFloat(document.getElementById('manualFlowPDAM').value) || 0;
-            const meterReadings = [
-                parseFloat(document.getElementById('meterReading1').value) || 0,
-                parseFloat(document.getElementById('meterReading2').value) || 0,
-                parseFloat(document.getElementById('meterReading3').value) || 0,
-                parseFloat(document.getElementById('meterReading4').value) || 0
-            ].filter(r => r > 0);
-
-            if (meterReadings.length < 2) {
-                showNotification('Masukkan setidaknya dua pembacaan meter untuk estimasi manual!');
-                return;
-            }
-            
-            const usageDiff = meterReadings.slice(1).map((r, i) => r - meterReadings[i]);
-            avgUsage = usageDiff.reduce((sum, u) => sum + u, 0) / usageDiff.length;
-            totalUsage = avgUsage;
-            tankStatus = `RO: ${tinggiRO} cm, WWTP: ${tinggiWWTP} cm, PDAM: ${tinggiPDAM} cm`;
-            supplyStatus = flowPDAM > 0 ? 'Menyala' : 'Mati';
-            projectedUsage = avgUsage * 24;
-
-            if (usageChart) {
-                usageChart.destroy();
-            }
-            const ctx = document.getElementById('usageChart').getContext('2d');
-            usageChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: meterReadings.map((_, i) => `Pembacaan ${i + 1}`),
-                    datasets: [{
-                        label: 'Pemakaian Air (m³)',
-                        data: meterReadings,
-                        borderColor: '#4CAF50',
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { title: { display: true, text: 'Pembacaan' } },
-                        y: { title: { display: true, text: 'Pemakaian (m³)' } }
-                    }
-                }
-            });
+        // Validasi tinggi maksimal bak
+        if (tinggiRO > 300 || tinggiWWTP > 500 || tinggiPDAM > 500) {
+            showNotification('Tinggi salah satu bak melebihi batas maksimal!');
+            return;
         }
 
-        avgUsageSpan.textContent = avgUsage.toFixed(2);
-        totalUsageSpan.textContent = totalUsage.toFixed(2);
-        tankStatusSpan.textContent = tankStatus;
-        supplyStatusSpan.textContent = supplyStatus;
-        projectedUsageSpan.textContent = projectedUsage.toFixed(2);
-        resultDiv.style.display = 'block';
+        // Validasi nilai penting
+        if (meterEnd <= meterStart) {
+            showNotification('Pembacaan akhir harus lebih besar dari pembacaan awal!');
+            return;
+        }
+        if (estimationHours <= 0) {
+            showNotification('Durasi estimasi harus lebih dari 0!');
+            return;
+        }
+
+        // Perhitungan dasar
+        const consumption = meterEnd - meterStart;
+        const avgPerHour = consumption / estimationHours;
+
+        // Rentang estimasi ±5%
+        const avgMin = avgPerHour * 0.95;
+        const avgMax = avgPerHour * 1.05;
+
+        // Volume masing-masing bak
+        const volumeRO = 15 * (tinggiRO / 100);
+        const volumeWWTP = 240 * (tinggiWWTP / 100);
+        const volumePDAM = 240 * (tinggiPDAM / 100);
+
+        // Persentase isi bak
+        const percentRO = (volumeRO / 45) * 100;
+        const percentWWTP = (volumeWWTP / 1200) * 100;
+        const percentPDAM = (volumePDAM / 1200) * 100;
+
+        const status = percent => percent > 80 ? 'Penuh' : (percent > 40 ? 'Cukup' : 'Kritis');
+
+        // Proyeksi 24 jam
+        const projection24h = avgPerHour * 24;
+
+        let recommendation = 'Aman';
+        if (projection24h > 100) recommendation = 'Pemakaian tinggi, awasi suplai!';
+        else if (projection24h < 20) recommendation = 'Pemakaian rendah, tetap hemat.';
+
+        // Tampilkan hasil
+        document.getElementById('hoursUsed').textContent = estimationHours;
+        document.getElementById('consumption4h').textContent = consumption.toFixed(2);
+        document.getElementById('avgPerHour').textContent = `${avgMin.toFixed(2)} – ${avgMax.toFixed(2)} m³/jam`;
+        document.getElementById('projection24h').textContent = projection24h.toFixed(2);
+        document.getElementById('statusRO').textContent = `${status(percentRO)} (${volumeRO.toFixed(1)} m³)`;
+        document.getElementById('statusWWTP').textContent = `${status(percentWWTP)} (${volumeWWTP.toFixed(1)} m³)`;
+        document.getElementById('statusPDAM').textContent = `${status(percentPDAM)} (${volumePDAM.toFixed(1)} m³)`;
+        document.getElementById('recommendation').textContent = recommendation;
+        document.getElementById('estimationResult').style.display = 'block';
+
+        // Forecast table
+        const forecastDurations = [4, 8, 12, 24];
+        let forecastHTML = `
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                <thead>
+                    <tr style="background: #f1f1f1;">
+                        <th style="padding: 8px;">Proyeksi</th>
+                        <th style="padding: 8px;">Estimasi Pemakaian (m³)</th>
+                        <th style="padding: 8px;">Prediksi Meter (m³)</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        forecastDurations.forEach(hours => {
+            const usage = avgPerHour * hours;
+            const predictedMeter = meterEnd + usage;
+            forecastHTML += `
+                <tr>
+                    <td style="padding: 6px;">${hours} jam ke depan</td>
+                    <td style="padding: 6px;">${usage.toFixed(2)}</td>
+                    <td style="padding: 6px;">${predictedMeter.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        forecastHTML += `</tbody></table>`;
+        document.getElementById('forecastTable').innerHTML = forecastHTML;
+
+        // Chart
+        if (usageChart) usageChart.destroy();
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        usageChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Awal', 'Sekarang'],
+                datasets: [{
+                    label: 'Angka Meter (m³)',
+                    data: [meterStart, meterEnd],
+                    borderColor: '#4CAF50',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Waktu' } },
+                    y: { title: { display: true, text: 'Meter (m³)' } }
+                }
+            }
+        });
+
     } catch (error) {
         console.error('Gagal menghitung estimasi:', error);
         showNotification(`Gagal menghitung estimasi: ${error.message}`);
@@ -2888,22 +2884,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('meterFilterDate').addEventListener('change', () => listenMeterReports(1));
     document.getElementById('damageFilterBlock').addEventListener('change', () => listenDamageReports(1));
     document.getElementById('damageFilterDate').addEventListener('change', () => listenDamageReports(1));
-
-    document.getElementById('switchAutoEstimation').addEventListener('click', () => {
-        estimationMode = 'auto';
-        document.getElementById('switchAutoEstimation').classList.add('active');
-        document.getElementById('switchManualEstimation').classList.remove('active');
-        document.getElementById('autoEstimationFields').style.display = 'block';
-        document.getElementById('manualEstimationFields').style.display = 'none';
-    });
-
-    document.getElementById('switchManualEstimation').addEventListener('click', () => {
-        estimationMode = 'manual';
-        document.getElementById('switchManualEstimation').classList.add('active');
-        document.getElementById('switchAutoEstimation').classList.remove('active');
-        document.getElementById('manualEstimationFields').style.display = 'block';
-        document.getElementById('autoEstimationFields').style.display = 'none';
-    });
 
     document.getElementById('educationSearch').addEventListener('input', loadEducationContent);
     document.getElementById('educationCategory').addEventListener('change', loadEducationContent);
