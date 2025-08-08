@@ -763,6 +763,169 @@
               margin-top: 48px;
             }
             
+            .success-check {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #4CAF50;
+    animation: successPop 0.5s ease;
+    z-index: 10;
+}
+
+.success-check i {
+    color: white;
+    font-size: 20px;
+    line-height: 48px;
+}
+
+@keyframes successPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    z-index: 2;
+    transition: all 0.3s ease;
+    color: rgba(255,255,255,0.5);
+}
+
+.input-wrapper input {
+    padding-left: 48px !important;
+}
+
+.input-wrapper input:focus + .input-icon {
+    color: #4CAF50;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.login-footer {
+    margin-top: 30px;
+    font-size: 13px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 9;
+    border-radius: 20px;
+}
+
+.horizontal-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+}
+
+.logo-icon-inline {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: logoFloat 3s ease-in-out infinite;
+}
+
+.logo-icon-inline i {
+    font-size: 24px;
+    color: white;
+}
+
+.logo-text h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: inherit;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.logo-text .subtitle {
+    font-size: 13px;
+    opacity: 0.7;
+    font-weight: 400;
+    text-align: left;
+    color: inherit;
+}
+
+.login-input-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.dark-theme .login-input-card {
+    background: rgba(50, 50, 70, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.light-theme .login-input-card {
+    background: rgba(240, 240, 240, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.login-input-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+}
+
+.login-card {
+    animation: fadeInUp 0.7s ease forwards;
+}
+
+.logo-section.horizontal-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    text-align: left !important;
+}
         }
     </style>
 </head>
@@ -778,7 +941,7 @@
     </div>
 
     <!-- Navigation Bar -->
-    <nav class="nav-bar">
+    <nav class="nav-bar" id="navBar" style="display: none;">
         <div class="nav-item active" data-page="mainPage" data-tooltip="Checklist">
             <i class="fas fa-list-check"></i>
             <span>Checklist</span>
@@ -801,41 +964,68 @@
         </div>
     </nav>
 
-    <!-- Halaman Login -->
-    <div id="loginPage" class="login-container">
-        <div class="login-card">
-            <h1>Water Monitoring & Maintaining System WTP Departement</h1>
-            <div class="subtitle">Login Aman</div>
-            <div class="form-group">
-                <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00006)" required>
-            </div>
-            <button class="btn" id="loginButton">Masuk</button>
+<!-- Halaman Login -->
+<div id="loginPage" class="login-container">
+    <div class="login-card">
+    <!-- Overlay blur background -->
+    <div id="loginOverlay" class="login-overlay" style="display: none;"></div>
+    <!-- Success indicator -->
+    <div class="success-check" id="successCheck" style="display:none;">
+        <i class="fas fa-check"></i>
+    </div>
+
+    <!-- Logo section -->
+    <div class="logo-section horizontal-logo">
+        <div class="logo-text">
+            <h1><i class="fas fa-tint" style="margin-right: 8px;"></i>Water Monitoring & Maintaining System<br>WTP Department</h1>
+            <div class="subtitle">Secure Login Portal</div>
         </div>
     </div>
 
-<!-- Halaman Checklist --><div id="mainPage" class="container" style="display: none;">
-    <div class="header">
-        <div class="greeting" id="greeting">Selamat Pagi, User!</div>
-        <h1>Checklist Sistem Air</h1>
-        <div class="subtitle">Monitoring & Pemeliharaan</div>
-    </div><div class="card">
-    <div class="shift-info">Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span></div>
-</div>
+    <!-- Input section -->
+    <div class="login-input-card">
+        <div class="input-wrapper">
+            <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00001)" required>
+            <i class="fas fa-id-card input-icon"></i>
+        </div>
+        <button class="btn" id="loginButton">
+            <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+            <span>Masuk</span>
+        </button>
+    </div>
 
-<div class="card">
-    <div class="switch-type">
-        <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
-        <button class="switch-btn" id="switchPulang">CHECKLIST PULANG</button>
-        <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
+    <!-- Footer -->
+    <div class="login-footer">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure Water Management System</span>
+    </div>
     </div>
 </div>
 
-<div class="card" id="checklistFormContainer">
-    <form id="checklistForm">
-        <!-- Hidden auto-filled status fields -->
-        <input type="hidden" id="bakRO">
-        <input type="hidden" id="bakWWTP">
-        <input type="hidden" id="statusPDAM">
+        <!-- Halaman Checklist -->
+        <div id="mainPage" class="container" style="display: none;">
+            <div class="header">
+                <div class="greeting" id="greeting">Selamat Pagi, User!</div>
+                <h1>Checklist Sistem Air</h1>
+                <div class="subtitle">Monitoring & Pemeliharaan</div>
+            </div><div class="card">
+            <div class="shift-info">Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span></div>
+        </div>
+
+        <div class="card">
+            <div class="switch-type">
+                <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
+                <button class="switch-btn" id="switchPulang">CHECKLIST PULANG</button>
+                <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
+            </div>
+        </div>
+
+        <div class="card" id="checklistFormContainer">
+            <form id="checklistForm">
+                <!-- Hidden auto-filled status fields -->
+                <input type="hidden" id="bakRO">
+                <input type="hidden" id="bakWWTP">
+                <input type="hidden" id="statusPDAM">
 
         <div class="form-group">
             <div class="input-group">
@@ -1439,14 +1629,38 @@
             }
         }
 
-        function login() {
-            const nikInput = document.getElementById('nikInput');
-            const nikValue = nikInput.value.trim().toUpperCase();
-            const user = users.find(u => u.nik === nikValue);
-            if (user) {
+function login() {
+    const nikInput = document.getElementById('nikInput');
+    const nikValue = nikInput.value.trim().toUpperCase();
+    const user = users.find(u => u.nik === nikValue);
+    const button = document.getElementById('loginButton');
+    const successCheck = document.getElementById('successCheck');
+    const overlay = document.getElementById('loginOverlay');
+
+    if (!nikValue) {
+        showNotification('Mohon masukkan NIK terlebih dahulu!');
+        return;
+    }
+
+    if (user) {
+        // Tampilkan loading + overlay
+        button.classList.add('loading');
+        overlay.style.display = 'block';
+
+        setTimeout(() => {
+            button.classList.remove('loading');
+            successCheck.style.display = 'block';
+
+            setTimeout(() => {
+                successCheck.style.display = 'none';
+                overlay.style.display = 'none';
+                nikInput.value = '';
+
+                // PROSES LOGIN LANJUTAN
                 currentNIK = nikValue;
                 currentUserName = user.name;
                 document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('navBar').style.display = 'flex';
                 switchPage('mainPage');
                 showNotification(`Selamat datang, ${currentUserName}!`, true);
                 updateShiftInfo();
@@ -1460,10 +1674,12 @@
                     document.getElementById('dataManagementToggle').style.display = 'block';
                     document.getElementById('dataManagementToggle').addEventListener('click', () => switchPage('dataManagementPage'));
                 }
-            } else {
-                showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
-            }
-        }
+            }, 1000);
+        }, 700);
+    } else {
+        showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
+    }
+}
 
         function updateGreeting() {
             const now = new Date();
