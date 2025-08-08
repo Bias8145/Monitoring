@@ -762,6 +762,7 @@
             #reportSection {
               margin-top: 48px;
             }
+            
         }
     </style>
 </head>
@@ -812,174 +813,168 @@
         </div>
     </div>
 
-    <!-- Halaman Checklist -->
-    <div id="mainPage" class="container" style="display: none;">
-        <div class="header">
-            <div class="greeting" id="greeting">Selamat Pagi, User!</div>
-            <h1>Checklist Sistem Air</h1>
-            <div class="subtitle">Monitoring & Pemeliharaan</div>
-        </div>
+<!-- Halaman Checklist --><div id="mainPage" class="container" style="display: none;">
+    <div class="header">
+        <div class="greeting" id="greeting">Selamat Pagi, User!</div>
+        <h1>Checklist Sistem Air</h1>
+        <div class="subtitle">Monitoring & Pemeliharaan</div>
+    </div><div class="card">
+    <div class="shift-info">Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span></div>
+</div>
 
-        <div class="card">
-            <div class="shift-info">Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span></div>
-        </div>
-
-        <div class="card">
-            <div class="switch-type">
-                <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
-                <button class="switch-btn" id="switchPulang">CHECKLIST PULANG</button>
-                <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
-            </div>
-        </div>
-
-        <div class="card" id="checklistFormContainer">
-            <form id="checklistForm">
-                <div class="form-group">
-                    <select id="bakRO" required>
-                        <option value="">Pilih Kondisi Bak Distribusi Air RO...</option>
-                        <option value="Memadai">Memadai</option>
-                        <option value="Tidak Memadai">Tidak Memadai</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
-                        <div class="unit">cm</div>
-                    </div>
-                </div>
-                <div class="section-divider"></div>
-                <div class="form-group">
-                    <select id="bakWWTP" required>
-                        <option value="">Pilih Kondisi Bak Tampung WWTP...</option>
-                        <option value="Memadai">Memadai</option>
-                        <option value="Tidak Memadai">Tidak Memadai</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" required>
-                        <div class="unit">cm</div>
-                    </div>
-                </div>
-                <div class="section-divider"></div>
-                <div class="form-group">
-                    <select id="pompa" required>
-                        <option value="">Pilih Kondisi Pompa Transfer WWTP RO...</option>
-                        <option value="ON">ON</option>
-                        <option value="OFF">OFF</option>
-                    </select>
-                </div>
-                <div class="section-divider"></div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak Input Air PDAM (cm)" required>
-                        <div class="unit">cm</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <select id="statusPDAM" required>
-                        <option value="">Pilih Status Bak Input PDAM...</option>
-                        <option value="Memadai">Memadai</option>
-                        <option value="Tidak Memadai">Tidak Memadai</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="hydrantStatus" required>
-                        <option value="">Pilih Status Hydrant...</option>
-                        <option value="ON">ON</option>
-                        <option value="OFF">OFF</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="AStatus" required>
-                        <option value="">Pilih Status Penggunaan Air Blok A...</option>
-                        <option value="PDAM">PDAM</option>
-                        <option value="RO">RO</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="EStatus" required>
-                        <option value="">Pilih Status Penggunaan Air Blok E...</option>
-                        <option value="PDAM">PDAM</option>
-                        <option value="RO">RO</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="damkar" required>
-                        <option value="">Pilih Status Penggunaan Air Damkar...</option>
-                        <option value="PDAM">PDAM</option>
-                        <option value="RO">RO</option>
-                    </select>
-                </div>
-                <div class="section-divider"></div>
-                <div class="form-group">
-                    <select id="supplyPDAM" required>
-                        <option value="">Pilih Status Supply Air PDAM...</option>
-                        <option value="Menyala">Menyala</option>
-                        <option value="Mati">Mati</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="meterIndukPDAM" placeholder="Angka Meter Induk PDAM" required>
-                </div>
-                <div class="form-group">
-                    <input type="number" id="meterIndukWTP" placeholder="Angka Meter Induk WTP" required>
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="number" id="PDAM" placeholder="Flow Input PDAM (m³)" required>
-                        <div class="unit">m³</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="number" id="flowPDAM" placeholder="Rate Input (m³/j) isi 0 jika pdam off" required>
-                        <div class="unit">m³/j</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="catatan" placeholder="Catatan Tambahan (Opsional)">
-                </div>
-                <button type="submit" class="btn" id="saveChecklistButton">Simpan Checklist</button>
-            </form>
-        </div>
-
-        <div class="card" id="reportSection">
-            <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Checklist</h2>
-            <div class="filter-group">
-                <select id="filterDate">
-                    <option value="">Semua Tanggal</option>
-                </select>
-                <select id="filterShift">
-                    <option value="">Semua Shift</option>
-                    <option value="masuk">Masuk</option>
-                    <option value="pulang">Pulang</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <select id="filterNIK">
-                    <option value="">Semua Pengguna</option>
-                </select>
-            </div>
-            <div class="table-container">
-                <table id="reportTable">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Waktu</th>
-                            <th>Shift</th>
-                            <th>Penginput</th>
-                            <th>Catatan</th>
-                            <th>Detail</th>
-                            <th>Share</th>
-                            <th>Edit</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reportBody"></tbody>
-                </table>
-            </div>
-            <div class="pagination" id="reportPagination"></div>
-        </div>
+<div class="card">
+    <div class="switch-type">
+        <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
+        <button class="switch-btn" id="switchPulang">CHECKLIST PULANG</button>
+        <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
     </div>
+</div>
+
+<div class="card" id="checklistFormContainer">
+    <form id="checklistForm">
+        <!-- Hidden auto-filled status fields -->
+        <input type="hidden" id="bakRO">
+        <input type="hidden" id="bakWWTP">
+        <input type="hidden" id="statusPDAM">
+
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
+                <div class="unit">cm</div>
+            </div>
+        </div>
+        <div class="section-divider"></div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" required>
+                <div class="unit">cm</div>
+            </div>
+        </div>
+        <div class="section-divider"></div>
+        <div class="form-group">
+            <select id="pompa" required>
+                <option value="">Pilih Kondisi Pompa Transfer WWTP RO...</option>
+                <option value="ON">ON</option>
+                <option value="OFF">OFF</option>
+            </select>
+        </div>
+        <div class="section-divider"></div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak Input Air PDAM (cm)" required>
+                <div class="unit">cm</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <select id="hydrantStatus" required>
+                <option value="">Pilih Status Hydrant...</option>
+                <option value="ON">ON</option>
+                <option value="OFF">OFF</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select id="AStatus" required>
+                <option value="">Pilih Status Penggunaan Air Blok A...</option>
+                <option value="PDAM">PDAM</option>
+                <option value="RO">RO</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select id="EStatus" required>
+                <option value="">Pilih Status Penggunaan Air Blok E...</option>
+                <option value="PDAM">PDAM</option>
+                <option value="RO">RO</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <select id="damkar" required>
+                <option value="">Pilih Status Penggunaan Air Damkar...</option>
+                <option value="PDAM">PDAM</option>
+                <option value="RO">RO</option>
+            </select>
+        </div>
+        <div class="section-divider"></div>
+        <div class="form-group">
+            <select id="supplyPDAM" required>
+                <option value="">Pilih Status Supply Air PDAM...</option>
+                <option value="Menyala">Menyala</option>
+                <option value="Mati">Mati</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="number" id="meterIndukPDAM" placeholder="Angka Meter Induk PDAM" required>
+        </div>
+        <div class="form-group">
+            <input type="number" id="meterIndukWTP" placeholder="Angka Meter Induk WTP" required>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" id="PDAM" placeholder="Flow Input PDAM (m³)" required>
+                <div class="unit">m³</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <input type="number" id="flowPDAM" placeholder="Rate Input (m³/j) isi 0 jika pdam off" required>
+                <div class="unit">m³/j</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="text" id="catatan" placeholder="Catatan Tambahan (Opsional)">
+        </div>
+        <button type="submit" class="btn" id="saveChecklistButton">Simpan Checklist</button>
+    </form>
+</div>
+
+<div class="card" id="reportSection">
+    <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Checklist</h2>
+    <div class="filter-group">
+        <select id="filterDate">
+            <option value="">Semua Tanggal</option>
+        </select>
+        <select id="filterShift">
+            <option value="">Semua Shift</option>
+            <option value="masuk">Masuk</option>
+            <option value="pulang">Pulang</option>
+            <option value="custom">Custom</option>
+        </select>
+        <select id="filterNIK">
+            <option value="">Semua Pengguna</option>
+        </select>
+    </div>
+    <div class="table-container">
+        <table id="reportTable">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Waktu</th>
+                    <th>Shift</th>
+                    <th>Penginput</th>
+                    <th>Catatan</th>
+                    <th>Detail</th>
+                    <th>Share</th>
+                    <th>Edit</th>
+                </tr>
+            </thead>
+            <tbody id="reportBody"></tbody>
+        </table>
+    </div>
+    <div class="pagination" id="reportPagination"></div>
+</div>
+
+</div>
+
+<!-- Modal untuk Detail Laporan -->
+<div id="modalOverlay" class="modal-overlay"></div>
+<div id="detailModal" class="modal">
+    <div class="modal-header">
+        <h2>Detail Checklist</h2>
+        <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-content" id="modalContent"></div>
+</div>
+
+<div id="notification" class="notification"></div>
 
     <!-- Halaman Check Meter Lapangan -->
     <div id="meterPage" class="container" style="display: none;">
@@ -1135,8 +1130,8 @@
         </div>
     </div>
 
-  <!-- Halaman Estimasi Pemakaian Air -->
-<div id="estimationPage" class="container" style="display: none; padding: 20px;">
+<!-- Halaman Estimasi Pemakaian Air -->
+<div id="estimationPage" class="container" style="display: none; padding: 20px; padding-bottom: 100px;">
   <div class="header" style="margin-bottom: 20px;">
     <div class="greeting" id="estimationGreeting" style="margin-bottom: 6px;">Selamat Pagi, User!</div>
     <h1 style="margin-bottom: 4px;">Estimasi Pemakaian Air</h1>
@@ -1148,17 +1143,14 @@
       <!-- Tinggi Bak -->
       <div class="form-group" style="margin-bottom: 20px;">
         <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">Data Tinggi Bak (cm)</label>
-
         <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
           <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO" min="0" max="300" step="1" required>
           <div class="unit">cm</div>
         </div>
-
         <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
           <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak WWTP" min="0" max="500" step="1" required>
           <div class="unit">cm</div>
         </div>
-
         <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
           <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak PDAM" min="0" max="500" step="1" required>
           <div class="unit">cm</div>
@@ -1167,22 +1159,22 @@
 
       <!-- Data Meter -->
       <div class="section-divider" style="border-top: 1px solid #eee; margin: 24px 0;"></div>
-
       <div class="form-group" style="margin-bottom: 20px;">
         <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">Data Water Meter (m³)</label>
-
         <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
           <input type="number" id="meterStart" placeholder="Pembacaan Awal (jam lalu)" min="0" step="0.01" required>
           <div class="unit">m³</div>
         </div>
-
         <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
           <input type="number" id="meterEnd" placeholder="Pembacaan Akhir (sekarang)" min="0" step="0.01" required>
           <div class="unit">m³</div>
         </div>
-
         <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
           <input type="number" id="estimationHours" placeholder="Durasi Estimasi (contoh: 4)" min="1" step="1" required>
+          <div class="unit">jam</div>
+        </div>
+        <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-top: 10px;">
+          <input type="number" id="customEstimateHour" placeholder="Estimasi ke depan (jam)" min="1" max="24" value="24" required>
           <div class="unit">jam</div>
         </div>
       </div>
@@ -1193,30 +1185,20 @@
     <!-- Hasil Estimasi -->
     <div class="estimation-result" id="estimationResult" style="display: none; margin-top: 30px;">
       <h3 style="margin-bottom: 20px;">Hasil Estimasi Pemakaian Air</h3>
-
       <div style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
         <p><strong>Konsumsi <span id="hoursUsed">0</span> Jam:</strong> <span id="consumption4h"></span> m³</p>
         <p><strong>Estimasi Pemakaian per Jam:</strong> <span id="avgPerHour"></span></p>
       </div>
-
-      <div style="background: rgba(255, 193, 7, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
-        <p><strong>Status Bak RO:</strong> <span id="statusRO"></span></p>
-        <p><strong>Status Bak WWTP:</strong> <span id="statusWWTP"></span></p>
-        <p><strong>Status Bak PDAM:</strong> <span id="statusPDAM"></span></p>
-      </div>
-
       <div style="background: rgba(33, 150, 243, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
         <p><strong>Proyeksi 24 Jam:</strong> <span id="projection24h"></span> m³</p>
         <p><strong>Rekomendasi:</strong> <span id="recommendation"></span></p>
+        <p id="suplaiRekomendasi" style="color: red; margin-top: 15px;"></p>
       </div>
-
-      <!-- Prediksi Forecast -->
       <div id="forecastTable" style="margin-top: 25px;"></div>
-    </div>
-
-    <!-- Grafik -->
-    <div class="chart-container" style="margin-top: 30px;">
-      <canvas id="usageChart"></canvas>
+      <div class="chart-container" style="margin-top: 30px;">
+        <h4 style="margin-bottom: 10px;">Grafik Pemakaian Air</h4>
+        <canvas id="usageChart" height="300" style="width: 100%;"></canvas>
+      </div>
     </div>
   </div>
 </div>
@@ -1326,6 +1308,58 @@
         let currentUserName = '';
         let usageChart = null;
         const ITEMS_PER_PAGE = 10;
+        function renderUsageChart() {
+    const meterStart = parseFloat(document.getElementById('meterStart').value);
+    const meterEnd = parseFloat(document.getElementById('meterEnd').value);
+
+    if (isNaN(meterStart) || isNaN(meterEnd)) {
+        console.warn('Data meter tidak valid untuk grafik.');
+        return;
+    }
+
+    if (usageChart) usageChart.destroy();
+
+    const ctx = document.getElementById('usageChart').getContext('2d');
+
+    usageChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Awal', 'Sekarang'],
+            datasets: [{
+                label: 'Angka Meter (m³)',
+                data: [meterStart, meterEnd],
+                borderColor: '#4CAF50',
+                backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Waktu'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Meter (m³)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
+}
 
         const shifts = [
             { name: 'Satu', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
@@ -2021,6 +2055,11 @@ function populateLocations(selectId, block) {
     }
 }
 
+function hitungVolumeBak(tinggiCm, panjang, lebar, tinggiMax) {
+    const tinggiM = tinggiCm / 100;
+    return panjang * lebar * Math.min(tinggiM, tinggiMax); // m³
+}
+
 async function calculateEstimation(event) {
     event.preventDefault();
     const button = document.getElementById('calculateEstimationButton');
@@ -2033,91 +2072,91 @@ async function calculateEstimation(event) {
         const meterStart = parseFloat(document.getElementById('meterStart').value) || 0;
         const meterEnd = parseFloat(document.getElementById('meterEnd').value) || 0;
         const estimationHours = parseFloat(document.getElementById('estimationHours').value) || 0;
+        const customHours = parseFloat(document.getElementById('customEstimateHour').value) || 24;
 
-        // Validasi tinggi maksimal bak
         if (tinggiRO > 300 || tinggiWWTP > 500 || tinggiPDAM > 500) {
             showNotification('Tinggi salah satu bak melebihi batas maksimal!');
             return;
         }
 
-        // Validasi nilai penting
         if (meterEnd <= meterStart) {
             showNotification('Pembacaan akhir harus lebih besar dari pembacaan awal!');
             return;
         }
+
         if (estimationHours <= 0) {
             showNotification('Durasi estimasi harus lebih dari 0!');
             return;
         }
 
-        // Perhitungan dasar
         const consumption = meterEnd - meterStart;
         const avgPerHour = consumption / estimationHours;
-
-        // Rentang estimasi ±5%
         const avgMin = avgPerHour * 0.95;
         const avgMax = avgPerHour * 1.05;
 
-        // Volume masing-masing bak
-        const volumeRO = 15 * (tinggiRO / 100);
-        const volumeWWTP = 240 * (tinggiWWTP / 100);
-        const volumePDAM = 240 * (tinggiPDAM / 100);
+        const BAK_RO = { panjang: 3, lebar: 5, tinggi: 3, jumlah: 2 };
+        const BAK_WWTP = { panjang: 12, lebar: 20, tinggi: 5 };
+        const BAK_PDAM = { panjang: 12, lebar: 20, tinggi: 5 };
 
-        // Persentase isi bak
-        const percentRO = (volumeRO / 45) * 100;
+        const volumeRO = hitungVolumeBak(tinggiRO, BAK_RO.panjang, BAK_RO.lebar, BAK_RO.tinggi) * BAK_RO.jumlah;
+        const volumeWWTP = hitungVolumeBak(tinggiWWTP, BAK_WWTP.panjang, BAK_WWTP.lebar, BAK_WWTP.tinggi);
+        const volumePDAM = hitungVolumeBak(tinggiPDAM, BAK_PDAM.panjang, BAK_PDAM.lebar, BAK_PDAM.tinggi);
+
+        const percentRO = (volumeRO / 90) * 100;
         const percentWWTP = (volumeWWTP / 1200) * 100;
         const percentPDAM = (volumePDAM / 1200) * 100;
 
-        const status = percent => percent > 80 ? 'Penuh' : (percent > 40 ? 'Cukup' : 'Kritis');
-
-        // Proyeksi 24 jam
         const projection24h = avgPerHour * 24;
+        const customProjection = avgPerHour * customHours;
 
         let recommendation = 'Aman';
         if (projection24h > 100) recommendation = 'Pemakaian tinggi, awasi suplai!';
         else if (projection24h < 20) recommendation = 'Pemakaian rendah, tetap hemat.';
+
+        let suplaiNote = "";
+        if (volumePDAM < customProjection) {
+            const kekurangan = customProjection - volumePDAM;
+            suplaiNote = `PERINGATAN: Tambahan suplai ${kekurangan.toFixed(2)} m³ dibutuhkan untuk memenuhi ${customHours} jam ke depan.`;
+        } else {
+            suplaiNote = `Volume PDAM cukup untuk estimasi ${customHours} jam ke depan.`;
+        }
 
         // Tampilkan hasil
         document.getElementById('hoursUsed').textContent = estimationHours;
         document.getElementById('consumption4h').textContent = consumption.toFixed(2);
         document.getElementById('avgPerHour').textContent = `${avgMin.toFixed(2)} – ${avgMax.toFixed(2)} m³/jam`;
         document.getElementById('projection24h').textContent = projection24h.toFixed(2);
-        document.getElementById('statusRO').textContent = `${status(percentRO)} (${volumeRO.toFixed(1)} m³)`;
-        document.getElementById('statusWWTP').textContent = `${status(percentWWTP)} (${volumeWWTP.toFixed(1)} m³)`;
-        document.getElementById('statusPDAM').textContent = `${status(percentPDAM)} (${volumePDAM.toFixed(1)} m³)`;
         document.getElementById('recommendation').textContent = recommendation;
+        document.getElementById('suplaiRekomendasi').textContent = suplaiNote;
         document.getElementById('estimationResult').style.display = 'block';
 
-        // Forecast table
+        // Forecast Table
         const forecastDurations = [4, 8, 12, 24];
-        let forecastHTML = `
-            <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-                <thead>
-                    <tr style="background: #f1f1f1;">
-                        <th style="padding: 8px;">Proyeksi</th>
-                        <th style="padding: 8px;">Estimasi Pemakaian (m³)</th>
-                        <th style="padding: 8px;">Prediksi Meter (m³)</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
+        let forecastHTML = `<table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead><tr style="background: #f1f1f1;">
+        <th style="padding: 8px;">Proyeksi</th>
+        <th style="padding: 8px;">Estimasi Pemakaian (m³)</th>
+        <th style="padding: 8px;">Prediksi Meter (m³)</th></tr></thead><tbody>`;
 
         forecastDurations.forEach(hours => {
             const usage = avgPerHour * hours;
             const predictedMeter = meterEnd + usage;
-            forecastHTML += `
-                <tr>
-                    <td style="padding: 6px;">${hours} jam ke depan</td>
-                    <td style="padding: 6px;">${usage.toFixed(2)}</td>
-                    <td style="padding: 6px;">${predictedMeter.toFixed(2)}</td>
-                </tr>
-            `;
+            forecastHTML += `<tr><td style="padding: 6px;">${hours} jam ke depan</td>
+            <td style="padding: 6px;">${usage.toFixed(2)}</td>
+            <td style="padding: 6px;">${predictedMeter.toFixed(2)}</td></tr>`;
         });
 
-        forecastHTML += `</tbody></table>`;
+        forecastHTML += '</tbody></table>';
         document.getElementById('forecastTable').innerHTML = forecastHTML;
 
-        // Chart
+    } catch (error) {
+        console.error('Gagal menghitung estimasi:', error);
+        showNotification(`Gagal menghitung estimasi: ${error.message}`);
+    } finally {
+        button.classList.remove('loading');
+    }
+    
+    // Chart
         if (usageChart) usageChart.destroy();
         const ctx = document.getElementById('usageChart').getContext('2d');
         usageChart = new Chart(ctx, {
@@ -2140,13 +2179,8 @@ async function calculateEstimation(event) {
                 }
             }
         });
-
-    } catch (error) {
-        console.error('Gagal menghitung estimasi:', error);
-        showNotification(`Gagal menghitung estimasi: ${error.message}`);
-    } finally {
-        button.classList.remove('loading');
-    }
+        
+        renderUsageChart();
 }
 
 function loadEducationContent() {
@@ -2809,37 +2843,60 @@ function toggleAccordion(event) {
 }
 
 async function deleteData() {
-    const dataType = document.getElementById('dataType').value;
-    const deleteDate = document.getElementById('dataDeleteDate').value;
-    const button = document.getElementById('deleteDataButton');
-    button.classList.add('loading');
+    console.log('deleteData function called');
 
-    if (!dataType || !deleteDate) {
-        showNotification('Mohon pilih tipe data dan tanggal!');
-        button.classList.remove('loading');
+    if (currentNIK !== 'CA00383') {
+        showNotification('Hanya NIK CA00383 yang dapat mengakses fitur ini.');
         return;
     }
 
+    const dataType = document.getElementById('dataType').value;
+    const deleteDate = document.getElementById('dataDeleteDate').value;
+    const button = document.getElementById('deleteDataButton');
+
+    if (!dataType || !deleteDate) {
+        showNotification('Mohon pilih tipe data dan tanggal!');
+        return;
+    }
+
+    button.classList.add('loading');
+    button.disabled = true;
+
     try {
-        const q = query(collection(db, dataType), where('date', '==', new Date(deleteDate).toLocaleDateString('id-ID')));
+        const dateObj = new Date(deleteDate);
+        const formattedDate = dateObj.toLocaleDateString('id-ID');
+
+        const q = query(collection(db, dataType), where('date', '==', formattedDate));
         const snapshot = await getDocs(q);
-        const batch = snapshot.docs.map(doc => deleteDoc(doc.ref));
-        await Promise.all(batch);
-        showNotification(`Data ${dataType} untuk tanggal ${deleteDate} berhasil dihapus!`, true);
-        if (dataType === 'checklists') listenReports(1);
-        if (dataType === 'meters') {
+
+        if (snapshot.empty) {
+            showNotification(`Tidak ada data ${dataType} untuk tanggal ${formattedDate}`);
+            return;
+        }
+
+        const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(deletePromises);
+
+        showNotification(`Berhasil menghapus ${snapshot.docs.length} data ${dataType} untuk tanggal ${formattedDate}!`, true);
+
+        // Refresh data
+        if (dataType === 'checklists') {
+            listenReports(1);
+            populateFilters();
+        } else if (dataType === 'meters') {
             listenMeterReports(1);
             populateMeterFilterDate();
-        }
-        if (dataType === 'damages') {
+        } else if (dataType === 'damages') {
             listenDamageReports(1);
             populateDamageFilterDate();
         }
+
     } catch (error) {
         console.error('Gagal menghapus data:', error);
         showNotification(`Gagal menghapus data: ${error.message}`);
     } finally {
         button.classList.remove('loading');
+        button.disabled = false;
     }
 }
 
@@ -2941,6 +2998,67 @@ Catatan: ${data.notes || '-'}
     populateDamageFilterBlock();
     setInterval(updateTime, 1000);
 });
+
+    // Fungsi menghitung status dari ketinggian air
+    function hitungStatus(ketinggian) {
+        if (ketinggian >= 110) return "Memadai";
+        if (ketinggian >= 90) return "Mencukupi";
+        return "Tidak Memadai";
+    }
+
+    // Fungsi memperbarui tampilan dan hidden value
+    function updateStatusOutputs() {
+        const tinggiRO = parseFloat(document.getElementById('tinggiRO').value) || 0;
+        const tinggiWWTP = parseFloat(document.getElementById('tinggiWWTP').value) || 0;
+        const tinggiPDAM = parseFloat(document.getElementById('tinggiPDAM').value) || 0;
+
+        const statusRO = hitungStatus(tinggiRO);
+        const statusWWTP = hitungStatus(tinggiWWTP);
+        const statusPDAM = hitungStatus(tinggiPDAM);
+
+        // Hidden fields untuk data simpan
+        document.getElementById('bakRO').value = statusRO;
+        document.getElementById('bakWWTP').value = statusWWTP;
+        document.getElementById('statusPDAM').value = statusPDAM;
+
+        // (Opsional) Tampilkan ke user jika ada elemen visual
+        const roText = document.getElementById('statusROText');
+        const wwtpText = document.getElementById('statusWWTPText');
+        const pdamText = document.getElementById('statusPDAMText');
+
+        if (roText) roText.textContent = statusRO;
+        if (wwtpText) wwtpText.textContent = statusWWTP;
+        if (pdamText) pdamText.textContent = statusPDAM;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // Saat user mengisi input tinggi, update status otomatis
+        ['tinggiRO', 'tinggiWWTP', 'tinggiPDAM'].forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.addEventListener('input', updateStatusOutputs);
+            }
+        });
+
+        // Update status sebelum submit, agar field hidden sudah terisi
+        const checklistForm = document.getElementById('checklistForm');
+        if (checklistForm) {
+            checklistForm.addEventListener('submit', function (e) {
+                updateStatusOutputs(); // penting agar hidden input keisi
+            });
+        }
+
+        // Event lainnya
+        const deleteBtn = document.getElementById('deleteDataButton');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', deleteData);
+        }
+
+        const loginBtn = document.getElementById('loginButton');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', login);
+        }
+    });
 </script>
 </body>
 </html>
