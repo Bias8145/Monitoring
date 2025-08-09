@@ -11,24 +11,379 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+    html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
         /* CSS tetap sama seperti sebelumnya */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
+        /* Landing Page Styles - Konsisten dengan tema existing */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+}
 
-        body {
-            font-family: 'Roboto', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 400;
-            line-height: 1.5;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background 0.3s ease;
-        }
+.landing-hero {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 40px;
+    animation: fadeInUp 1s ease forwards;
+    opacity: 0;
+}
+
+.landing-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    animation: logoFloat 3s ease-in-out infinite;
+    transform: perspective(1000px) rotateX(5deg) translateZ(15px);
+    transition: transform 0.3s ease;
+}
+
+.landing-logo:hover {
+    transform: perspective(1000px) rotateX(0deg) translateZ(25px);
+}
+
+.landing-logo i {
+    font-size: 42px;
+    color: white;
+}
+
+.landing-title {
+    font-family: 'Poppins', 'Roboto', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.landing-subtitle {
+    font-size: 18px;
+    opacity: 0.8;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.landing-description {
+    font-size: 14px;
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.landing-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.landing-btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    transform: perspective(1000px) translateZ(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 160px;
+    justify-content: center;
+    text-decoration: none;
+    position: relative;
+    backdrop-filter: blur(12px);
+}
+
+.landing-btn:hover {
+    transform: perspective(1000px) translateZ(20px) translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.landing-btn.primary {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.landing-btn.secondary {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: inherit;
+}
+
+/* Theme-specific styling */
+.dark-theme .landing-btn.secondary {
+    background: rgba(50, 50, 70, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-theme .landing-btn.secondary {
+    background: rgba(220, 220, 220, 0.6);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.landing-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.feature-card {
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: perspective(1000px) rotateX(3deg) translateZ(10px);
+}
+
+.dark-theme .feature-card {
+    background: rgba(40, 40, 60, 0.6);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.light-theme .feature-card {
+    background: rgba(245, 245, 245, 0.7);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.feature-card:hover {
+    transform: perspective(1000px) rotateX(0deg) translateZ(20px) translateY(-3px);
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+    transform: perspective(1000px) translateZ(5px);
+}
+
+.feature-icon i {
+    font-size: 20px;
+    color: white;
+}
+
+.feature-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: inherit;
+}
+
+.feature-description {
+    font-size: 13px;
+    opacity: 0.8;
+    line-height: 1.5;
+}
+
+.landing-footer {
+    text-align: center;
+    opacity: 0.6;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+    margin-bottom: 20px;
+}
+
+/* Guide Modal - konsisten dengan modal existing */
+.guide-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+}
+
+.guide-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+}
+
+.dark-theme .guide-modal-content {
+    background: rgba(30, 30, 46, 0.95);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.light-theme .guide-modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.guide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.guide-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: inherit;
+}
+
+.guide-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.guide-close:hover {
+    opacity: 1;
+}
+
+.guide-section {
+    margin-bottom: 20px;
+}
+
+.guide-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #4CAF50;
+}
+
+.guide-section p, .guide-section li {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+.guide-section ul {
+    padding-left: 20px;
+}
+
+.guide-highlight {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 3px solid #4CAF50;
+    margin: 12px 0;
+}
+
+/* Animations - menggunakan yang sudah ada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes logoFloat {
+    0%, 100% {
+        transform: perspective(1000px) rotateX(5deg) translateZ(15px) translateY(0px);
+    }
+    50% {
+        transform: perspective(1000px) rotateX(5deg) translateZ(15px) translateY(-8px);
+    }
+}
+
+/* Responsive - konsisten dengan media query existing */
+@media (max-width: 600px) {
+    .landing-page {
+        padding: 10px;
+    }
+    
+    .landing-title {
+        font-size: 24px;
+    }
+    
+    .landing-subtitle {
+        font-size: 16px;
+    }
+    
+    .landing-description {
+        font-size: 13px;
+    }
+    
+    .landing-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .landing-btn {
+        width: 100%;
+        max-width: 280px;
+    }
+    
+    .landing-features {
+        grid-template-columns: 1fr;
+    }
+    
+    .guide-modal-content {
+        padding: 15px;
+        width: 95%;
+    }
+}
+
+        
 
         body.light-theme {
             background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
@@ -439,6 +794,7 @@
             text-align: center;
             position: relative;
             z-index: 1;
+            margin-top: 100px;
         }
 
         .login-card {
@@ -719,6 +1075,7 @@
                 max-width: 100%;
                 padding: 10px;
                 padding-bottom: 80px;
+                margin-top: 80px;
             }
 
             .nav-bar {
@@ -926,6 +1283,43 @@
     flex-wrap: wrap;
     text-align: left !important;
 }
+
+.landing-page {
+  padding: 20px;
+}
+
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+
+    min-height: 100vh;
+}
+
+.back-icon {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    background-color: #28a745; /* hijau solid */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px; /* ukuran icon */
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    transition: background-color 0.3s;
+    z-index: 1000;
+}
+
+.back-icon:hover {
+    background-color: #218838;
+}
         }
     </style>
 </head>
@@ -963,10 +1357,204 @@
             <span>Edukasi</span>
         </div>
     </nav>
+    
+    <!-- Landing Page HTML - Tambahkan sebelum loginPage -->
+<div id="landingPage" class="landing-page">
+    <!-- Hero Section -->
+    <div class="landing-hero">
+        <h1 class="landing-title">Water Monitoring & Maintaining System</h1>
+        <p class="landing-subtitle">Sistem Monitoring dan Pemeliharaan Air Terpadu</p>
+        <p class="landing-description">
+            Solusi digital komprehensif untuk monitoring checklist harian, pengelolaan meter lapangan, 
+            pelaporan kerusakan, estimasi konsumsi air, dan katalog edukasi sistem air di WTP Department.
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="landing-actions">
+            <button class="landing-btn primary" id="loginFromLanding">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Masuk Sistem</span>
+            </button>
+            <button class="landing-btn secondary" id="showGuide">
+                <i class="fas fa-book"></i>
+                <span>Panduan Penggunaan</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="landing-features">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-list-check"></i>
+            </div>
+            <h3 class="feature-title">Checklist Harian</h3>
+            <p class="feature-description">
+                Monitoring tinggi bak distribusi, pompa transfer, hydran, dan meter air dengan sistem shift otomatis
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <h3 class="feature-title">Meter Lapangan</h3>
+            <p class="feature-description">
+                Pencatatan pembacaan meter air semua blok dengan perhitungan konsumsi aktual otomatis
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="feature-title">Laporan Kerusakan</h3>
+            <p class="feature-description">
+                Pelaporan kebocoran, kerusakan pipa, dan masalah pompa dengan lokasi spesifik dan kategori
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <h3 class="feature-title">Estimasi Konsumsi</h3>
+            <p class="feature-description">
+                Perhitungan proyeksi pemakaian air berdasarkan data historis dengan visualisasi grafik
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3 class="feature-title">Katalog Edukasi</h3>
+            <p class="feature-description">
+                Materi pembelajaran lengkap tentang K3, perpipaan, pompa, valve, hydran, dan sistem WTP
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">
+                <i class="fas fa-share-alt"></i>
+            </div>
+            <h3 class="feature-title">Share & Export</h3>
+            <p class="feature-description">
+                Bagikan laporan via WhatsApp dan export data untuk analisis lebih lanjut
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="landing-footer">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure Water Management System</span>
+    </div>
+</div>
+
+<!-- Guide Modal -->
+<div id="guideModal" class="guide-modal">
+    <div class="guide-modal-content">
+        <div class="guide-header">
+            <h2 class="guide-title">
+                <i class="fas fa-book" style="margin-right: 8px; color: #4CAF50;"></i>
+                Panduan Penggunaan Sistem
+            </h2>
+            <button class="guide-close" id="closeGuide">&times;</button>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-user-check" style="margin-right: 6px;"></i>Login & Akses</h3>
+            <ul>
+                <li>Masukkan NIK dengan format CA00XXX untuk login</li>
+                <li>Sistem akan mengenali nama user otomatis</li>
+                <li>NIK CA00383 memiliki akses khusus untuk manajemen data</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-list-check" style="margin-right: 6px;"></i>Checklist Harian</h3>
+            <p>Fitur utama untuk monitoring sistem air harian:</p>
+            <ul>
+                <li><strong>Checklist Masuk:</strong> Jam 07:00-07:30, 15:00-15:30, 23:00-23:30</li>
+                <li><strong>Checklist Pulang:</strong> Jam 14:30-15:00, 22:30-23:00, 06:30-07:00</li>
+                <li><strong>Custom Checklist:</strong> Dapat dilakukan kapan saja</li>
+                <li>Isi data tinggi bak RO, WWTP, PDAM dan status pompa</li>
+                <li>Sistem otomatis menghitung status berdasarkan ketinggian air</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-tachometer-alt" style="margin-right: 6px;"></i>Meter Lapangan</h3>
+            <p>Pencatatan pembacaan meter air semua blok:</p>
+            <ul>
+                <li>Pilih blok dan lokasi spesifik dari dropdown</li>
+                <li>Input angka meter dalam satuan m³</li>
+                <li>Sistem menghitung konsumsi aktual berdasarkan data sebelumnya</li>
+                <li>Tambahkan catatan jika diperlukan</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i>Laporan Kerusakan</h3>
+            <p>Pelaporan masalah dan kerusakan sistem:</p>
+            <ul>
+                <li>Pilih jenis kerusakan: Kebocoran, Kerusakan Pipa, Pompa Mati, atau Lainnya</li>
+                <li>Tentukan blok dan lokasi spesifik kejadian</li>
+                <li>Deskripsikan detail kerusakan dan catatan perbaikan</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-chart-line" style="margin-right: 6px;"></i>Estimasi Konsumsi</h3>
+            <p>Perhitungan proyeksi pemakaian air:</p>
+            <div class="guide-highlight">
+                <p><strong>Input yang diperlukan:</strong> Tinggi bak (cm), pembacaan meter awal/akhir (m³), durasi estimasi (jam)</p>
+            </div>
+            <ul>
+                <li>Sistem menghitung konsumsi per jam berdasarkan data historis</li>
+                <li>Proyeksi pemakaian 24 jam dengan rekomendasi</li>
+                <li>Grafik visualisasi dan tabel forecast</li>
+                <li>Peringatan jika volume bak tidak mencukupi</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-book" style="margin-right: 6px;"></i>Katalog Edukasi</h3>
+            <p>Materi pembelajaran sistem air:</p>
+            <ul>
+                <li><strong>K3:</strong> Prosedur keselamatan, penanganan darurat</li>
+                <li><strong>Perpipaan:</strong> Jenis pipa, pemeliharaan, estimasi kehilangan</li>
+                <li><strong>Mesin & Pompa:</strong> Spesifikasi, monitoring efisiensi</li>
+                <li><strong>Valve & Hydran:</strong> Jenis dan fungsi masing-masing</li>
+                <li><strong>Water Meter:</strong> Tipe meter dan cara pembacaan</li>
+                <li><strong>Baku Mutu Air:</strong> Standar kualitas dan monitoring</li>
+                <li><strong>WTP:</strong> Estimasi kebutuhan dan monitoring sistem</li>
+            </ul>
+        </div>
+
+        <div class="guide-section">
+            <h3><i class="fas fa-share-alt" style="margin-right: 6px;"></i>Tips Penggunaan</h3>
+            <div class="guide-highlight">
+                <p><strong>Penting:</strong> Pastikan semua field wajib terisi sebelum menyimpan data</p>
+            </div>
+            <ul>
+                <li>Gunakan tema gelap/terang sesuai preferensi</li>
+                <li>Data tersimpan otomatis di cloud dengan backup</li>
+                <li>Notifikasi akan muncul untuk konfirmasi aksi</li>
+                <li>Sistem otomatis update waktu dan shift</li>
+                <li>Untuk masalah teknis, hubungi administrator</li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 <!-- Halaman Login -->
 <div id="loginPage" class="login-container">
     <div class="login-card">
+<a href="index.html" class="back-icon" title="Kembali ke Beranda">
+    <i class="fa-solid fa-house"></i>
+</a>
     <!-- Overlay blur background -->
     <div id="loginOverlay" class="login-overlay" style="display: none;"></div>
     <!-- Success indicator -->
@@ -977,8 +1565,8 @@
     <!-- Logo section -->
     <div class="logo-section horizontal-logo">
         <div class="logo-text">
-            <h1><i class="fas fa-tint" style="margin-right: 8px;"></i>Water Monitoring & Maintaining System<br>WTP Department</h1>
-            <div class="subtitle">Secure Login Portal</div>
+            <h1><i class="fas fa-tint" style="margin-right: 8px;"></i>Water Monitoring & Maintaining System</h1>
+            <div class="subtitle">WTP Department - Secure Login Portal</div>
         </div>
     </div>
 
@@ -1446,18 +2034,6 @@
             <button class="btn delete-data-btn" id="deleteDataButton">Hapus Data</button>
         </div>
     </div>
-    
-    <!-- Modal untuk Detail Laporan -->
-    <div id="modalOverlay" class="modal-overlay"></div>
-    <div id="detailModal" class="modal">
-        <div class="modal-header">
-            <h2>Detail Checklist</h2>
-            <button class="modal-close" id="modalClose">&times;</button>
-        </div>
-        <div class="modal-content" id="modalContent"></div>
-    </div>
-
-    <div id="notification" class="notification"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -3139,6 +3715,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.classList.add(`${savedTheme}-theme`);
     document.getElementById('themeIcon').classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
+    document.getElementById('landingPage').style.display = 'flex';
+    document.getElementById('loginPage').style.display = 'none';
 
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     document.getElementById('loginButton').addEventListener('click', login);
@@ -3293,6 +3871,34 @@ Catatan: ${data.notes || '-'}
             loginBtn.addEventListener('click', login);
         }
     });
+    
+    // Event listeners untuk landing page - Tambahkan dalam DOMContentLoaded
+document.getElementById('loginFromLanding').addEventListener('click', () => {
+    document.getElementById('landingPage').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'block';
+});
+
+document.getElementById('showGuide').addEventListener('click', () => {
+    document.getElementById('guideModal').style.display = 'block';
+});
+
+document.getElementById('closeGuide').addEventListener('click', () => {
+    document.getElementById('guideModal').style.display = 'none';
+});
+
+// Close modal when clicking outside
+document.getElementById('guideModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('guideModal')) {
+        document.getElementById('guideModal').style.display = 'none';
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('guideModal').style.display === 'block') {
+        document.getElementById('guideModal').style.display = 'none';
+    }
+});
 </script>
 </body>
 </html>
