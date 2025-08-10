@@ -1075,7 +1075,7 @@
                 max-width: 100%;
                 padding: 10px;
                 padding-bottom: 80px;
-                margin-top: 80px;
+                margin-top: 40px;
             }
 
             .nav-bar {
@@ -1320,6 +1320,316 @@
 .back-icon:hover {
     background-color: #218838;
 }
+
+/* Landing Page Styles */
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #1e1e2f 0%, #2a2a4a 100%);
+    color: #e0e0e0;
+    font-family: 'Poppins', sans-serif;
+}
+
+.landing-content {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    flex: 1;
+}
+
+.landing-hero {
+    text-align: center;
+    margin: 3rem 0 4rem;
+    animation: fadeInUp 1s ease forwards;
+}
+
+.landing-logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    box-shadow: 0 12px 40px rgba(76, 175, 80, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    animation: logoFloat 3s ease-in-out infinite;
+}
+
+.landing-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+}
+
+.landing-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.landing-description {
+    font-size: 1rem;
+    opacity: 0.8;
+    line-height: 1.6;
+    margin: 0 auto 2.5rem;
+    max-width: 700px;
+}
+
+.landing-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+}
+
+.landing-btn {
+    padding: 0.8rem 1.8rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.landing-btn.primary {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.landing-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.6);
+}
+
+.landing-btn.primary.pulse {
+    animation: pulse 2s infinite;
+}
+
+.landing-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.landing-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+.landing-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 3rem 0;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.feature-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.feature-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.feature-description {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    line-height: 1.5;
+}
+
+.landing-footer {
+    margin-top: auto;
+    padding: 1.5rem 0;
+    text-align: center;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: white;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .landing-title {
+        font-size: 2rem;
+    }
+    
+    .landing-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .landing-description {
+        font-size: 0.95rem;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-hero {
+        margin: 2rem 0;
+    }
+    
+    .landing-title {
+        font-size: 1.8rem;
+    }
+    
+    .landing-features {
+        grid-template-columns: 1fr;
+    }
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Tambahkan di bagian CSS Anda */
+.container {
+    margin-top: 20px !important; /* Mengurangi margin atas */
+    padding-top: 0 !important; /* Menghilangkan padding atas */
+}
+
+.header {
+    padding: 15px 20px !important; /* Mengurangi padding header */
+    margin-bottom: 10px !important; /* Mengurangi margin bawah header */
+}
+
+/* Untuk halaman login */
+.login-container {
+    margin-top: 50px !important; /* Mengurangi margin atas login page */
+}
+
+/* Override untuk light theme pada landing page */
+body.light-theme .landing-page {
+    background: linear-gradient(135deg, #f5f7fa, #e0eafc);
+    color: #333;
+}
+
+body.light-theme .landing-title {
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light-theme .feature-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .feature-title,
+body.light-theme .feature-description {
+    color: #333;
+}
+
+body.light-theme .landing-btn.secondary {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+body.light-theme .footer-links a {
+    color: rgba(0, 0, 0, 0.6);
+}
+body.light-theme .footer-links a:hover {
+    color: #000;
+}
         }
     </style>
 </head>
@@ -1360,95 +1670,80 @@
     
     <!-- Landing Page HTML - Tambahkan sebelum loginPage -->
 <div id="landingPage" class="landing-page">
-    <!-- Hero Section -->
-    <div class="landing-hero">
-        <h1 class="landing-title">Water Monitoring & Maintaining System</h1>
-        <p class="landing-subtitle">Sistem Monitoring dan Pemeliharaan Air Terpadu</p>
-        <p class="landing-description">
-            Solusi digital komprehensif untuk monitoring checklist harian, pengelolaan meter lapangan, 
-            pelaporan kerusakan, estimasi konsumsi air, dan katalog edukasi sistem air di WTP Department.
-        </p>
-
-        <!-- Action Buttons -->
-        <div class="landing-actions">
-            <button class="landing-btn primary" id="loginFromLanding">
-                <i class="fas fa-sign-in-alt"></i>
-                <span>Masuk Sistem</span>
-            </button>
-            <button class="landing-btn secondary" id="showGuide">
-                <i class="fas fa-book"></i>
-                <span>Panduan Penggunaan</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Features Section -->
-    <div class="landing-features">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-list-check"></i>
-            </div>
-            <h3 class="feature-title">Checklist Harian</h3>
-            <p class="feature-description">
-                Monitoring tinggi bak distribusi, pompa transfer, hydran, dan meter air dengan sistem shift otomatis
+    <div class="landing-content">
+        <!-- Hero Section -->
+        <div class="landing-hero">
+            <h1 class="landing-title">Water Monitoring & Maintaining System</h1>
+            <p class="landing-subtitle">Sistem Terintegrasi untuk Manajemen Air yang Lebih Baik</p>
+            <p class="landing-description">
+                Solusi digital komprehensif untuk monitoring checklist harian, pengelolaan meter lapangan, 
+                pelaporan kerusakan, estimasi konsumsi air, dan katalog edukasi sistem air di WTP Department.
             </p>
+
+            <!-- Action Buttons -->
+            <div class="landing-actions">
+                <button class="landing-btn primary pulse" id="loginFromLanding">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Masuk Sistem</span>
+                </button>
+                <button class="landing-btn secondary" id="showGuide">
+                    <i class="fas fa-book"></i>
+                    <span>Panduan Penggunaan</span>
+                </button>
+            </div>
         </div>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-tachometer-alt"></i>
+        <!-- Features Grid -->
+        <div class="landing-features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-list-check"></i>
+                </div>
+                <h3 class="feature-title">Checklist Harian</h3>
+                <p class="feature-description">
+                    Monitoring tinggi bak distribusi, pompa transfer, hydran, dan meter air dengan sistem shift otomatis
+                </p>
             </div>
-            <h3 class="feature-title">Meter Lapangan</h3>
-            <p class="feature-description">
-                Pencatatan pembacaan meter air semua blok dengan perhitungan konsumsi aktual otomatis
-            </p>
-        </div>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-exclamation-triangle"></i>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tachometer-alt"></i>
+                </div>
+                <h3 class="feature-title">Meter Lapangan</h3>
+                <p class="feature-description">
+                    Pencatatan pembacaan meter air semua blok dengan perhitungan konsumsi aktual otomatis
+                </p>
             </div>
-            <h3 class="feature-title">Laporan Kerusakan</h3>
-            <p class="feature-description">
-                Pelaporan kebocoran, kerusakan pipa, dan masalah pompa dengan lokasi spesifik dan kategori
-            </p>
-        </div>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-chart-line"></i>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="feature-title">Laporan Kerusakan</h3>
+                <p class="feature-description">
+                    Pelaporan kebocoran, kerusakan pipa, dan masalah pompa dengan lokasi spesifik dan kategori
+                </p>
             </div>
-            <h3 class="feature-title">Estimasi Konsumsi</h3>
-            <p class="feature-description">
-                Perhitungan proyeksi pemakaian air berdasarkan data historis dengan visualisasi grafik
-            </p>
-        </div>
 
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-book"></i>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Estimasi Konsumsi</h3>
+                <p class="feature-description">
+                    Perhitungan proyeksi pemakaian air berdasarkan data historis dengan visualisasi grafik
+                </p>
             </div>
-            <h3 class="feature-title">Katalog Edukasi</h3>
-            <p class="feature-description">
-                Materi pembelajaran lengkap tentang K3, perpipaan, pompa, valve, hydran, dan sistem WTP
-            </p>
-        </div>
-
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-share-alt"></i>
-            </div>
-            <h3 class="feature-title">Share & Export</h3>
-            <p class="feature-description">
-                Bagikan laporan via WhatsApp dan export data untuk analisis lebih lanjut
-            </p>
         </div>
     </div>
 
     <!-- Footer -->
     <div class="landing-footer">
-        <i class="fas fa-shield-alt"></i>
-        <span>Secure Water Management System</span>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <span>© 2025 Water Treatment Department. All rights reserved.</span>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -2715,17 +3010,36 @@ async function listenMeterReports(page = 1) {
     if (filterBlock) q = query(q, where('block', '==', filterBlock));
     if (filterDate) q = query(q, where('date', '==', filterDate));
 
-    try {
+        try {
         onSnapshot(q, async (snapshot) => {
-            console.log('Meter snapshot:', snapshot.docs.map(doc => doc.data()));
             reportBody.innerHTML = '';
             const meters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
             if (meters.length === 0) {
-                console.log('No meter data found for current filters');
                 reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data meter.</td></tr>';
             } else {
+                // Dapatkan semua data meter untuk perhitungan aktual
+                const allMeters = await getDocs(collection(db, 'meters'));
+                const allMeterData = allMeters.docs.map(doc => doc.data());
+                
                 for (const m of meters) {
-                    const actualUsage = await calculateActualUsage(m.block, m.location, m.meterReading, m.date);
+                    // Cari pembacaan sebelumnya untuk lokasi yang sama
+                    const previousReadings = allMeterData
+                        .filter(item => 
+                            item.block === m.block && 
+                            item.location === m.location && 
+                            item.date <= m.date && 
+                            item.time < m.time
+                        )
+                        .sort((a, b) => 
+                            new Date(`${b.date} ${b.time}`) - new Date(`${a.date} ${a.time}`)
+                        );
+                    
+                    const previousReading = previousReadings[0];
+                    const actualUsage = previousReading ? 
+                        (m.meterReading - previousReading.meterReading).toFixed(2) : 
+                        '-';
+                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${m.date || '-'}</td>
@@ -2733,9 +3047,9 @@ async function listenMeterReports(page = 1) {
                         <td>${m.block || '-'}</td>
                         <td>${m.location || '-'}</td>
                         <td>${m.meterReading || 0} m³</td>
-                        <td>${actualUsage !== null ? actualUsage.toFixed(2) + ' m³' : '-'}</td>
+                        <td>${actualUsage !== '-' ? actualUsage + ' m³' : '-'}</td>
                         <td>${m.notes || '-'}</td>
-                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(m).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(m)}'><i class="fab fa-whatsapp"></i> Share</button></td>
                     `;
                     reportBody.appendChild(row);
                 }
