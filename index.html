@@ -1120,24 +1120,36 @@
               margin-top: 48px;
             }
             
-            .success-check {
+.success-check {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 48px;
-    height: 48px;
+    width: 80px;   /* dari 48px → 80px */
+    height: 80px;  /* dari 48px → 80px */
     border-radius: 50%;
     background: #4CAF50;
     animation: successPop 0.5s ease;
-    z-index: 10;
+    z-index: 910; /* tetap di depan blur */
 }
 
 .success-check i {
     color: white;
-    font-size: 20px;
-    line-height: 48px;
+    font-size: 36px;  /* dari 20px → 36px */
+    line-height: 80px; /* dari 48px → 80px */
+}
+
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.1); /* lebih terang supaya icon tetap kelihatan */
+    z-index: 909;
+    border-radius: 0px;
 }
 
 @keyframes successPop {
@@ -1190,15 +1202,15 @@
 }
 
 .login-overlay {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     backdrop-filter: blur(8px);
     background: rgba(0, 0, 0, 0.2);
-    z-index: 9;
-    border-radius: 20px;
+    z-index: 909;
+    border-radius: 0px;
 }
 
 .horizontal-logo {
@@ -1631,6 +1643,266 @@ body.light-theme .footer-links a:hover {
     color: #000;
 }
         }
+    
+    /* Ripple & scale click effect */
+.btn, .landing-btn, td button, .switch-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:active, .landing-btn:active, td button:active, .switch-btn:active {
+    transform: scale(0.96);
+}
+
+/* Ripple animation */
+.ripple-anim {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    width: 10px;
+    height: 10px;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(20);
+        opacity: 0;
+    }
+}
+
+/* Page fade-in animation */
+.page-fade-in {
+    animation: fadeSlideIn 0.5s ease;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Staggered load effect for landing page */
+.staggered {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Breathing animation untuk tombol */
+.btn, .landing-btn {
+    animation: breathing 5s ease-in-out infinite;
+}
+@keyframes breathing {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* Ikon goyang sedikit saat hover */
+.landing-btn i, .nav-item i {
+    transition: transform 0.3s ease;
+}
+.landing-btn:hover i, .nav-item:hover i {
+    transform: translateY(-2px) rotate(5deg);
+}
+
+
+@keyframes successPopBig {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    60% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+/* Shake error */
+.shake {
+    animation: shakeAnim 0.4s ease;
+}
+@keyframes shakeAnim {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+}
+
+/* Transisi halaman dari kiri/kanan */
+.page-slide-left {
+    animation: slideFromLeft 0.4s ease;
+}
+.page-slide-right {
+    animation: slideFromRight 0.4s ease;
+}
+@keyframes slideFromLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideFromRight {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Tombol loading */
+.btn.loading {
+    position: relative;
+    pointer-events: none;
+}
+.btn.loading::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Glow saat fokus */
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    box-shadow: 0 0 8px rgba(76,175,80,0.5);
+}
+
+/* Gunakan font konsisten di seluruh elemen */
+body, input, select, textarea, button, table, th, td {
+    font-family: 'Poppins', 'Roboto', sans-serif !important;
+}
+
+/* Tema terang sebagai default */
+body {
+    background: linear-gradient(135deg, #f5f7fa, #e0eafc);
+    color: #333;
+}
+
+/* Perbaikan warna ikon input FA di login saat tema terang */
+body.light-theme .input-icon {
+    color: rgba(0, 0, 0, 0.5);
+}
+body.light-theme .input-wrapper input:focus + .input-icon {
+    color: #4CAF50;
+}
+
+
+/* Background gelembung air */
+body {
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    overflow-x: hidden;
+}
+
+.bubble {
+    position: fixed;
+    bottom: -100px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    animation: rise 15s infinite ease-in;
+    z-index: 0;
+}
+@keyframes rise {
+    0% { transform: translateY(0) scale(1); opacity: 0.7; }
+    50% { opacity: 0.5; }
+    100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+}
+
+/* Glassmorphism login card */
+.login-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    padding: 40px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+    animation: fadeSlideUp 0.8s ease;
+}
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Icon besar di atas form */
+.login-header-icon {
+    font-size: 48px;
+    color: #4CAF50;
+    margin-bottom: 15px;
+    animation: popIn 0.6s ease;
+}
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
+/* Animasi form element */
+.login-input-card {
+    animation: fadeUp 0.6s ease forwards;
+}
+.login-input-card:nth-child(1) { animation-delay: 0.2s; }
+.login-input-card:nth-child(2) { animation-delay: 0.4s; }
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tombol login interaktif */
+.btn {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(76,175,80,0.4);
+}
+
+/* Input focus highlight */
+.input-wrapper input:focus {
+    border: 2px solid #4CAF50;
+    box-shadow: 0 0 10px rgba(76,175,80,0.3);
+}
+
+@keyframes fadeInOverlay {
+    to { opacity: 1; }
+}
+@keyframes fadeOutOverlay {
+    to { opacity: 0; }
+}
+
+@keyframes fadeInOverlay {
+    to { opacity: 1; }
+}
+@keyframes fadeOutOverlay {
+    to { opacity: 0; }
+}
+
+@keyframes fadeInOverlay {
+    to { opacity: 1; }
+}
+@keyframes fadeOutOverlay {
+    to { opacity: 0; }
+}
+
+@keyframes popScale {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+}
     </style>
 </head>
 
@@ -1841,42 +2113,44 @@ body.light-theme .footer-links a:hover {
 
 <!-- Halaman Login -->
 <div id="loginPage" class="login-container">
-<a href="index.html" class="back-icon" title="Kembali ke Beranda">
-    <i class="fa-solid fa-house"></i>
-</a>
+    <a href="index.html" class="back-icon" title="Kembali ke Beranda">
+        <i class="fa-solid fa-house"></i>
+    </a>
+
+ <!-- Overlay blur background -->
+<div id="loginOverlay" class="login-overlay" style="display: none;"></div>
+
+<!-- Success indicator sekarang berada di depan blur -->
+<div class="success-check" id="successCheck" style="display:none;">
+    <i class="fas fa-check"></i>
+</div>
+
     <div class="login-card">
-    <!-- Overlay blur background -->
-    <div id="loginOverlay" class="login-overlay" style="display: none;"></div>
-    <!-- Success indicator -->
-    <div class="success-check" id="successCheck" style="display:none;">
-        <i class="fas fa-check"></i>
-    </div>
-
-    <!-- Logo section -->
-    <div class="logo-section horizontal-logo">
-        <div class="logo-text">
-            <h1><i class="fas fa-tint" style="margin-right: 8px;"></i>Water Monitoring & Maintaining System</h1>
-            <div class="subtitle">WTP Department - Secure Login Portal</div>
+        <!-- Logo section -->
+        <div class="logo-section horizontal-logo">
+            <div class="logo-text">
+                <h1><i class="fas fa-tint" style="margin-right: 8px;"></i>Water Monitoring & Maintaining System</h1>
+                <div class="subtitle">WTP Department - Secure Login Portal</div>
+            </div>
         </div>
-    </div>
 
-    <!-- Input section -->
-    <div class="login-input-card">
-        <div class="input-wrapper">
-            <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00001)" required>
-            <i class="fas fa-id-card input-icon"></i>
+        <!-- Input section -->
+        <div class="login-input-card">
+            <div class="input-wrapper">
+                <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00001)" required>
+                <i class="fas fa-id-card input-icon"></i>
+            </div>
+            <button class="btn" id="loginButton">
+                <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+                <span>Masuk</span>
+            </button>
         </div>
-        <button class="btn" id="loginButton">
-            <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
-            <span>Masuk</span>
-        </button>
-    </div>
 
-    <!-- Footer -->
-    <div class="login-footer">
-        <i class="fas fa-shield-alt"></i>
-        <span>Secure Water Management System</span>
-    </div>
+        <!-- Footer -->
+        <div class="login-footer">
+            <i class="fas fa-shield-alt"></i>
+            <span>Secure Water Management System</span>
+        </div>
     </div>
 </div>
 
@@ -4208,6 +4482,116 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('guideModal').style.display = 'none';
     }
 });
+
+// Ripple effect tanpa mengganggu fungsi asli tombol
+document.querySelectorAll('.btn, .landing-btn, td button, .switch-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        const rect = this.getBoundingClientRect();
+        const ripple = document.createElement("span");
+        ripple.classList.add("ripple-anim");
+        ripple.style.left = (e.clientX - rect.left) + "px";
+        ripple.style.top = (e.clientY - rect.top) + "px";
+        this.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    }, false);
+});
+
+// Efek fade-in untuk halaman yang muncul
+const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+        if (mutation.target.style.display === 'block') {
+            mutation.target.classList.add('page-fade-in');
+            setTimeout(() => mutation.target.classList.remove('page-fade-in'), 500);
+        }
+    });
+});
+
+// Observasi semua halaman utama
+document.querySelectorAll('#landingPage, #loginPage, #mainPage, #meterPage, #damagePage, #estimationPage, #educationPage')
+    .forEach(page => {
+        observer.observe(page, { attributes: true, attributeFilter: ['style'] });
+    });
+
+// Staggered load untuk elemen di landing page saat pertama kali load
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('#landingPage .landing-hero, #landingPage .feature-card').forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.15}s`;
+        el.classList.add('staggered');
+    });
+});
+
+// Feedback error (shake)
+function showErrorShake(selector) {
+    const el = document.querySelector(selector);
+    if (!el) return;
+    el.classList.add('shake');
+    setTimeout(() => el.classList.remove('shake'), 400);
+}
+
+// Tombol loading sementara
+function setButtonLoading(btn, isLoading) {
+    if (isLoading) {
+        btn.classList.add('loading');
+    } else {
+        btn.classList.remove('loading');
+    }
+}
+
+// Contoh integrasi pada form checklist
+const checklistForm = document.getElementById('checklistForm');
+if (checklistForm) {
+    checklistForm.addEventListener('submit', e => {
+        e.preventDefault();
+        const btn = document.getElementById('saveChecklistButton');
+        setButtonLoading(btn, true);
+        setTimeout(() => {
+            setButtonLoading(btn, false);
+            showSuccessCheck();
+        }, 1000);
+    });
+}
+
+// Transisi arah halaman (optional integrasi)
+function showPageWithDirection(pageId, direction = 'right') {
+    document.querySelectorAll('#landingPage, #loginPage, #mainPage, #meterPage, #damagePage, #estimationPage, #educationPage')
+        .forEach(p => p.style.display = 'none');
+    const page = document.getElementById(pageId);
+    if (page) {
+        page.style.display = 'block';
+        page.classList.add(direction === 'left' ? 'page-slide-left' : 'page-slide-right');
+        setTimeout(() => {
+            page.classList.remove('page-slide-left', 'page-slide-right');
+        }, 400);
+    }
+}
+
+// Set tema terang sebagai default saat load
+window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.remove('dark-theme');
+    document.body.classList.add('light-theme');
+    const themeIcon = document.getElementById('themeIcon');
+    if (themeIcon) {
+        themeIcon.classList.remove('fa-moon');
+        themeIcon.classList.add('fa-sun');
+    }
+});
+
+// Buat background gelembung dinamis
+function createBubbles() {
+    for (let i = 0; i < 12; i++) {
+        const bubble = document.createElement('div');
+        const size = Math.random() * 40 + 20; // ukuran antara 20-60px
+        bubble.classList.add('bubble');
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}vw`;
+        bubble.style.animationDuration = `${8 + Math.random() * 8}s`;
+        document.body.appendChild(bubble);
+        setTimeout(() => bubble.remove(), 16000);
+    }
+}
+setInterval(createBubbles, 3000);
+createBubbles();
 </script>
 </body>
 </html>
