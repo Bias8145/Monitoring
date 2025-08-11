@@ -2341,97 +2341,159 @@ body.light-theme .footer-links a:hover {
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script type="module">
+    // Impor modul Firebase yang diperlukan
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getMessaging, onMessage, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
-            authDomain: "water-checklist.firebaseapp.com",
-            projectId: "water-checklist",
-            storageBucket: "water-checklist.firebasestorage.app",
-            messagingSenderId: "84158811467",
-            appId: "1:84158811467:web:717bd038c3da5362ad2cce"
-        };
+    // Konfigurasi Firebase Anda
+    const firebaseConfig = {
+        apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
+        authDomain: "water-checklist.firebaseapp.com",
+        projectId: "water-checklist",
+        storageBucket: "water-checklist.firebasestorage.app",
+        messagingSenderId: "84158811467",
+        appId: "1:84158811467:web:717bd038c3da5362ad2cce"
+    };
+    
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    
+    // Inisialisasi Firebase Messaging
+    let messaging;
+    try {
+        messaging = getMessaging(app);
+        console.log('Firebase Messaging berhasil diinisialisasi');
 
-        let db;
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            console.log('Firebase berhasil diinisialisasi');
-        } catch (error) {
-            console.error('Gagal menginisialisasi Firebase:', error);
-            showNotification('Gagal menginisialisasi aplikasi. Silakan coba lagi nanti.');
-        }
+        // VAPID key yang Anda berikan
+        const vapidKey = 'BC_wKYhgBStBfdwVY_xkVcC4x_JpjcFbwpeWWpkgYWYScZZuEi6f296bP4CFmPxyu0AuejSxEk1OA6nGROERQhw';
 
-        const users = [
-            { nik: 'CA00006', name: 'Muhammad Fahruroji' },
-            { nik: 'CA00159', name: 'Andri Rahmatulloh' },
-            { nik: 'CA00193', name: 'IIP M Ilyas' },
-            { nik: 'CA00198', name: 'Shashi Prasetyo' },
-            { nik: 'CA00210', name: 'Ridwan Fauzi' },
-            { nik: 'CA00383', name: 'Bias Fajar Khaliq' },
-            { nik: 'CA00491', name: 'Torik Hidayat' },
-            { nik: 'CA00508', name: 'Amanda Lutfi' }
-        ];
-
-        let currentType = 'masuk';
-        let currentNIK = '';
-        let currentUserName = '';
-        let usageChart = null;
-        const ITEMS_PER_PAGE = 10;
-        function renderUsageChart() {
-    const meterStart = parseFloat(document.getElementById('meterStart').value);
-    const meterEnd = parseFloat(document.getElementById('meterEnd').value);
-
-    if (isNaN(meterStart) || isNaN(meterEnd)) {
-        console.warn('Data meter tidak valid untuk grafik.');
-        return;
-    }
-
-    if (usageChart) usageChart.destroy();
-
-    const ctx = document.getElementById('usageChart').getContext('2d');
-
-    usageChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Awal', 'Sekarang'],
-            datasets: [{
-                label: 'Angka Meter (m³)',
-                data: [meterStart, meterEnd],
-                borderColor: '#4CAF50',
-                backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Waktu'
+        // Fungsi untuk meminta izin notifikasi
+        async function mintaIzinNotifikasi() {
+            try {
+                const izin = await Notification.requestPermission();
+                if (izin === 'granted') {
+                    const tokenFCM = await getToken(messaging, { vapidKey });
+                    if (tokenFCM) {
+                        console.log('Token FCM:', tokenFCM);
+                        // Kirim token ke server Anda untuk disimpan
+                        // await simpanTokenKeServer(tokenFCM);
+                    } else {
+                        console.log('Tidak mendapatkan token - izin mungkin belum diberikan');
                     }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Meter (m³)'
-                    }
+                } else {
+                    console.log('Izin notifikasi ditolak');
                 }
-            },
-            plugins: {
-                legend: {
-                    display: true
-                }
+            } catch (err) {
+                console.error('Gagal mendapatkan token:', err);
             }
         }
-    });
-}
+
+        // Menangani pesan yang diterima saat aplikasi terbuka
+        onMessage(messaging, (payload) => {
+            console.log('Pesan diterima:', payload);
+            const judulNotif = payload.notification?.title || 'Pesan Baru';
+            const isiNotif = payload.notification?.body || 'Anda memiliki pesan baru';
+            tampilkanNotifikasi(judulNotif, isiNotif, true);
+        });
+
+        // Meminta izin notifikasi saat halaman dimuat
+        mintaIzinNotifikasi();
+
+    } catch (error) {
+        console.error('Gagal menginisialisasi Firebase Messaging:', error);
+    }
+
+    // Fungsi untuk menampilkan notifikasi
+    function tampilkanNotifikasi(pesan, isSuccess = false) {
+        const elemenNotif = document.getElementById('notification');
+        if (elemenNotif) {
+            elemenNotif.textContent = pesan;
+            elemenNotif.className = `notification ${isSuccess ? 'success' : ''}`;
+            elemenNotif.style.display = 'block';
+            setTimeout(() => {
+                elemenNotif.style.display = 'none';
+                elemenNotif.className = 'notification';
+            }, 5000);
+        } else {
+            console.error('Elemen notifikasi tidak ditemukan');
+        }
+    }
+
+    // Data pengguna aplikasi
+    const users = [
+        { nik: 'CA00006', name: 'Muhammad Fahruroji' },
+        { nik: 'CA00159', name: 'Andri Rahmatulloh' },
+        { nik: 'CA00193', name: 'IIP M Ilyas' },
+        { nik: 'CA00198', name: 'Shashi Prasetyo' },
+        { nik: 'CA00210', name: 'Ridwan Fauzi' },
+        { nik: 'CA00383', name: 'Bias Fajar Khaliq' },
+        { nik: 'CA00491', name: 'Torik Hidayat' },
+        { nik: 'CA00508', name: 'Amanda Lutfi' }
+    ];
+
+    // Variabel aplikasi
+    let currentType = 'masuk';
+    let currentNIK = '';
+    let currentUserName = '';
+    let usageChart = null;
+    const ITEMS_PER_PAGE = 10;
+    
+    // Fungsi untuk menampilkan grafik penggunaan
+    function renderUsageChart() {
+        const meterAwal = parseFloat(document.getElementById('meterStart').value);
+        const meterAkhir = parseFloat(document.getElementById('meterEnd').value);
+
+        if (isNaN(meterAwal) || isNaN(meterAkhir)) {
+            console.warn('Data meter tidak valid untuk grafik');
+            return;
+        }
+
+        if (usageChart) usageChart.destroy();
+
+        const ctx = document.getElementById('usageChart').getContext('2d');
+
+        usageChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Awal', 'Sekarang'],
+                datasets: [{
+                    label: 'Pembacaan Meter (m³)',
+                    data: [meterAwal, meterAkhir],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Waktu'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Meter (m³)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                }
+            }
+        });
+    }
 
         const shifts = [
             { name: 'Satu', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
@@ -2959,45 +3021,67 @@ async function saveDamage(event) {
     }
 }
 
-async function calculateActualUsage(block, location, currentReading, currentDate) {
+async function calculateActualUsage(block, location, currentReading) {
     try {
-        // Query untuk mendapatkan pembacaan meter sebelumnya
+        console.log('Mencari data untuk:', {block, location}); // Log debugging
+        
+        // Query untuk data sebelumnya (case insensitive)
         const q = query(
             collection(db, 'meters'),
-            where('block', '==', block),
-            where('location', '==', location),
+            where('block', '>=', block),
+            where('block', '<=', block + '\uf8ff'), // Teknik range query untuk case insensitive
             orderBy('createdAt', 'desc'),
-            limit(10) // Ambil 10 data terakhir untuk mencari yang sebelumnya
+            limit(1)
         );
+
         const snapshot = await getDocs(q);
-        
+        console.log('Data ditemukan:', snapshot.docs.length); // Log debugging
+
         if (!snapshot.empty) {
-            const allData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-            // Cari data sebelumnya berdasarkan tanggal
-            let previousReading = null;
-            for (let i = 0; i < allData.length; i++) {
-                const data = allData[i];
-                // Bandingkan tanggal (skip data dengan tanggal yang sama)
-                if (data.date !== currentDate && data.meterReading < currentReading) {
-                    previousReading = data.meterReading;
-                    break;
-                }
-            }
-            
-            if (previousReading !== null) {
-                const actual = currentReading - previousReading;
-                return actual > 0 ? actual : 0; // Pastikan tidak negatif
+            // Cari data dengan lokasi yang match (case insensitive)
+            const allData = snapshot.docs.map(doc => doc.data());
+            const prevData = allData.find(data => 
+                data.location.toLowerCase() === location.toLowerCase()
+            );
+
+            if (prevData) {
+                console.log('Data sebelumnya ditemukan:', prevData); // Log debugging
+                const prevReading = parseFloat(prevData.meterReading) || 0;
+                return currentReading - prevReading;
             }
         }
-        
-        // Jika tidak ada data sebelumnya, return null
+
+        console.log('Tidak ada data sebelumnya yang cocok'); // Log debugging
         return null;
     } catch (error) {
-        console.error('Gagal menghitung aktual pemakaian:', error);
+        console.error('Error dalam calculateActualUsage:', error);
         return null;
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const meterReadingInput = document.getElementById('meterReading');
+    if (!meterReadingInput) return;
+
+    meterReadingInput.addEventListener('input', async () => {
+        const block = document.getElementById('meterBlock').value;
+        const location = document.getElementById('meterLocation').value;
+        const reading = parseFloat(meterReadingInput.value);
+        
+        if (block && location && !isNaN(reading)) {
+            const actual = await calculateActualUsage(block, location, reading);
+            const el = document.getElementById('actualUsage');
+            
+            if (actual !== null) {
+                el.innerHTML = `<strong>Pemakaian Aktual:</strong> ${actual.toFixed(2)} m³`;
+            } else {
+                el.innerHTML = `<em>Belum ada data sebelumnya untuk ${block} - ${location}</em>`;
+            }
+        } else {
+            document.getElementById('actualUsage').innerHTML = '';
+        }
+    });
+});
 
 async function listenMeterReports(page = 1) {
     const filterBlock = document.getElementById('meterFilterBlock').value;
