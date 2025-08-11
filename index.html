@@ -383,8 +383,6 @@
     }
 }
 
-        
-
         body.light-theme {
             background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
             color: #333;
@@ -4558,34 +4556,6 @@ function showPageWithDirection(pageId, direction = 'right') {
         }, 400);
     }
 }
-
-// Set tema terang sebagai default saat load
-window.addEventListener('DOMContentLoaded', () => {
-    document.body.classList.remove('dark-theme');
-    document.body.classList.add('light-theme');
-    const themeIcon = document.getElementById('themeIcon');
-    if (themeIcon) {
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
-    }
-});
-
-// Buat background gelembung dinamis
-function createBubbles() {
-    for (let i = 0; i < 12; i++) {
-        const bubble = document.createElement('div');
-        const size = Math.random() * 40 + 20; // ukuran antara 20-60px
-        bubble.classList.add('bubble');
-        bubble.style.width = `${size}px`;
-        bubble.style.height = `${size}px`;
-        bubble.style.left = `${Math.random() * 100}vw`;
-        bubble.style.animationDuration = `${8 + Math.random() * 8}s`;
-        document.body.appendChild(bubble);
-        setTimeout(() => bubble.remove(), 16000);
-    }
-}
-setInterval(createBubbles, 3000);
-createBubbles();
 </script>
 </body>
 </html>
