@@ -1807,6 +1807,51 @@ html, body {
 .blink {
     animation: blink 1s infinite;
 }
+
+.action-row td {
+    padding: 8px;
+    background: rgba(255,255,255,0.05);
+}
+
+.action-row button {
+    margin-right: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.action-row .detail-btn {
+    background: #2196F3;
+    color: white;
+}
+
+.action-row .detail-btn:hover {
+    background: #1976D2;
+}
+
+.action-row .share-btn {
+    background: #25D366;
+    color: white;
+}
+
+.action-row .share-btn:hover {
+    background: #20B058;
+}
+
+.action-row .edit-btn {
+    background: #FFC107;
+    color: #333;
+}
+
+.action-row .edit-btn:hover {
+    background: #FFB300;
+}
 </style>
 </head>
 
@@ -2231,9 +2276,6 @@ html, body {
                         <th>Shift</th>
                         <th>Penginput</th>
                         <th>Catatan</th>
-                        <th>Detail</th>
-                        <th>Share</th>
-                        <th>Edit</th>
                     </tr>
                 </thead>
                 <tbody id="reportBody"></tbody>
@@ -3068,63 +3110,79 @@ function login() {
         }
         
         async function listenReports(page = 1) {
-            const filterDate = document.getElementById('filterDate').value;
-            const filterShift = document.getElementById('filterShift').value;
-            const filterNIK = document.getElementById('filterNIK').value;
-            const reportBody = document.getElementById('reportBody');
-            const pagination = document.getElementById('reportPagination');
+    const filterDate = document.getElementById('filterDate').value;
+    const filterShift = document.getElementById('filterShift').value;
+    const filterNIK = document.getElementById('filterNIK').value;
+    const reportBody = document.getElementById('reportBody');
+    const pagination = document.getElementById('reportPagination');
 
-            let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
-            if (page > 1) {
-                const lastVisible = await getLastVisibleDoc('checklists', page, ITEMS_PER_PAGE);
-                if (lastVisible) {
-                    q = query(q, startAfter(lastVisible));
-                }
-            }
-            if (filterDate) q = query(q, where('date', '==', filterDate));
-            if (filterShift) q = query(q, where('shift', '==', filterShift));
-            if (filterNIK) q = query(q, where('nik', '==', filterNIK));
-
-            try {
-                onSnapshot(q, async (snapshot) => {
-                    console.log('Checklist snapshot:', snapshot.docs.map(doc => doc.data()));
-                    reportBody.innerHTML = '';
-                    const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    if (checklists.length === 0) {
-                        console.log('No checklist data found for current filters');
-                        reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data checklist.</td></tr>';
-                    } else {
-                        checklists.forEach(c => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${c.date || '-'}</td>
-                                <td>${c.time || '-'}</td>
-                                <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
-                                <td>${c.nik || '-'} - ${c.name || '-'}</td>
-                                <td>${c.catatan || '-'}</td>
-                                <td><button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>Lihat</button></td>
-                                <td><button class="whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
-                                <td><button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>Edit</button></td>
-                            `;
-                            reportBody.appendChild(row);
-                        });
-                    }
-
-                    const totalDocs = (await getDocs(query(collection(db, 'checklists')))).size;
-                    pagination.innerHTML = `
-                        <button onclick="listenReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
-                        <span>Halaman ${page}</span>
-                        <button onclick="listenReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
-                    `;
-                }, (error) => {
-                    console.error('Error in listenReports:', error);
-                    showNotification(`Gagal memuat laporan checklist: ${error.message}`);
-                });
-            } catch (error) {
-                console.error('Error setting up checklist listener:', error);
-                showNotification(`Gagal mengatur listener checklist: ${error.message}`);
-            }
+    let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
+    if (page > 1) {
+        const lastVisible = await getLastVisibleDoc('checklists', page, ITEMS_PER_PAGE);
+        if (lastVisible) {
+            q = query(q, startAfter(lastVisible));
         }
+    }
+    if (filterDate) q = query(q, where('date', '==', filterDate));
+    if (filterShift) q = query(q, where('shift', '==', filterShift));
+    if (filterNIK) q = query(q, where('nik', '==', filterNIK));
+
+    try {
+        onSnapshot(q, async (snapshot) => {
+            reportBody.innerHTML = '';
+            const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            if (checklists.length === 0) {
+                reportBody.innerHTML = '<tr><td colspan="5">Tidak ada data checklist.</td></tr>';
+            } else {
+                checklists.forEach(c => {
+                    // Baris data utama
+                    const dataRow = document.createElement('tr');
+                    dataRow.innerHTML = `
+                        <td>${c.date || '-'}</td>
+                        <td>${c.time || '-'}</td>
+                        <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
+                        <td>${c.nik || '-'} - ${c.name || '-'}</td>
+                        <td>${c.catatan || '-'}</td>
+                    `;
+                    reportBody.appendChild(dataRow);
+
+                    // Baris tombol aksi di bawahnya
+                    const actionRow = document.createElement('tr');
+                    actionRow.classList.add('action-row');
+                    actionRow.innerHTML = `
+                        <td colspan="5" style="text-align:left;">
+                            <button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>
+                                <i class="fas fa-eye"></i> Detail
+                            </button>
+                            <button class="share-btn whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                            <button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </td>
+                    `;
+                    reportBody.appendChild(actionRow);
+                });
+            }
+
+            // Pagination
+            const totalDocs = (await getDocs(query(collection(db, 'checklists')))).size;
+            pagination.innerHTML = `
+                <button onclick="listenReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
+                <span>Halaman ${page}</span>
+                <button onclick="listenReports(${page + 1})" ${page * ITEMS_PER_PAGE >= totalDocs ? 'disabled' : ''}>Selanjutnya</button>
+            `;
+        }, (error) => {
+            console.error('Error in listenReports:', error);
+            showNotification(`Gagal memuat laporan checklist: ${error.message}`);
+        });
+    } catch (error) {
+        console.error('Error setting up checklist listener:', error);
+        showNotification(`Gagal mengatur listener checklist: ${error.message}`);
+    }
+}
 
         async function populateFilters() {
             console.log('Populating checklist filters...');
