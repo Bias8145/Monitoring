@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4CAF50">
     <title>Sistem Checklist Air</title>
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -452,7 +455,7 @@ td button.edit-btn:disabled {
     text-align: center;
     position: relative;
     z-index: 1;
-    margin-top: 50px !important;
+    margin-top: 100px !important;
 }
 
 .login-card {
@@ -1002,7 +1005,7 @@ body.light-theme .input-icon {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    padding: 2rem 1rem;
+    padding: calc(env(safe-area-inset-top, 0px) + 80px) 1rem 2rem 1rem;
     align-items: center;
     justify-content: center;
     position: relative;
@@ -1525,7 +1528,7 @@ body.light-theme .footer-links a:hover {
 
 @media (max-width: 600px) {
     .landing-page {
-        padding: 10px;
+        padding: 50px;
     }
     
     .landing-title {
@@ -1645,6 +1648,126 @@ body.light-theme .footer-links a:hover {
     animation: slideFromRight 0.4s ease;
 }
 
+/* GLOBAL HEADER STYLE */
+.header {
+    padding: 20px 24px !important;
+    margin-bottom: 16px !important;
+    border-radius: 16px 16px 0 0 !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.header h1 {
+    font-size: 24px !important;
+    margin-bottom: 6px !important;
+    font-weight: 700;
+}
+
+.header .subtitle {
+    font-size: 14px !important;
+    opacity: 0.8;
+}
+
+.page-fade {
+    animation: fadeInPage 0.4s ease-in-out;
+}
+
+@keyframes fadeInPage {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+button, .btn, .landing-btn, .switch-btn {
+    position: relative;
+    overflow: hidden;
+}
+button:focus, .btn:focus, .landing-btn:focus, .switch-btn:focus {
+    outline: none;
+}
+button::after, .btn::after, .landing-btn::after, .switch-btn::after {
+    content: "";
+    position: absolute;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    transform: scale(0);
+    opacity: 0.7;
+    pointer-events: none;
+}
+button:active::after, .btn:active::after, .landing-btn:active::after, .switch-btn:active::after {
+    transform: scale(20);
+    opacity: 0;
+    transition: transform 0.6s, opacity 0.6s;
+}
+
+/* Animasi transisi halaman */
+.page-transition {
+    animation: fadePage 0.4s ease-in-out;
+}
+
+@keyframes fadePage {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#loadingOverlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(3px);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+#loadingOverlay .loading-spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #4CAF50;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 12px;
+}
+
+#loadingOverlay .loading-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.header {
+    padding-top: env(safe-area-inset-top); /* untuk iOS */
+    padding-top: constant(safe-area-inset-top); /* fallback lama */
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 4px);
+    padding-bottom: 8px;
+}
+
+@supports not (padding-top: env(safe-area-inset-top)) {
+    .header {
+        padding-top: 8px;
+    }
+}
 </style>
 </head>
 
@@ -1657,6 +1780,11 @@ body.light-theme .footer-links a:hover {
     <div class="data-management-toggle" id="dataManagementToggle" style="display: none;">
         <i class="fas fa-trash-alt"></i>
     </div>
+    <!-- Global Loading Overlay -->
+<div id="loadingOverlay" style="display:none;">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Memproses...</div>
+</div>
 
     <!-- Navigation Bar -->
     <nav class="nav-bar" id="navBar" style="display: none;">
@@ -1896,156 +2024,176 @@ body.light-theme .footer-links a:hover {
     </div>
 </div>
 
-        <!-- Halaman Checklist -->
-        <div id="mainPage" class="container" style="display: none;">
-            <div class="header">
-                <div class="greeting" id="greeting">Selamat Pagi, User!</div>
-                <h1>Checklist Sistem Air</h1>
-                <div class="subtitle">Monitoring & Pemeliharaan</div>
-            </div><div class="card">
-            <div class="shift-info">Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span></div>
-        </div>
-
-        <div class="card">
-            <div class="switch-type">
-                <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
-                <button class="switch-btn" id="switchPulang">CHECKLIST PULANG</button>
-                <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
-            </div>
-        </div>
-
-        <div class="card" id="checklistFormContainer">
-            <form id="checklistForm">
-                <!-- Hidden auto-filled status fields -->
-                <input type="hidden" id="bakRO">
-                <input type="hidden" id="bakWWTP">
-                <input type="hidden" id="statusPDAM">
-
-        <div class="form-group">
-            <div class="input-group">
-                <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
-                <div class="unit">cm</div>
-            </div>
-        </div>
-        <div class="section-divider"></div>
-        <div class="form-group">
-            <div class="input-group">
-                <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" required>
-                <div class="unit">cm</div>
-            </div>
-        </div>
-        <div class="section-divider"></div>
-        <div class="form-group">
-            <select id="pompa" required>
-                <option value="">Pilih Kondisi Pompa Transfer WWTP RO...</option>
-                <option value="ON">ON</option>
-                <option value="OFF">OFF</option>
-            </select>
-        </div>
-        <div class="section-divider"></div>
-        <div class="form-group">
-            <div class="input-group">
-                <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak Input Air PDAM (cm)" required>
-                <div class="unit">cm</div>
-            </div>
-        </div>
-        <div class="form-group">
-            <select id="hydrantStatus" required>
-                <option value="">Pilih Status Hydrant...</option>
-                <option value="ON">ON</option>
-                <option value="OFF">OFF</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <select id="AStatus" required>
-                <option value="">Pilih Status Penggunaan Air Blok A...</option>
-                <option value="PDAM">PDAM</option>
-                <option value="RO">RO</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <select id="EStatus" required>
-                <option value="">Pilih Status Penggunaan Air Blok E...</option>
-                <option value="PDAM">PDAM</option>
-                <option value="RO">RO</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <select id="damkar" required>
-                <option value="">Pilih Status Penggunaan Air Damkar...</option>
-                <option value="PDAM">PDAM</option>
-                <option value="RO">RO</option>
-            </select>
-        </div>
-        <div class="section-divider"></div>
-        <div class="form-group">
-            <select id="supplyPDAM" required>
-                <option value="">Pilih Status Supply Air PDAM...</option>
-                <option value="Menyala">Menyala</option>
-                <option value="Mati">Mati</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <input type="number" id="meterIndukPDAM" placeholder="Angka Meter Induk PDAM" required>
-        </div>
-        <div class="form-group">
-            <input type="number" id="meterIndukWTP" placeholder="Angka Meter Induk WTP" required>
-        </div>
-        <div class="form-group">
-            <div class="input-group">
-                <input type="number" id="PDAM" placeholder="Flow Input PDAM (m³)" required>
-                <div class="unit">m³</div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="input-group">
-                <input type="number" id="flowPDAM" placeholder="Rate Input (m³/j) isi 0 jika pdam off" required>
-                <div class="unit">m³/j</div>
-            </div>
-        </div>
-        <div class="form-group">
-            <input type="text" id="catatan" placeholder="Catatan Tambahan (Opsional)">
-        </div>
-        <button type="submit" class="btn" id="saveChecklistButton">Simpan Checklist</button>
-    </form>
-</div>
-
-<div class="card" id="reportSection">
-    <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Checklist</h2>
-    <div class="filter-group">
-        <select id="filterDate">
-            <option value="">Semua Tanggal</option>
-        </select>
-        <select id="filterShift">
-            <option value="">Semua Shift</option>
-            <option value="masuk">Masuk</option>
-            <option value="pulang">Pulang</option>
-            <option value="custom">Custom</option>
-        </select>
-        <select id="filterNIK">
-            <option value="">Semua Pengguna</option>
-        </select>
+<!-- Halaman Checklist -->
+<div id="mainPage" class="container page-fade" style="display:none;">
+    <div class="header">
+        <div class="greeting" id="greeting">Selamat Pagi, User!</div>
+        <h1>Checklist Sistem Air</h1>
+        <div class="subtitle">Monitoring & Pemeliharaan</div>
     </div>
-    <div class="table-container">
-        <table id="reportTable">
-            <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Waktu</th>
-                    <th>Shift</th>
-                    <th>Penginput</th>
-                    <th>Catatan</th>
-                    <th>Detail</th>
-                    <th>Share</th>
-                    <th>Edit</th>
-                </tr>
-            </thead>
-            <tbody id="reportBody"></tbody>
-        </table>
-    </div>
-    <div class="pagination" id="reportPagination"></div>
-</div>
 
+    <div class="card">
+        <div class="shift-info">
+            Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="switch-type">
+            <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
+            <button class="switch-btn" id="switchPulang">CHECKLIST PULANG</button>
+            <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
+        </div>
+    </div>
+
+    <div class="card" id="checklistFormContainer">
+        <form id="checklistForm">
+            <!-- Hidden auto-filled status fields -->
+            <input type="hidden" id="bakRO">
+            <input type="hidden" id="bakWWTP">
+            <input type="hidden" id="statusPDAM">
+
+            <!-- Bagian 1 -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
+                    <div class="unit">cm</div>
+                </div>
+            </div>
+            <div class="section-divider"></div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" required>
+                    <div class="unit">cm</div>
+                </div>
+            </div>
+            <div class="section-divider"></div>
+
+            <div class="form-group">
+                <select id="pompa" required>
+                    <option value="">Pilih Kondisi Pompa Transfer WWTP RO...</option>
+                    <option value="ON">ON</option>
+                    <option value="OFF">OFF</option>
+                </select>
+            </div>
+            <div class="section-divider"></div>
+
+            <!-- Bagian 2 -->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak Input Air PDAM (cm)" required>
+                    <div class="unit">cm</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <select id="hydrantStatus" required>
+                    <option value="">Pilih Status Hydrant...</option>
+                    <option value="ON">ON</option>
+                    <option value="OFF">OFF</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <select id="AStatus" required>
+                    <option value="">Pilih Status Penggunaan Air Blok A...</option>
+                    <option value="PDAM">PDAM</option>
+                    <option value="RO">RO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <select id="EStatus" required>
+                    <option value="">Pilih Status Penggunaan Air Blok E...</option>
+                    <option value="PDAM">PDAM</option>
+                    <option value="RO">RO</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <select id="damkar" required>
+                    <option value="">Pilih Status Penggunaan Air Damkar...</option>
+                    <option value="PDAM">PDAM</option>
+                    <option value="RO">RO</option>
+                </select>
+            </div>
+            <div class="section-divider"></div>
+
+            <!-- Bagian 3 -->
+            <div class="form-group">
+                <select id="supplyPDAM" required>
+                    <option value="">Pilih Status Supply Air PDAM...</option>
+                    <option value="Menyala">Menyala</option>
+                    <option value="Mati">Mati</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <input type="number" id="meterIndukPDAM" placeholder="Angka Meter Induk PDAM" required>
+            </div>
+
+            <div class="form-group">
+                <input type="number" id="meterIndukWTP" placeholder="Angka Meter Induk WTP" required>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="number" id="PDAM" placeholder="Flow Input PDAM (m³)" required>
+                    <div class="unit">m³</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="number" id="flowPDAM" placeholder="Rate Input (m³/j) isi 0 jika pdam off" required>
+                    <div class="unit">m³/j</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="catatan" placeholder="Catatan Tambahan (Opsional)">
+            </div>
+
+            <button type="submit" class="btn" id="saveChecklistButton">Simpan Checklist</button>
+        </form>
+    </div>
+
+    <div class="card" id="reportSection">
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Checklist</h2>
+        <div class="filter-group">
+            <select id="filterDate">
+                <option value="">Semua Tanggal</option>
+            </select>
+            <select id="filterShift">
+                <option value="">Semua Shift</option>
+                <option value="masuk">Masuk</option>
+                <option value="pulang">Pulang</option>
+                <option value="custom">Custom</option>
+            </select>
+            <select id="filterNIK">
+                <option value="">Semua Pengguna</option>
+            </select>
+        </div>
+        <div class="table-container">
+            <table id="reportTable">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Waktu</th>
+                        <th>Shift</th>
+                        <th>Penginput</th>
+                        <th>Catatan</th>
+                        <th>Detail</th>
+                        <th>Share</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody id="reportBody"></tbody>
+            </table>
+        </div>
+        <div class="pagination" id="reportPagination"></div>
+    </div>
 </div>
 
 <!-- Modal untuk Detail Laporan -->
@@ -2549,29 +2697,44 @@ body.light-theme .footer-links a:hover {
         }
 
         function switchPage(pageId) {
-            document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #dataManagementPage').forEach(page => {
-                page.style.display = 'none';
-            });
-            document.getElementById(pageId).style.display = 'block';
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.toggle('active', item.dataset.page === pageId);
-            });
-            if (pageId === 'educationPage') {
-                loadEducationContent();
-            }
-            if (pageId === 'dataManagementPage' && currentNIK !== 'CA00383') {
-                showNotification('Hanya NIK CA00383 yang dapat mengakses manajemen data.');
-                switchPage('mainPage');
-            }
-            if (pageId === 'meterPage') {
-                listenMeterReports(1);
-                populateMeterFilterDate();
-            }
-            if (pageId === 'damagePage') {
-                listenDamageReports(1);
-                populateDamageFilterDate();
-            }
-        }
+    // Sembunyikan semua page
+    document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #dataManagementPage')
+        .forEach(page => {
+            page.style.display = 'none';
+            page.classList.remove('page-transition');
+        });
+
+    // Tampilkan page target
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.style.display = 'block';
+        void targetPage.offsetWidth; // reset animasi
+        targetPage.classList.add('page-transition');
+    }
+
+    // Update nav active
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === pageId);
+    });
+
+    // Halaman khusus
+    if (pageId === 'educationPage') {
+        loadEducationContent();
+    }
+    if (pageId === 'dataManagementPage' && currentNIK !== 'CA00383') {
+        showNotification('Hanya NIK CA00383 yang dapat mengakses manajemen data.');
+        switchPage('mainPage');
+        return;
+    }
+    if (pageId === 'meterPage') {
+        listenMeterReports(1);
+        populateMeterFilterDate();
+    }
+    if (pageId === 'damagePage') {
+        listenDamageReports(1);
+        populateDamageFilterDate();
+    }
+}
 
 function login() {
     const nikInput = document.getElementById('nikInput');
@@ -4059,6 +4222,15 @@ function loadEducationContent() {
 function toggleAccordion(event) {
     const content = event.currentTarget.nextElementSibling;
     content.classList.toggle('active');
+}
+
+function showLoading(message = "Memproses...") {
+    document.querySelector('#loadingOverlay .loading-text').innerText = message;
+    document.getElementById('loadingOverlay').style.display = 'flex';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').style.display = 'none';
 }
 
 async function deleteData() {
