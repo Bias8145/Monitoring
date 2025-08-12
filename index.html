@@ -2534,85 +2534,120 @@ html, body {
     </div>
 
 <script type="module">
-    // Impor modul Firebase yang diperlukan
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getMessaging, onMessage, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+// Impor modul Firebase yang diperlukan
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getMessaging, onMessage, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
-    // Konfigurasi Firebase Anda
-    const firebaseConfig = {
-        apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
-        authDomain: "water-checklist.firebaseapp.com",
-        projectId: "water-checklist",
-        storageBucket: "water-checklist.firebasestorage.app",
-        messagingSenderId: "84158811467",
-        appId: "1:84158811467:web:717bd038c3da5362ad2cce"
-    };
-    
-    // Inisialisasi Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    
-    // Inisialisasi Firebase Messaging
-    let messaging;
-    try {
-        messaging = getMessaging(app);
-        console.log('Firebase Messaging berhasil diinisialisasi');
+// Konfigurasi Firebase Anda
+const firebaseConfig = {
+    apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
+    authDomain: "water-checklist.firebaseapp.com",
+    projectId: "water-checklist",
+    storageBucket: "water-checklist.firebasestorage.app",
+    messagingSenderId: "84158811467",
+    appId: "1:84158811467:web:717bd038c3da5362ad2cce"
+};
 
-        // VAPID key yang Anda berikan
-        const vapidKey = 'BC_wKYhgBStBfdwVY_xkVcC4x_JpjcFbwpeWWpkgYWYScZZuEi6f296bP4CFmPxyu0AuejSxEk1OA6nGROERQhw';
+// Inisialisasi Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-        // Fungsi untuk meminta izin notifikasi
-        async function mintaIzinNotifikasi() {
-            try {
-                const izin = await Notification.requestPermission();
-                if (izin === 'granted') {
-                    const tokenFCM = await getToken(messaging, { vapidKey });
-                    if (tokenFCM) {
-                        console.log('Token FCM:', tokenFCM);
-                        // Kirim token ke server Anda untuk disimpan
-                        // await simpanTokenKeServer(tokenFCM);
-                    } else {
-                        console.log('Tidak mendapatkan token - izin mungkin belum diberikan');
-                    }
-                } else {
-                    console.log('Izin notifikasi ditolak');
-                }
-            } catch (err) {
-                console.error('Gagal mendapatkan token:', err);
-            }
-        }
-
-        // Menangani pesan yang diterima saat aplikasi terbuka
-        onMessage(messaging, (payload) => {
-            console.log('Pesan diterima:', payload);
-            const judulNotif = payload.notification?.title || 'Pesan Baru';
-            const isiNotif = payload.notification?.body || 'Anda memiliki pesan baru';
-            tampilkanNotifikasi(judulNotif, isiNotif, true);
+// === Registrasi Service Worker Dinamis untuk Notifikasi Background ===
+if ('serviceWorker' in navigator) {
+    const swCode = `
+        importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+        importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js");
+        firebase.initializeApp(${JSON.stringify(firebaseConfig)});
+        const messaging = firebase.messaging();
+        messaging.onBackgroundMessage((payload) => {
+            console.log("[SW] Pesan background diterima:", payload);
+            const notificationTitle = payload.notification?.title || "Pesan Baru";
+            const notificationOptions = {
+                body: payload.notification?.body || "Anda memiliki pesan baru",
+                icon: "/icons/icon-192x192.png",
+                badge: "/icons/icon-72x72.png"
+            };
+            self.registration.showNotification(notificationTitle, notificationOptions);
         });
+    `;
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl)
+        .then(reg => console.log("Service Worker terdaftar:", reg))
+        .catch(err => console.error("Service Worker gagal daftar:", err));
+}
 
-        // Meminta izin notifikasi saat halaman dimuat
-        mintaIzinNotifikasi();
+// Inisialisasi Firebase Messaging
+let messaging;
+try {
+    messaging = getMessaging(app);
+    console.log('Firebase Messaging berhasil diinisialisasi');
 
-    } catch (error) {
-        console.error('Gagal menginisialisasi Firebase Messaging:', error);
+    // VAPID key yang Anda berikan
+    const vapidKey = 'BC_wKYhgBStBfdwVY_xkVcC4x_JpjcFbwpeWWpkgYWYScZZuEi6f296bP4CFmPxyu0AuejSxEk1OA6nGROERQhw';
+
+    // Fungsi untuk menyimpan token ke Firestore
+    async function simpanTokenKeServer(token) {
+        const userNik = localStorage.getItem("nik") || "unknown";
+        await setDoc(doc(db, "deviceTokens", token), {
+            token,
+            userNik,
+            createdAt: serverTimestamp()
+        });
+        console.log("Token FCM disimpan ke Firestore:", token);
     }
 
-    // Fungsi untuk menampilkan notifikasi
-    function tampilkanNotifikasi(pesan, isSuccess = false) {
-        const elemenNotif = document.getElementById('notification');
-        if (elemenNotif) {
-            elemenNotif.textContent = pesan;
-            elemenNotif.className = `notification ${isSuccess ? 'success' : ''}`;
-            elemenNotif.style.display = 'block';
-            setTimeout(() => {
-                elemenNotif.style.display = 'none';
-                elemenNotif.className = 'notification';
-            }, 5000);
-        } else {
-            console.error('Elemen notifikasi tidak ditemukan');
+    // Fungsi untuk meminta izin notifikasi
+    async function mintaIzinNotifikasi() {
+        try {
+            const izin = await Notification.requestPermission();
+            if (izin === 'granted') {
+                const tokenFCM = await getToken(messaging, { vapidKey });
+                if (tokenFCM) {
+                    console.log('Token FCM:', tokenFCM);
+                    await simpanTokenKeServer(tokenFCM);
+                } else {
+                    console.log('Tidak mendapatkan token - izin mungkin belum diberikan');
+                }
+            } else {
+                console.log('Izin notifikasi ditolak');
+            }
+        } catch (err) {
+            console.error('Gagal mendapatkan token:', err);
         }
     }
+
+    // Menangani pesan yang diterima saat aplikasi terbuka (foreground)
+    onMessage(messaging, (payload) => {
+        console.log('Pesan diterima (foreground):', payload);
+        const judulNotif = payload.notification?.title || 'Pesan Baru';
+        const isiNotif = payload.notification?.body || 'Anda memiliki pesan baru';
+        tampilkanNotifikasi(`${judulNotif} - ${isiNotif}`, true);
+    });
+
+    // Meminta izin notifikasi saat halaman dimuat
+    mintaIzinNotifikasi();
+
+} catch (error) {
+    console.error('Gagal menginisialisasi Firebase Messaging:', error);
+}
+
+// Fungsi untuk menampilkan notifikasi di dalam halaman
+function tampilkanNotifikasi(pesan, isSuccess = false) {
+    const elemenNotif = document.getElementById('notification');
+    if (elemenNotif) {
+        elemenNotif.textContent = pesan;
+        elemenNotif.className = `notification ${isSuccess ? 'success' : ''}`;
+        elemenNotif.style.display = 'block';
+        setTimeout(() => {
+            elemenNotif.style.display = 'none';
+            elemenNotif.className = 'notification';
+        }, 5000);
+    } else {
+        console.error('Elemen notifikasi tidak ditemukan');
+    }
+}
 
     // Data pengguna aplikasi
     const users = [
