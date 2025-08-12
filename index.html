@@ -1528,7 +1528,7 @@ body.light-theme .footer-links a:hover {
 
 @media (max-width: 600px) {
     .landing-page {
-        padding: 50px;
+        padding: 20px;
     }
     
     .landing-title {
@@ -1768,10 +1768,54 @@ html, body {
         padding-top: 8px;
     }
 }
+
+.connection-panel {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    z-index: 2000;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.connection-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: gray;
+    box-shadow: 0 0 6px rgba(0,0,0,0.3);
+}
+
+.connection-icon {
+    font-size: 14px;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+.blink {
+    animation: blink 1s infinite;
+}
 </style>
 </head>
 
 <body class="dark-theme">
+<div id="connectionPanel" class="connection-panel" style="display:none;">
+    <div id="connectionDot" class="connection-dot"></div>
+    <i id="connectionIcon" class="fas fa-signal connection-icon"></i>
+    <span id="connectionText">Checking...</span>
+</div>
     <!-- Tombol Tema -->
     <div class="theme-toggle" id="themeToggle">
         <i id="themeIcon" class="fas fa-sun"></i>
@@ -4562,6 +4606,81 @@ function showPageWithDirection(pageId, direction = 'right') {
         }, 400);
     }
 }
+
+// ====== Logout ======
+document.addEventListener("DOMContentLoaded", function () {
+    const navBar = document.getElementById("navBar");
+
+    if (navBar) {
+        const logoutBtn = document.createElement("div");
+        logoutBtn.className = "nav-item";
+        logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i><span>Logout</span>`;
+        logoutBtn.addEventListener("click", function () {
+            localStorage.removeItem("loggedInUser"); // hapus sesi
+            location.reload(); // kembali ke halaman login
+        });
+        navBar.appendChild(logoutBtn);
+    }
+});
+
+async function checkPing(url = "https://www.google.com", timeout = 3000) {
+    const start = Date.now();
+    try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        await fetch(url, { mode: "no-cors", signal: controller.signal });
+        clearTimeout(timer);
+        return Date.now() - start;
+    } catch {
+        return null;
+    }
+}
+
+async function updateConnectionPanel() {
+    const panel = document.getElementById("connectionPanel");
+    const dot = document.getElementById("connectionDot");
+    const text = document.getElementById("connectionText");
+    const icon = document.getElementById("connectionIcon");
+
+    // Hide jika di loginPage
+    if (document.getElementById("loginPage").style.display !== "none") {
+        panel.style.display = "none";
+        return;
+    } else {
+        panel.style.display = "flex";
+    }
+
+    if (!navigator.onLine) {
+        dot.style.background = "red";
+        dot.classList.add("blink");
+        text.textContent = "Offline";
+        icon.className = "fas fa-times-circle connection-icon";
+        return;
+    }
+
+    const ping = await checkPing();
+    if (ping === null) {
+        dot.style.background = "red";
+        dot.classList.add("blink");
+        text.textContent = "Offline";
+        icon.className = "fas fa-times-circle connection-icon";
+    } else if (ping > 200) {
+        dot.style.background = "orange";
+        dot.classList.add("blink");
+        text.textContent = "Sinyal Lemah";
+        icon.className = "fas fa-exclamation-triangle connection-icon";
+    } else {
+        dot.style.background = "limegreen";
+        dot.classList.remove("blink");
+        text.textContent = "Online";
+        icon.className = "fas fa-signal connection-icon";
+    }
+}
+
+window.addEventListener("online", updateConnectionPanel);
+window.addEventListener("offline", updateConnectionPanel);
+setInterval(updateConnectionPanel, 5000);
+updateConnectionPanel();
 </script>
 </body>
 </html>
