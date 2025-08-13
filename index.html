@@ -1852,10 +1852,155 @@ html, body {
 .action-row .edit-btn:hover {
     background: #FFB300;
 }
+
+/* Tablet layout (769px–1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container, .login-container {
+        max-width: 90%;
+        padding: 20px;
+        margin: 0 auto; /* center horizontal */
+    }
+    .landing-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* center isi */
+    }
+    .landing-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .landing-title {
+        font-size: 28px;
+    }
+    .landing-subtitle {
+        font-size: 18px;
+    }
+    .nav-bar {
+        max-width: 90%;
+        margin: 0 auto; /* center horizontal */
+    }
+}
+
+/* PC layout (>1024px) */
+@media (min-width: 1025px) {
+    .container, .login-container {
+        max-width: 1100px;
+        padding: 24px;
+        margin: 0 auto; /* center horizontal */
+    }
+    .landing-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* center isi */
+    }
+    .landing-features {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .landing-title {
+        font-size: 32px;
+    }
+    .landing-subtitle {
+        font-size: 20px;
+    }
+    .nav-bar {
+        max-width: 1100px;
+        margin: 0 auto; /* center horizontal */
+    }
+    /* Lebarkan tabel di PC */
+    .table-container {
+        max-height: none;
+        overflow-y: visible;
+    }
+}
+
+/* Efek hover dan peningkatan visual untuk tablet & PC */
+@media (min-width: 769px) {
+    /* Card spacing & shadow lembut */
+    .card {
+        margin: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Tombol hover lebih jelas */
+    .btn:hover, .landing-btn:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Ikon lebih besar */
+    .feature-icon i {
+        font-size: 24px;
+    }
+    .nav-item i {
+        font-size: 20px;
+    }
+
+    /* Spasi antar section lebih lega */
+    .landing-features {
+        gap: 28px;
+    }
+    .landing-hero {
+        margin-bottom: 60px;
+    }
+}
+
+/* === Efek Transparansi Header & Navbar === */
+.header, .nav-bar {
+    background: rgba(255, 255, 255, 0.8); /* default terang */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: background 0.3s ease;
+}
+
+body.dark-theme .header, 
+body.dark-theme .nav-bar {
+    background: rgba(30, 30, 46, 0.7); /* versi gelap */
+}
+
+/* === Transisi Halaman === */
+.page-fade-in, .page-transition {
+    animation: fadeSlideInCustom 0.5s ease;
+}
+
+@keyframes fadeSlideInCustom {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Warna Aksen Kedua === */
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #2196F3; /* biru */
+}
+
+.btn.secondary {
+    background: linear-gradient(135deg, var(--secondary-color), #1976D2);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+}
+.btn.secondary:hover {
+    box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
+    transform: translateY(-2px);
+}
+
+/* === Konsistensi Border Radius === */
+.card, .login-card, .landing-btn, .btn, .switch-btn, input, select, textarea, .feature-card, .modal {
+    border-radius: 14px;
+}
 </style>
 </head>
 
-<body class="dark-theme">
+<body class="light-theme">
 <div id="connectionPanel" class="connection-panel" style="display:none;">
     <div id="connectionDot" class="connection-dot"></div>
     <i id="connectionIcon" class="fas fa-signal connection-icon"></i>
