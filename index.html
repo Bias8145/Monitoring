@@ -2044,7 +2044,7 @@ body.dark-theme .nav-bar {
         </div>
     </nav>
     
-    <!-- Landing Page HTML - Tambahkan sebelum loginPage -->
+    <!-- Landing Page HTML -->
 <div id="landingPage" class="landing-page">
     <div class="landing-content">
         <!-- Hero Section -->
@@ -4870,12 +4870,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-async function checkPing(url = "https://www.google.com", timeout = 3000) {
+async function checkPing(url = "/favicon.ico", timeout = 3000) {
     const start = Date.now();
     try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeout);
-        await fetch(url, { mode: "no-cors", signal: controller.signal });
+        // Ambil file kecil lokal agar ping akurat dan cepat
+        await fetch(url + "?t=" + Date.now(), { cache: "no-store", signal: controller.signal });
         clearTimeout(timer);
         return Date.now() - start;
     } catch {
@@ -4889,7 +4890,6 @@ async function updateConnectionPanel() {
     const text = document.getElementById("connectionText");
     const icon = document.getElementById("connectionIcon");
 
-    // Hide jika di loginPage
     if (document.getElementById("loginPage").style.display !== "none") {
         panel.style.display = "none";
         return;
@@ -4911,15 +4911,20 @@ async function updateConnectionPanel() {
         dot.classList.add("blink");
         text.textContent = "Offline";
         icon.className = "fas fa-times-circle connection-icon";
-    } else if (ping > 200) {
+    } else if (ping > 600) { // ubah threshold
+        dot.style.background = "crimson";
+        dot.classList.add("blink");
+        text.textContent = `Sinyal Lemah (${ping} ms)`;
+        icon.className = "fas fa-exclamation-triangle connection-icon";
+    } else if (ping > 300) {
         dot.style.background = "orange";
         dot.classList.add("blink");
-        text.textContent = "Sinyal Lemah";
-        icon.className = "fas fa-exclamation-triangle connection-icon";
+        text.textContent = `Sinyal Sedang (${ping} ms)`;
+        icon.className = "fas fa-signal connection-icon";
     } else {
         dot.style.background = "limegreen";
         dot.classList.remove("blink");
-        text.textContent = "Online";
+        text.textContent = `Sinyal Kuat (${ping} ms)`;
         icon.className = "fas fa-signal connection-icon";
     }
 }
