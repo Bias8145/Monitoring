@@ -13,6 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <style>
 /* Global Reset and Base Styles */
 * {
@@ -2261,6 +2262,7 @@ body.dark-theme .nav-bar {
 <!-- Halaman Checklist -->
 <div id="mainPage" class="container page-fade" style="display:none;">
     <div class="header">
+        <div id="anim1" style="width:400px;height:200px;margin:auto;margin-bottom:32px;"></div>
         <div class="greeting" id="greeting">Selamat Pagi, User!</div>
         <h1>Checklist Sistem Air</h1>
         <div class="subtitle">Monitoring & Pemeliharaan</div>
@@ -2445,6 +2447,7 @@ body.dark-theme .nav-bar {
     <!-- Halaman Check Meter Lapangan -->
     <div id="meterPage" class="container" style="display: none;">
         <div class="header">
+            <div id="anim3" style="width:300px;height:300px;margin:auto;"></div>
             <div class="greeting" id="meterGreeting">Selamat Pagi, User!</div>
             <h1>Check Meter Lapangan</h1>
             <div class="subtitle">Monitoring Meter Air</div>
@@ -2524,6 +2527,7 @@ body.dark-theme .nav-bar {
     <!-- Halaman Laporan Kerusakan -->
     <div id="damagePage" class="container" style="display: none;">
         <div class="header">
+            <div id="anim4" style="width:300px;height:300px;margin:auto;"></div>
             <div class="greeting" id="damageGreeting">Selamat Pagi, User!</div>
             <h1>Laporan Kerusakan</h1>
             <div class="subtitle">Pelaporan Kerusakan</div>
@@ -2605,6 +2609,7 @@ body.dark-theme .nav-bar {
 <!-- Halaman Estimasi Pemakaian Air -->
 <div id="estimationPage" class="container" style="display: none; padding: 20px; padding-bottom: 100px;">
   <div class="header" style="margin-bottom: 20px;">
+    <div id="anim5" style="width:300px;height:300px;margin:auto;"></div>
     <div class="greeting" id="estimationGreeting" style="margin-bottom: 6px;">Selamat Pagi, User!</div>
     <h1 style="margin-bottom: 4px;">Estimasi Pemakaian Air</h1>
     <div class="subtitle">Perhitungan Manual Berdasarkan Data Bak dan Meter</div>
@@ -2678,6 +2683,7 @@ body.dark-theme .nav-bar {
     <!-- Halaman Katalog Edukasi -->
 <div id="educationPage" class="container" style="display: none;">
     <div class="header">
+        <div id="anim2" style="width:300px;height:300px;margin:auto;"></div>
         <div class="greeting" id="educationGreeting">Selamat Pagi, User!</div>
         <h1>Katalog Edukasi</h1>
         <div class="subtitle">Informasi dan Edukasi Sistem Air</div>
@@ -4933,6 +4939,24 @@ window.addEventListener("online", updateConnectionPanel);
 window.addEventListener("offline", updateConnectionPanel);
 setInterval(updateConnectionPanel, 5000);
 updateConnectionPanel();
+
+const animations = [
+    {id: 'anim1', path: 'packaging-for-delivery.json'},
+    {id: 'anim2', path: 'creative-team.json'},
+    {id: 'anim3', path: 'singing-contract.json'},
+    {id: 'anim4', path: 'website-maintenance.json'},
+    {id: 'anim5', path: 'growth-analysis.json'},
+];
+
+animations.forEach(anim => {
+    lottie.loadAnimation({
+        container: document.getElementById(anim.id),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: anim.path
+    });
+});
 </script>
 </body>
 </html>
