@@ -7,21 +7,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#4CAF50">
     <title>Sistem Checklist Air</title>
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <style>
-/* Global Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
 html, body {
     height: 100%;
     margin: 0;
@@ -29,56 +24,45 @@ html, body {
     font-family: 'Poppins', 'Roboto', sans-serif;
     overflow-x: hidden;
 }
-
 body, input, select, textarea, button, table, th, td {
     font-family: 'Poppins', 'Roboto', sans-serif !important;
 }
-
-/* Theme Styles */
 body.light-theme {
     background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
     color: #333;
 }
-
 body.dark-theme {
     background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
     color: #e0e0e0;
 }
-
 body.light-theme .container,
 body.light-theme .login-card,
 body.light-theme .modal {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
-
 body.dark-theme .container,
 body.dark-theme .login-card,
 body.dark-theme .modal {
     background: rgba(30, 30, 46, 0.85);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
-
 body.light-theme .card {
     background: rgba(245, 245, 245, 0.9);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 }
-
 body.dark-theme .card {
     background: rgba(40, 40, 60, 0.9);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
-
 body.light-theme .header {
     background: linear-gradient(135deg, #ffffff, #e0e0e0);
     color: #333;
 }
-
 body.dark-theme .header {
     background: linear-gradient(135deg, #2e2e4a, #3a3a5a);
     color: #e0e0e0;
 }
-
 body.light-theme .form-group select,
 body.light-theme .form-group input,
 body.light-theme .form-group textarea,
@@ -86,7 +70,6 @@ body.light-theme .login-card input {
     background: rgba(220, 220, 220, 0.85);
     color: #333;
 }
-
 body.dark-theme .form-group select,
 body.dark-theme .form-group input,
 body.dark-theme .form-group textarea,
@@ -95,97 +78,76 @@ body.dark-theme .login-card input {
     color: #e0e0e0;
     font-size: 13px;
 }
-
 body.light-theme .unit {
     background: rgba(76, 175, 80, 0.3);
     color: #333;
 }
-
 body.dark-theme .unit {
     background: rgba(76, 175, 80, 0.2);
     color: #e0e0e0;
 }
-
 body.light-theme .switch-type {
     background: rgba(220, 220, 220, 0.9);
 }
-
 body.dark-theme .switch-type {
     background: rgba(40, 40, 60, 0.9);
 }
-
 body.light-theme .switch-btn {
     color: #333;
 }
-
 body.dark-theme .switch-btn {
     color: #e0e0e0;
 }
-
 body.light-theme table {
     background: rgba(245, 245, 245, 0.9);
 }
-
 body.dark-theme table {
     background: rgba(40, 40, 60, 0.9);
 }
-
 body.light-theme th {
     background: rgba(230, 230, 230, 0.95);
     font-size: 12px;
 }
-
 body.dark-theme th {
     background: rgba(50, 50, 70, 0.95);
     font-size: 12px;
 }
-
 body.light-theme td,
 body.dark-theme td {
     font-size: 12px;
 }
-
 body.light-theme .theme-toggle,
 body.light-theme .data-management-toggle {
     background: rgba(220, 220, 220, 0.85);
     color: #333;
 }
-
 body.dark-theme .theme-toggle,
 body.dark-theme .data-management-toggle {
     background: rgba(50, 50, 70, 0.85);
     color: #e0e0e0;
 }
-
 body.light-theme .nav-bar {
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
 body.dark-theme .nav-bar {
     background: rgba(30, 30, 46, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
-
 body.light-theme .nav-item {
     color: #333;
 }
-
 body.dark-theme .nav-item {
     color: #e0e0e0;
 }
-
 body.light-theme .nav-item:hover {
     background: rgba(76, 175, 80, 0.1);
 }
-
 body.dark-theme .nav-item:hover {
     background: rgba(76, 175, 80, 0.3);
 }
-
-/* Container and Card Styles */
 .container {
     max-width: 600px;
     width: 100%;
@@ -198,7 +160,6 @@ body.dark-theme .nav-item:hover {
     margin-top: 20px !important;
     padding-top: 0 !important;
 }
-
 .card {
     border-radius: 16px;
     padding: 20px;
@@ -206,12 +167,9 @@ body.dark-theme .nav-item:hover {
     transform: perspective(1000px) rotateX(3deg) translateZ(10px);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .card:hover {
     transform: perspective(1000px) rotateX(0deg) translateZ(20px);
 }
-
-/* Header Styles */
 .header {
     padding: 15px 20px !important;
     text-align: center;
@@ -221,31 +179,25 @@ body.dark-theme .nav-item:hover {
     transform: perspective(1000px) translateZ(15px);
     margin-bottom: 10px !important;
 }
-
 .header h1 {
     font-weight: 700;
     font-size: 22px;
     margin-bottom: 8px;
 }
-
 .header .greeting {
     font-size: 18px;
     font-weight: 500;
     margin-bottom: 8px;
 }
-
 .header .subtitle {
     font-size: 14px;
     opacity: 0.7;
 }
-
-/* Form and Input Styles */
 .form-group {
     margin-bottom: 20px;
     position: relative;
     transform: perspective(1000px) translateZ(5px);
 }
-
 .form-group select,
 .form-group input,
 .form-group textarea {
@@ -256,12 +208,10 @@ body.dark-theme .nav-item:hover {
     font-size: 13px;
     transition: background 0.3s ease, box-shadow 0.3s ease;
 }
-
 .form-group textarea {
     resize: vertical;
     min-height: 100px;
 }
-
 .form-group select:focus,
 .form-group input:focus,
 .form-group textarea:focus {
@@ -269,13 +219,11 @@ body.dark-theme .nav-item:hover {
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
     box-shadow: 0 0 8px rgba(76,175,80,0.5);
 }
-
 .input-group {
     display: flex;
     gap: 10px;
     align-items: center;
 }
-
 .unit {
     padding: 12px;
     border-radius: 12px;
@@ -283,7 +231,6 @@ body.dark-theme .nav-item:hover {
     text-align: center;
     font-size: 13px;
 }
-
 .section-divider {
     height: 2px;
     background: linear-gradient(90deg, #4CAF50, #81C784);
@@ -291,7 +238,6 @@ body.dark-theme .nav-item:hover {
     border-radius: 2px;
     transform: perspective(1000px) translateZ(5px);
 }
-
 .switch-type {
     display: flex;
     gap: 10px;
@@ -300,7 +246,6 @@ body.dark-theme .nav-item:hover {
     margin-bottom: 20px;
     transform: perspective(1000px) translateZ(10px);
 }
-
 .switch-btn {
     flex: 1;
     padding: 12px;
@@ -313,14 +258,11 @@ body.dark-theme .nav-item:hover {
     font-size: 13px;
     transition: all 0.3s ease;
 }
-
 .switch-btn.active {
     background: #4CAF50;
     color: white;
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
-
-/* Button Styles */
 .btn {
     width: 100%;
     padding: 14px;
@@ -336,18 +278,15 @@ body.dark-theme .nav-item:hover {
     position: relative;
     animation: breathing 5s ease-in-out infinite;
 }
-
 .btn:hover {
     transform: perspective(1000px) translateZ(20px);
     box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
     transform: translateY(-2px);
     box-shadow: 0 8px 18px rgba(76,175,80,0.4);
 }
-
 .btn.loading {
     pointer-events: none;
 }
-
 .btn.loading::after {
     content: '';
     position: absolute;
@@ -361,8 +300,6 @@ body.dark-theme .nav-item:hover {
     height: 16px;
     animation: spin 1s linear infinite;
 }
-
-/* Table Styles */
 .table-container {
     max-height: 300px;
     overflow-y: auto;
@@ -370,26 +307,22 @@ body.dark-theme .nav-item:hover {
     border-radius: 12px;
     transform: perspective(1000px) translateZ(5px);
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
     border-radius: 12px;
     overflow: hidden;
 }
-
 th, td {
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 th {
     position: sticky;
     top: 0;
     font-weight: 600;
 }
-
 td button {
     padding: 8px 12px;
     border: none;
@@ -401,38 +334,30 @@ td button {
     transition: all 0.3s ease;
     transform: perspective(1000px) translateZ(5px);
 }
-
 td button:hover {
     background: #45a049;
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
     transform: perspective(1000px) translateZ(10px);
 }
-
 td button.whatsapp-btn {
     background: #25D366;
 }
-
 td button.whatsapp-btn:hover {
     background: #20B058;
     box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
 }
-
 td button.edit-btn {
     background: #FFC107;
     color: #333;
 }
-
 td button.edit-btn:hover {
     background: #FFB300;
     box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
 }
-
 td button.edit-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
 }
-
-/* Filter Group */
 .filter-group {
     display: flex;
     gap: 10px;
@@ -440,7 +365,6 @@ td button.edit-btn:disabled {
     flex-wrap: wrap;
     transform: perspective(1000px) translateZ(5px);
 }
-
 .filter-group select {
     flex: 1;
     min-width: 120px;
@@ -448,8 +372,6 @@ td button.edit-btn:disabled {
     border-radius: 12px;
     font-size: 13px;
 }
-
-/* Login Styles */
 .login-container {
     max-width: 400px;
     width: 100%;
@@ -458,7 +380,6 @@ td button.edit-btn:disabled {
     z-index: 1;
     margin-top: 100px !important;
 }
-
 .login-card {
     backdrop-filter: blur(14px);
     padding: 40px;
@@ -470,23 +391,19 @@ td button.edit-btn:disabled {
     box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     animation: fadeSlideUp 0.8s ease;
 }
-
 .login-card:hover {
     transform: perspective(1000px) rotateX(0deg) translateZ(30px);
 }
-
 .login-card h1 {
     font-size: 26px;
     font-weight: 600;
     margin-bottom: 10px;
 }
-
 .login-card .subtitle {
     font-size: 16px;
     opacity: 0.7;
     margin-bottom: 20px;
 }
-
 .login-card input {
     width: 100%;
     padding: 12px;
@@ -496,7 +413,6 @@ td button.edit-btn:disabled {
     font-size: 13px;
     transform: perspective(1000px) translateZ(5px);
 }
-
 .login-input-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(8px);
@@ -507,27 +423,22 @@ td button.edit-btn:disabled {
     transition: all 0.3s ease;
     animation: fadeUp 0.6s ease forwards;
 }
-
 .dark-theme .login-input-card {
     background: rgba(50, 50, 70, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .light-theme .login-input-card {
     background: rgba(240, 240, 240, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
-
 .login-input-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
 }
-
 .input-wrapper {
     position: relative;
     margin-bottom: 20px;
 }
-
 .input-icon {
     position: absolute;
     left: 18px;
@@ -538,32 +449,26 @@ td button.edit-btn:disabled {
     transition: all 0.3s ease;
     color: rgba(255,255,255,0.5);
 }
-
 body.light-theme .input-icon {
     color: rgba(0, 0, 0, 0.5);
 }
-
 .input-wrapper input {
     padding-left: 48px !important;
 }
-
 .input-wrapper input:focus {
     border: 2px solid #4CAF50;
     box-shadow: 0 0 10px rgba(76,175,80,0.3);
 }
-
 .input-wrapper input:focus + .input-icon {
     color: #4CAF50;
     transform: translateY(-50%) scale(1.05);
 }
-
 .login-header-icon {
     font-size: 48px;
     color: #4CAF50;
     margin-bottom: 15px;
     animation: popIn 0.6s ease;
 }
-
 .login-footer {
     margin-top: 30px;
     font-size: 13px;
@@ -573,7 +478,6 @@ body.light-theme .input-icon {
     justify-content: center;
     gap: 8px;
 }
-
 .horizontal-logo {
     display: flex;
     align-items: center;
@@ -582,7 +486,6 @@ body.light-theme .input-icon {
     margin-bottom: 35px;
     flex-wrap: wrap;
 }
-
 .logo-icon-inline {
     width: 56px;
     height: 56px;
@@ -594,12 +497,10 @@ body.light-theme .input-icon {
     justify-content: center;
     animation: logoFloat 3s ease-in-out infinite;
 }
-
 .logo-icon-inline i {
     font-size: 24px;
     color: white;
 }
-
 .logo-text h1 {
     font-size: 18px;
     font-weight: 700;
@@ -608,7 +509,6 @@ body.light-theme .input-icon {
     line-height: 1.4;
     text-align: left;
 }
-
 .logo-text .subtitle {
     font-size: 13px;
     opacity: 0.7;
@@ -616,13 +516,10 @@ body.light-theme .input-icon {
     text-align: left;
     color: inherit;
 }
-
 .logo-section.horizontal-logo {
     margin-bottom: 20px;
     text-align: left !important;
 }
-
-/* Notification Styles */
 .notification {
     position: fixed;
     top: 20px;
@@ -637,12 +534,9 @@ body.light-theme .input-icon {
     transform: perspective(1000px) translateZ(10px);
     z-index: 1000;
 }
-
 .notification.success {
     background: rgba(76, 175, 80, 0.9);
 }
-
-/* Toggle Buttons */
 .theme-toggle,
 .data-management-toggle {
     position: fixed;
@@ -659,17 +553,13 @@ body.light-theme .input-icon {
     width: 44px;
     height: 44px;
 }
-
 .data-management-toggle {
     top: 74px;
 }
-
 .theme-toggle i,
 .data-management-toggle i {
     font-size: 24px;
 }
-
-/* Navigation Bar */
 .nav-bar {
     position: fixed;
     bottom: 20px;
@@ -685,7 +575,6 @@ body.light-theme .input-icon {
     transition: all 0.3s ease;
     backdrop-filter: blur(12px);
 }
-
 .nav-item {
     display: flex;
     flex-direction: column;
@@ -697,28 +586,23 @@ body.light-theme .input-icon {
     border-radius: 12px;
     position: relative;
 }
-
 .nav-item i {
     font-size: 18px;
     margin-bottom: 4px;
     transition: transform 0.3s ease;
 }
-
 .nav-item span {
     font-size: 9px;
     font-weight: 500;
 }
-
 .nav-item.active {
     background: #4CAF50;
     color: white;
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
 }
-
 .nav-item:hover i {
     transform: translateY(-2px) rotate(5deg);
 }
-
 .nav-item:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -733,8 +617,6 @@ body.light-theme .input-icon {
     white-space: nowrap;
     z-index: 10;
 }
-
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
@@ -750,19 +632,16 @@ body.light-theme .input-icon {
     z-index: 1000;
     backdrop-filter: blur(12px);
 }
-
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
 }
-
 .modal-header h2 {
     font-size: 18px;
     font-weight: 600;
 }
-
 .modal-close {
     background: none;
     border: none;
@@ -770,17 +649,14 @@ body.light-theme .input-icon {
     cursor: pointer;
     color: inherit;
 }
-
 .modal-content {
     font-size: 13px;
     line-height: 1.5;
 }
-
 .modal-content ul {
     list-style-type: disc;
     margin-left: 20px;
 }
-
 .modal-overlay {
     display: none;
     position: fixed;
@@ -791,8 +667,6 @@ body.light-theme .input-icon {
     background: rgba(0, 0, 0, 0.5);
     z-index: 999;
 }
-
-/* Guide Modal */
 .guide-modal {
     display: none;
     position: fixed;
@@ -804,7 +678,6 @@ body.light-theme .input-icon {
     z-index: 1000;
     backdrop-filter: blur(8px);
 }
-
 .guide-modal-content {
     position: absolute;
     top: 50%;
@@ -818,17 +691,14 @@ body.light-theme .input-icon {
     border-radius: 12px;
     backdrop-filter: blur(12px);
 }
-
 .dark-theme .guide-modal-content {
     background: rgba(30, 30, 46, 0.95);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
-
 .light-theme .guide-modal-content {
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
-
 .guide-header {
     display: flex;
     justify-content: space-between;
@@ -837,13 +707,11 @@ body.light-theme .input-icon {
     padding-bottom: 12px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
 .guide-title {
     font-size: 20px;
     font-weight: 600;
     color: inherit;
 }
-
 .guide-close {
     background: none;
     border: none;
@@ -853,22 +721,18 @@ body.light-theme .input-icon {
     opacity: 0.7;
     transition: opacity 0.3s;
 }
-
 .guide-close:hover {
     opacity: 1;
 }
-
 .guide-section {
     margin-bottom: 20px;
 }
-
 .guide-section h3 {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 10px;
     color: #4CAF50;
 }
-
 .guide-section p,
 .guide-section li {
     font-size: 13px;
@@ -876,11 +740,9 @@ body.light-theme .input-icon {
     margin-bottom: 8px;
     opacity: 0.9;
 }
-
 .guide-section ul {
     padding-left: 20px;
 }
-
 .guide-highlight {
     background: rgba(76, 175, 80, 0.1);
     padding: 12px;
@@ -888,14 +750,11 @@ body.light-theme .input-icon {
     border-left: 3px solid #4CAF50;
     margin: 12px 0;
 }
-
-/* Accordion Styles */
 .accordion {
     margin-bottom: 10px;
     border-radius: 8px;
     overflow: hidden;
 }
-
 .accordion-header {
     padding: 15px;
     cursor: pointer;
@@ -906,53 +765,43 @@ body.light-theme .input-icon {
     justify-content: space-between;
     align-items: center;
 }
-
 .accordion-content {
     padding: 15px;
     display: none;
     background: rgba(255, 255, 255, 0.1);
 }
-
 .accordion-content.active {
     display: block;
 }
-
 .accordion-content a {
     color: #4CAF50;
     text-decoration: underline;
 }
-
-/* Other Components */
 .estimation-result {
     margin-top: 20px;
     padding: 15px;
     border-radius: 12px;
     background: rgba(255, 255, 255, 0.1);
 }
-
 .chart-container {
     margin-top: 20px;
     max-width: 100%;
     height: 300px;
 }
-
 .delete-data-btn {
     background: #F44336;
     margin-top: 10px;
 }
-
 .delete-data-btn:hover {
     background: #D32F2F;
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
 }
-
 .pagination {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-top: 10px;
 }
-
 .pagination button {
     padding: 8px 12px;
     border: none;
@@ -962,33 +811,28 @@ body.light-theme .input-icon {
     cursor: pointer;
     font-size: 12px;
 }
-
 .pagination button:disabled {
     background: #ccc;
     cursor: not-allowed;
 }
-
-/* Success Check */
 .success-check {
     display: none;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80px;
-    height: 80px;
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
-    background: #4CAF50;
+    background: none;
     animation: successPopBig 0.5s ease;
     z-index: 910;
 }
-
 .success-check i {
     color: white;
     font-size: 36px;
-    line-height: 80px;
+    line-height: 250px;
 }
-
 .login-overlay {
     position: fixed;
     top: 0;
@@ -1000,8 +844,6 @@ body.light-theme .input-icon {
     z-index: 909;
     border-radius: 0;
 }
-
-/* Landing Page Styles */
 .landing-page {
     display: flex;
     flex-direction: column;
@@ -1014,19 +856,16 @@ body.light-theme .input-icon {
     width: 100%;
     margin: 0 auto;
 }
-
 body.light-theme .landing-page {
     background: linear-gradient(135deg, #f5f7fa, #e0eafc);
     color: #333;
 }
-
 .landing-content {
     max-width: 1200px;
     width: 100%;
     margin: 0 auto;
     flex: 1;
 }
-
 .landing-hero {
     text-align: center;
     width: 100%;
@@ -1035,7 +874,6 @@ body.light-theme .landing-page {
     opacity: 0;
     margin: 3rem 0 4rem;
 }
-
 .landing-logo {
     width: 100px;
     height: 100px;
@@ -1050,16 +888,13 @@ body.light-theme .landing-page {
     transform: perspective(1000px) rotateX(5deg) translateZ(15px);
     transition: transform 0.3s ease;
 }
-
 .landing-logo:hover {
     transform: perspective(1000px) rotateX(0deg) translateZ(25px);
 }
-
 .landing-logo i {
     font-size: 42px;
     color: white;
 }
-
 .landing-title {
     font-size: 32px;
     font-weight: 700;
@@ -1069,20 +904,17 @@ body.light-theme .landing-page {
     -webkit-text-fill-color: transparent;
     line-height: 1.2;
 }
-
 body.light-theme .landing-title {
     background: linear-gradient(135deg, #4CAF50, #2196F3);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-
 .landing-subtitle {
     font-size: 18px;
     opacity: 0.8;
     margin-bottom: 10px;
     font-weight: 500;
 }
-
 .landing-description {
     font-size: 14px;
     opacity: 0.7;
@@ -1092,7 +924,6 @@ body.light-theme .landing-title {
     margin-left: auto;
     margin-right: auto;
 }
-
 .landing-actions {
     display: flex;
     gap: 15px;
@@ -1100,7 +931,6 @@ body.light-theme .landing-title {
     flex-wrap: wrap;
     margin-bottom: 40px;
 }
-
 .landing-btn {
     padding: 14px 28px;
     border: none;
@@ -1120,61 +950,49 @@ body.light-theme .landing-title {
     backdrop-filter: blur(12px);
     animation: breathing 5s ease-in-out infinite;
 }
-
 .landing-btn:hover {
     transform: perspective(1000px) translateZ(20px) translateY(-2px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
-
 .landing-btn.primary {
     background: linear-gradient(135deg, #4CAF50, #45a049);
     color: white;
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
-
 .landing-btn.primary:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 25px rgba(76, 175, 80, 0.6);
 }
-
 .landing-btn.primary.pulse {
     animation: pulse 2s infinite;
 }
-
 .landing-btn.secondary {
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: inherit;
 }
-
 .dark-theme .landing-btn.secondary {
     background: rgba(50, 50, 70, 0.6);
     border-color: rgba(255, 255, 255, 0.1);
 }
-
 .light-theme .landing-btn.secondary {
     background: rgba(220, 220, 220, 0.6);
     border-color: rgba(0, 0, 0, 0.1);
 }
-
 body.light-theme .landing-btn.secondary {
     background: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.1);
     color: #333;
 }
-
 .landing-btn.secondary:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
 }
-
 .landing-btn i {
     transition: transform 0.3s ease;
 }
-
 .landing-btn:hover i {
     transform: translateY(-2px) rotate(5deg);
 }
-
 .landing-features {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -1182,7 +1000,6 @@ body.light-theme .landing-btn.secondary {
     width: 100%;
     margin-bottom: 40px;
 }
-
 .feature-card {
     backdrop-filter: blur(12px);
     border-radius: 16px;
@@ -1193,30 +1010,25 @@ body.light-theme .landing-btn.secondary {
     transform: perspective(1000px) rotateX(3deg) translateZ(10px);
     background: rgba(255, 255, 255, 0.05);
 }
-
 .dark-theme .feature-card {
     background: rgba(40, 40, 60, 0.6);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
-
 .light-theme .feature-card {
     background: rgba(245, 245, 245, 0.7);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     border-color: rgba(0, 0, 0, 0.1);
 }
-
 body.light-theme .feature-card {
     background: rgba(255, 255, 255, 0.85);
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
-
 .feature-card:hover {
     transform: perspective(1000px) rotateX(0deg) translateZ(20px) translateY(-3px);
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
-
 .feature-icon {
     width: 56px;
     height: 56px;
@@ -1229,30 +1041,25 @@ body.light-theme .feature-card {
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
     transform: perspective(1000px) translateZ(5px);
 }
-
 .feature-icon i {
     font-size: 20px;
     color: white;
 }
-
 .feature-title {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 10px;
     color: inherit;
 }
-
 .feature-description {
     font-size: 13px;
     opacity: 0.8;
     line-height: 1.5;
 }
-
 body.light-theme .feature-title,
 body.light-theme .feature-description {
     color: #333;
 }
-
 .landing-footer {
     text-align: center;
     opacity: 0.6;
@@ -1265,7 +1072,6 @@ body.light-theme .feature-description {
     margin-bottom: 20px;
     padding: 1.5rem 0;
 }
-
 .footer-content {
     display: flex;
     justify-content: space-between;
@@ -1274,38 +1080,30 @@ body.light-theme .feature-description {
     margin: 0 auto;
     padding: 0 1rem;
 }
-
 .footer-logo {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
 }
-
 .footer-links {
     display: flex;
     gap: 1.5rem;
 }
-
 .footer-links a {
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     transition: color 0.3s;
 }
-
 .footer-links a:hover {
     color: white;
 }
-
 body.light-theme .footer-links a {
     color: rgba(0, 0, 0, 0.6);
 }
-
 body.light-theme .footer-links a:hover {
     color: #000;
 }
-
-/* Back Icon */
 .back-icon {
     position: fixed;
     top: 10px;
@@ -1324,12 +1122,9 @@ body.light-theme .footer-links a:hover {
     transition: background-color 0.3s;
     z-index: 1000;
 }
-
 .back-icon:hover {
     background-color: #218838;
 }
-
-/* Bubble Background */
 .bubble {
     position: fixed;
     bottom: -100px;
@@ -1338,8 +1133,6 @@ body.light-theme .footer-links a:hover {
     animation: rise 15s infinite ease-in;
     z-index: 0;
 }
-
-/* Loading Spinner */
 .loading-spinner {
     display: inline-block;
     width: 20px;
@@ -1350,17 +1143,13 @@ body.light-theme .footer-links a:hover {
     animation: spin 1s ease-in-out infinite;
     margin-left: 10px;
 }
-
-/* Ripple Effect */
 .btn, .landing-btn, td button, .switch-btn {
     position: relative;
     overflow: hidden;
 }
-
 .btn:active, .landing-btn:active, td button:active, .switch-btn:active {
     transform: scale(0.96);
 }
-
 .ripple-anim {
     position: absolute;
     border-radius: 50%;
@@ -1371,8 +1160,6 @@ body.light-theme .footer-links a:hover {
     animation: ripple 0.6s linear;
     pointer-events: none;
 }
-
-/* Animations */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -1383,7 +1170,6 @@ body.light-theme .footer-links a:hover {
         transform: translateY(0);
     }
 }
-
 @keyframes logoFloat {
     0%, 100% {
         transform: perspective(1000px) rotateX(5deg) translateZ(15px) translateY(0px);
@@ -1392,11 +1178,9 @@ body.light-theme .footer-links a:hover {
         transform: perspective(1000px) rotateX(5deg) translateZ(15px) translateY(-8px);
     }
 }
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
-
 @keyframes pulse {
     0% {
         box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
@@ -1408,14 +1192,12 @@ body.light-theme .footer-links a:hover {
         box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
     }
 }
-
 @keyframes ripple {
     to {
         transform: scale(20);
         opacity: 0;
     }
 }
-
 @keyframes fadeSlideIn {
     from {
         opacity: 0;
@@ -1426,19 +1208,16 @@ body.light-theme .footer-links a:hover {
         transform: translateY(0);
     }
 }
-
 @keyframes fadeUp {
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
-
 @keyframes breathing {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.02); }
 }
-
 @keyframes successPop {
     0% {
         transform: translate(-50%, -50%) scale(0);
@@ -1452,145 +1231,116 @@ body.light-theme .footer-links a:hover {
         opacity: 1;
     }
 }
-
 @keyframes successPopBig {
     0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
     60% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
-
 @keyframes shakeAnim {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
     50% { transform: translateX(5px); }
     75% { transform: translateX(-5px); }
 }
-
 @keyframes slideFromLeft {
     from { opacity: 0; transform: translateX(-20px); }
     to { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes slideFromRight {
     from { opacity: 0; transform: translateX(20px); }
     to { opacity: 1; transform: translateX(0); }
 }
-
 @keyframes rise {
     0% { transform: translateY(0) scale(1); opacity: 0.7; }
     50% { opacity: 0.5; }
     100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
 }
-
 @keyframes fadeSlideUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes popIn {
     0% { transform: scale(0); opacity: 0; }
     80% { transform: scale(1.1); opacity: 1; }
     100% { transform: scale(1); }
 }
-
 @keyframes fadeInOverlay {
     to { opacity: 1; }
 }
-
 @keyframes fadeOutOverlay {
     to { opacity: 0; }
 }
-
 @keyframes popScale {
     0% { transform: scale(0); opacity: 0; }
     60% { transform: scale(1.2); opacity: 1; }
     100% { transform: scale(1); }
 }
-
-/* Responsive Styles */
 @media (max-width: 768px) {
     .landing-title {
         font-size: 2rem;
     }
-    
     .landing-subtitle {
         font-size: 1.1rem;
     }
-    
     .landing-description {
         font-size: 0.95rem;
     }
-    
     .footer-content {
         flex-direction: column;
         gap: 1rem;
     }
 }
-
 @media (max-width: 600px) {
     .landing-page {
         padding: 20px;
     }
-    
     .landing-title {
         font-size: 24px;
     }
-    
     .landing-subtitle {
         font-size: 16px;
     }
-    
     .landing-description {
         font-size: 13px;
     }
-    
     .landing-actions {
         flex-direction: column;
         align-items: center;
     }
-    
     .landing-btn {
         width: 100%;
         max-width: 280px;
     }
-    
     .landing-features {
         grid-template-columns: 1fr;
     }
-    
     .guide-modal-content {
         padding: 15px;
         width: 95%;
     }
-    
     .container, .login-container {
         max-width: 100%;
         padding: 10px;
         padding-bottom: 80px;
         margin-top: 40px;
     }
-
     .nav-bar {
         padding: 8px;
         bottom: 10px;
     }
-
     .nav-item {
         font-size: 8px;
         padding: 6px 8px;
     }
-
     .nav-item i {
         font-size: 16px;
     }
-    
     #educationContent {
         font-size: 12px;
         line-height: 1.4;
         max-width: 100%;
         overflow-wrap: break-word;
     }
-
     #educationContent table {
         width: 100%;
         display: block;
@@ -1599,7 +1349,6 @@ body.light-theme .footer-links a:hover {
         border-collapse: collapse;
         margin: 12px 0;
     }
-
     #educationContent th,
     #educationContent td {
         padding: 4px 6px;
@@ -1607,76 +1356,60 @@ body.light-theme .footer-links a:hover {
         text-align: left;
         border: 1px solid rgba(0,0,0,0.1);
     }
-    
     #reportSection {
         margin-top: 48px;
     }
 }
-
 @media (max-width: 480px) {
     .landing-hero {
         margin: 2rem 0;
     }
-    
     .landing-title {
         font-size: 1.8rem;
     }
-    
     .landing-features {
         grid-template-columns: 1fr;
     }
 }
-
 .page-fade-in {
     animation: fadeSlideIn 0.5s ease;
 }
-
 .staggered {
     opacity: 0;
     transform: translateY(20px);
     animation: fadeUp 0.6s ease forwards;
 }
-
 .shake {
     animation: shakeAnim 0.4s ease;
 }
-
 .page-slide-left {
     animation: slideFromLeft 0.4s ease;
 }
-
 .page-slide-right {
     animation: slideFromRight 0.4s ease;
 }
-
-/* GLOBAL HEADER STYLE */
 .header {
     padding: 20px 24px !important;
     margin-bottom: 16px !important;
     border-radius: 16px 16px 0 0 !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
-
 .header h1 {
     font-size: 24px !important;
     margin-bottom: 6px !important;
     font-weight: 700;
 }
-
 .header .subtitle {
     font-size: 14px !important;
     opacity: 0.8;
 }
-
 .page-fade {
     animation: fadeInPage 0.4s ease-in-out;
 }
-
 @keyframes fadeInPage {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 button, .btn, .landing-btn, .switch-btn {
     position: relative;
     overflow: hidden;
@@ -1700,17 +1433,13 @@ button:active::after, .btn:active::after, .landing-btn:active::after, .switch-bt
     opacity: 0;
     transition: transform 0.6s, opacity 0.6s;
 }
-
-/* Animasi transisi halaman */
 .page-transition {
     animation: fadePage 0.4s ease-in-out;
 }
-
 @keyframes fadePage {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 #loadingOverlay {
     position: fixed;
     top: 0; left: 0;
@@ -1724,7 +1453,6 @@ button:active::after, .btn:active::after, .landing-btn:active::after, .switch-bt
     justify-content: center;
     color: white;
 }
-
 #loadingOverlay .loading-spinner {
     border: 4px solid rgba(255, 255, 255, 0.3);
     border-top: 4px solid #4CAF50;
@@ -1734,42 +1462,34 @@ button:active::after, .btn:active::after, .landing-btn:active::after, .switch-bt
     animation: spin 1s linear infinite;
     margin-bottom: 12px;
 }
-
 #loadingOverlay .loading-text {
     font-size: 14px;
     font-weight: 500;
 }
-
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
-
 .header {
-    padding-top: env(safe-area-inset-top); /* untuk iOS */
-    padding-top: constant(safe-area-inset-top); /* fallback lama */
+    padding-top: env(safe-area-inset-top); 
+    padding-top: constant(safe-area-inset-top); 
 }
-
 html, body {
     margin: 0;
     padding: 0;
 }
-
 html, body {
     margin: 0;
     padding: 0;
 }
-
 .header {
     padding-top: calc(env(safe-area-inset-top, 0px) + 4px);
     padding-bottom: 8px;
 }
-
 @supports not (padding-top: env(safe-area-inset-top)) {
     .header {
         padding-top: 8px;
     }
 }
-
 .connection-panel {
     position: fixed;
     top: 12px;
@@ -1787,7 +1507,6 @@ html, body {
     font-size: 13px;
     font-weight: 500;
 }
-
 .connection-dot {
     width: 12px;
     height: 12px;
@@ -1795,11 +1514,9 @@ html, body {
     background: gray;
     box-shadow: 0 0 6px rgba(0,0,0,0.3);
 }
-
 .connection-icon {
     font-size: 14px;
 }
-
 @keyframes blink {
     0% { opacity: 1; }
     50% { opacity: 0.4; }
@@ -1808,12 +1525,10 @@ html, body {
 .blink {
     animation: blink 1s infinite;
 }
-
 .action-row td {
     padding: 8px;
     background: rgba(255,255,255,0.05);
 }
-
 .action-row button {
     margin-right: 6px;
     padding: 6px 10px;
@@ -1826,45 +1541,37 @@ html, body {
     align-items: center;
     gap: 4px;
 }
-
 .action-row .detail-btn {
     background: #2196F3;
     color: white;
 }
-
 .action-row .detail-btn:hover {
     background: #1976D2;
 }
-
 .action-row .share-btn {
     background: #25D366;
     color: white;
 }
-
 .action-row .share-btn:hover {
     background: #20B058;
 }
-
 .action-row .edit-btn {
     background: #FFC107;
     color: #333;
 }
-
 .action-row .edit-btn:hover {
     background: #FFB300;
 }
-
-/* Tablet layout (769px–1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
     .container, .login-container {
         max-width: 90%;
         padding: 20px;
-        margin: 0 auto; /* center horizontal */
+        margin: 0 auto; 
     }
     .landing-content {
         display: flex;
         flex-direction: column;
-        align-items: center; /* center isi */
+        align-items: center; 
     }
     .landing-features {
         grid-template-columns: repeat(2, 1fr);
@@ -1877,21 +1584,19 @@ html, body {
     }
     .nav-bar {
         max-width: 90%;
-        margin: 0 auto; /* center horizontal */
+        margin: 0 auto; 
     }
 }
-
-/* PC layout (>1024px) */
 @media (min-width: 1025px) {
     .container, .login-container {
         max-width: 1100px;
         padding: 24px;
-        margin: 0 auto; /* center horizontal */
+        margin: 0 auto; 
     }
     .landing-content {
         display: flex;
         flex-direction: column;
-        align-items: center; /* center isi */
+        align-items: center; 
     }
     .landing-features {
         grid-template-columns: repeat(3, 1fr);
@@ -1904,18 +1609,14 @@ html, body {
     }
     .nav-bar {
         max-width: 1100px;
-        margin: 0 auto; /* center horizontal */
+        margin: 0 auto; 
     }
-    /* Lebarkan tabel di PC */
     .table-container {
         max-height: none;
         overflow-y: visible;
     }
 }
-
-/* Efek hover dan peningkatan visual untuk tablet & PC */
 @media (min-width: 769px) {
-    /* Card spacing & shadow lembut */
     .card {
         margin: 20px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -1925,22 +1626,16 @@ html, body {
         transform: translateY(-4px);
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
     }
-
-    /* Tombol hover lebih jelas */
     .btn:hover, .landing-btn:hover {
         transform: translateY(-3px) scale(1.02);
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
     }
-
-    /* Ikon lebih besar */
     .feature-icon i {
         font-size: 24px;
     }
     .nav-item i {
         font-size: 20px;
     }
-
-    /* Spasi antar section lebih lega */
     .landing-features {
         gap: 28px;
     }
@@ -1948,25 +1643,19 @@ html, body {
         margin-bottom: 60px;
     }
 }
-
-/* === Efek Transparansi Header & Navbar === */
 .header, .nav-bar {
-    background: rgba(255, 255, 255, 0.8); /* default terang */
+    background: rgba(255, 255, 255, 0.8); 
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: background 0.3s ease;
 }
-
 body.dark-theme .header, 
 body.dark-theme .nav-bar {
-    background: rgba(30, 30, 46, 0.7); /* versi gelap */
+    background: rgba(30, 30, 46, 0.7); 
 }
-
-/* === Transisi Halaman === */
 .page-fade-in, .page-transition {
     animation: fadeSlideInCustom 0.5s ease;
 }
-
 @keyframes fadeSlideInCustom {
     from {
         opacity: 0;
@@ -1977,13 +1666,10 @@ body.dark-theme .nav-bar {
         transform: translateY(0);
     }
 }
-
-/* === Warna Aksen Kedua === */
 :root {
     --primary-color: #4CAF50;
-    --secondary-color: #2196F3; /* biru */
+    --secondary-color: #2196F3; 
 }
-
 .btn.secondary {
     background: linear-gradient(135deg, var(--secondary-color), #1976D2);
     color: #fff;
@@ -1993,35 +1679,27 @@ body.dark-theme .nav-bar {
     box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
     transform: translateY(-2px);
 }
-
-/* === Konsistensi Border Radius === */
 .card, .login-card, .landing-btn, .btn, .switch-btn, input, select, textarea, .feature-card, .modal {
     border-radius: 14px;
 }
 </style>
 </head>
-
-<body class="light-theme">
+<body class="dark-theme">
 <div id="connectionPanel" class="connection-panel" style="display:none;">
     <div id="connectionDot" class="connection-dot"></div>
     <i id="connectionIcon" class="fas fa-signal connection-icon"></i>
     <span id="connectionText">Checking...</span>
 </div>
-    <!-- Tombol Tema -->
     <div class="theme-toggle" id="themeToggle">
         <i id="themeIcon" class="fas fa-sun"></i>
     </div>
-    <!-- Tombol Manajemen Data (hanya untuk CA00383) -->
     <div class="data-management-toggle" id="dataManagementToggle" style="display: none;">
         <i class="fas fa-trash-alt"></i>
     </div>
-    <!-- Global Loading Overlay -->
 <div id="loadingOverlay" style="display:none;">
     <div class="loading-spinner"></div>
     <div class="loading-text">Memproses...</div>
 </div>
-
-    <!-- Navigation Bar -->
     <nav class="nav-bar" id="navBar" style="display: none;">
         <div class="nav-item active" data-page="mainPage" data-tooltip="Checklist">
             <i class="fas fa-list-check"></i>
@@ -2044,16 +1722,11 @@ body.dark-theme .nav-bar {
             <span>Edukasi</span>
         </div>
     </nav>
-    
-    <!-- Landing Page HTML -->
 <div id="landingPage" class="landing-page">
     <div class="landing-content">
-        <!-- Hero Section -->
         <div class="landing-hero">
             <h1 class="landing-title">Water Monitoring & Maintaining System</h1>
             <p class="landing-subtitle">Sistem Terintegrasi untuk Manajemen Air yang Lebih Baik</p>
-
-            <!-- Action Buttons -->
             <div class="landing-actions">
                 <button class="landing-btn primary pulse" id="loginFromLanding">
                     <i class="fas fa-sign-in-alt"></i>
@@ -2065,8 +1738,6 @@ body.dark-theme .nav-bar {
                 </button>
             </div>
         </div>
-
-        <!-- Features Grid -->
         <div class="landing-features">
             <div class="feature-card">
                 <div class="feature-icon">
@@ -2077,7 +1748,6 @@ body.dark-theme .nav-bar {
                     Monitoring tinggi bak distribusi, pompa transfer, hydran, dan meter air dengan sistem shift otomatis
                 </p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-tachometer-alt"></i>
@@ -2087,7 +1757,6 @@ body.dark-theme .nav-bar {
                     Pencatatan pembacaan meter air semua blok dengan perhitungan konsumsi aktual otomatis
                 </p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -2097,7 +1766,6 @@ body.dark-theme .nav-bar {
                     Pelaporan kebocoran, kerusakan pipa, dan masalah pompa dengan lokasi spesifik dan kategori
                 </p>
             </div>
-
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-chart-line"></i>
@@ -2109,8 +1777,6 @@ body.dark-theme .nav-bar {
             </div>
         </div>
     </div>
-
-    <!-- Footer -->
     <div class="landing-footer">
         <div class="footer-content">
             <div class="footer-logo">
@@ -2119,8 +1785,6 @@ body.dark-theme .nav-bar {
         </div>
     </div>
 </div>
-
-<!-- Guide Modal -->
 <div id="guideModal" class="guide-modal">
     <div class="guide-modal-content">
         <div class="guide-header">
@@ -2130,7 +1794,6 @@ body.dark-theme .nav-bar {
             </h2>
             <button class="guide-close" id="closeGuide">&times;</button>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-user-check" style="margin-right: 6px;"></i>Login & Akses</h3>
             <ul>
@@ -2138,7 +1801,6 @@ body.dark-theme .nav-bar {
                 <li>Sistem akan mengenali nama user otomatis</li>
             </ul>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-list-check" style="margin-right: 6px;"></i>Checklist Harian</h3>
             <p>Fitur utama untuk monitoring sistem air harian:</p>
@@ -2150,7 +1812,6 @@ body.dark-theme .nav-bar {
                 <li>Sistem otomatis menghitung status berdasarkan ketinggian air</li>
             </ul>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-tachometer-alt" style="margin-right: 6px;"></i>Meter Lapangan</h3>
             <p>Pencatatan pembacaan meter air semua blok:</p>
@@ -2161,7 +1822,6 @@ body.dark-theme .nav-bar {
                 <li>Tambahkan catatan jika diperlukan</li>
             </ul>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i>Laporan Kerusakan</h3>
             <p>Pelaporan masalah dan kerusakan sistem:</p>
@@ -2171,7 +1831,6 @@ body.dark-theme .nav-bar {
                 <li>Deskripsikan detail kerusakan dan catatan perbaikan</li>
             </ul>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-chart-line" style="margin-right: 6px;"></i>Estimasi Konsumsi</h3>
             <p>Perhitungan proyeksi pemakaian air:</p>
@@ -2185,7 +1844,6 @@ body.dark-theme .nav-bar {
                 <li>Peringatan jika volume bak tidak mencukupi</li>
             </ul>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-book" style="margin-right: 6px;"></i>Katalog Edukasi</h3>
             <p>Materi pembelajaran sistem air:</p>
@@ -2199,7 +1857,6 @@ body.dark-theme .nav-bar {
                 <li><strong>WTP:</strong> Estimasi kebutuhan dan monitoring sistem</li>
             </ul>
         </div>
-
         <div class="guide-section">
             <h3><i class="fas fa-share-alt" style="margin-right: 6px;"></i>Tips Penggunaan</h3>
             <div class="guide-highlight">
@@ -2215,31 +1872,21 @@ body.dark-theme .nav-bar {
         </div>
     </div>
 </div>
-
-<!-- Halaman Login -->
 <div id="loginPage" class="login-container">
     <a href="index.html" class="back-icon" title="Kembali ke Beranda">
         <i class="fa-solid fa-house"></i>
     </a>
-
- <!-- Overlay blur background -->
 <div id="loginOverlay" class="login-overlay" style="display: none;"></div>
-
-<!-- Success indicator sekarang berada di depan blur -->
-<div class="success-check" id="successCheck" style="display:none;">
-    <i class="fas fa-check"></i>
+<div class="success-check" id="successCheck" style="display:none; background:none;">
+    <div id="successAnimation" style="width:250px; height:250px;"></div>
 </div>
-
     <div class="login-card">
-        <!-- Logo section -->
         <div class="logo-section horizontal-logo">
             <div class="logo-text">
                 <h1><i class="fas fa-tint" style="margin-right: 8px;"></i>Water Monitoring & Maintaining System</h1>
                 <div class="subtitle">WTP Department - Secure Login Portal</div>
             </div>
         </div>
-
-        <!-- Input section -->
         <div class="login-input-card">
             <div class="input-wrapper">
                 <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00001)" required>
@@ -2250,16 +1897,12 @@ body.dark-theme .nav-bar {
                 <span>Masuk</span>
             </button>
         </div>
-
-        <!-- Footer -->
         <div class="login-footer">
             <i class="fas fa-shield-alt"></i>
             <span>Secure Water Management System</span>
         </div>
     </div>
 </div>
-
-<!-- Halaman Checklist -->
 <div id="mainPage" class="container page-fade" style="display:none;">
     <div class="header">
         <div id="anim1" style="width:400px;height:200px;margin:auto;margin-bottom:32px;"></div>
@@ -2267,13 +1910,11 @@ body.dark-theme .nav-bar {
         <h1>Checklist Sistem Air</h1>
         <div class="subtitle">Monitoring & Pemeliharaan</div>
     </div>
-
     <div class="card">
         <div class="shift-info">
             Shift: <span id="shiftInfo"></span> | Waktu: <span id="currentTime">00:00:00</span>
         </div>
     </div>
-
     <div class="card">
         <div class="switch-type">
             <button class="switch-btn active" id="switchMasuk">CHECKLIST MASUK</button>
@@ -2281,15 +1922,11 @@ body.dark-theme .nav-bar {
             <button class="switch-btn" id="switchCustom">CUSTOM CHECKLIST</button>
         </div>
     </div>
-
     <div class="card" id="checklistFormContainer">
         <form id="checklistForm">
-            <!-- Hidden auto-filled status fields -->
             <input type="hidden" id="bakRO">
             <input type="hidden" id="bakWWTP">
             <input type="hidden" id="statusPDAM">
-
-            <!-- Bagian 1 -->
             <div class="form-group">
                 <div class="input-group">
                     <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
@@ -2297,7 +1934,6 @@ body.dark-theme .nav-bar {
                 </div>
             </div>
             <div class="section-divider"></div>
-
             <div class="form-group">
                 <div class="input-group">
                     <input type="number" id="tinggiWWTP" placeholder="Ketinggian Bak Tampung WWTP (cm)" required>
@@ -2305,7 +1941,6 @@ body.dark-theme .nav-bar {
                 </div>
             </div>
             <div class="section-divider"></div>
-
             <div class="form-group">
                 <select id="pompa" required>
                     <option value="">Pilih Kondisi Pompa Transfer WWTP RO...</option>
@@ -2314,15 +1949,12 @@ body.dark-theme .nav-bar {
                 </select>
             </div>
             <div class="section-divider"></div>
-
-            <!-- Bagian 2 -->
             <div class="form-group">
                 <div class="input-group">
                     <input type="number" id="tinggiPDAM" placeholder="Ketinggian Bak Input Air PDAM (cm)" required>
                     <div class="unit">cm</div>
                 </div>
             </div>
-
             <div class="form-group">
                 <select id="hydrantStatus" required>
                     <option value="">Pilih Status Hydrant...</option>
@@ -2330,7 +1962,6 @@ body.dark-theme .nav-bar {
                     <option value="OFF">OFF</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <select id="AStatus" required>
                     <option value="">Pilih Status Penggunaan Air Blok A...</option>
@@ -2338,7 +1969,6 @@ body.dark-theme .nav-bar {
                     <option value="RO">RO</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <select id="EStatus" required>
                     <option value="">Pilih Status Penggunaan Air Blok E...</option>
@@ -2346,7 +1976,6 @@ body.dark-theme .nav-bar {
                     <option value="RO">RO</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <select id="damkar" required>
                     <option value="">Pilih Status Penggunaan Air Damkar...</option>
@@ -2355,8 +1984,6 @@ body.dark-theme .nav-bar {
                 </select>
             </div>
             <div class="section-divider"></div>
-
-            <!-- Bagian 3 -->
             <div class="form-group">
                 <select id="supplyPDAM" required>
                     <option value="">Pilih Status Supply Air PDAM...</option>
@@ -2364,37 +1991,30 @@ body.dark-theme .nav-bar {
                     <option value="Mati">Mati</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <input type="number" id="meterIndukPDAM" placeholder="Angka Meter Induk PDAM" required>
             </div>
-
             <div class="form-group">
                 <input type="number" id="meterIndukWTP" placeholder="Angka Meter Induk WTP" required>
             </div>
-
             <div class="form-group">
                 <div class="input-group">
                     <input type="number" id="PDAM" placeholder="Flow Input PDAM (m³)" required>
                     <div class="unit">m³</div>
                 </div>
             </div>
-
             <div class="form-group">
                 <div class="input-group">
                     <input type="number" id="flowPDAM" placeholder="Rate Input (m³/j) isi 0 jika pdam off" required>
                     <div class="unit">m³/j</div>
                 </div>
             </div>
-
             <div class="form-group">
                 <input type="text" id="catatan" placeholder="Catatan Tambahan (Opsional)">
             </div>
-
             <button type="submit" class="btn" id="saveChecklistButton">Simpan Checklist</button>
         </form>
     </div>
-
     <div class="card" id="reportSection">
         <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Checklist</h2>
         <div class="filter-group">
@@ -2431,8 +2051,6 @@ body.dark-theme .nav-bar {
         <div class="pagination" id="reportPagination"></div>
     </div>
 </div>
-
-<!-- Modal untuk Detail Laporan -->
 <div id="modalOverlay" class="modal-overlay"></div>
 <div id="detailModal" class="modal">
     <div class="modal-header">
@@ -2441,10 +2059,7 @@ body.dark-theme .nav-bar {
     </div>
     <div class="modal-content" id="modalContent"></div>
 </div>
-
 <div id="notification" class="notification"></div>
-
-    <!-- Halaman Check Meter Lapangan -->
     <div id="meterPage" class="container" style="display: none;">
         <div class="header">
             <div id="anim3" style="width:300px;height:300px;margin:auto;"></div>
@@ -2523,8 +2138,6 @@ body.dark-theme .nav-bar {
             <div class="pagination" id="meterPagination"></div>
         </div>
     </div>
-    
-    <!-- Halaman Laporan Kerusakan -->
     <div id="damagePage" class="container" style="display: none;">
         <div class="header">
             <div id="anim4" style="width:300px;height:300px;margin:auto;"></div>
@@ -2605,8 +2218,6 @@ body.dark-theme .nav-bar {
             <div class="pagination" id="damagePagination"></div>
         </div>
     </div>
-
-<!-- Halaman Estimasi Pemakaian Air -->
 <div id="estimationPage" class="container" style="display: none; padding: 20px; padding-bottom: 100px;">
   <div class="header" style="margin-bottom: 20px;">
     <div id="anim5" style="width:300px;height:300px;margin:auto;"></div>
@@ -2614,10 +2225,8 @@ body.dark-theme .nav-bar {
     <h1 style="margin-bottom: 4px;">Estimasi Pemakaian Air</h1>
     <div class="subtitle">Perhitungan Manual Berdasarkan Data Bak dan Meter</div>
   </div>
-
   <div class="card" style="padding: 20px;">
     <form id="estimationForm">
-      <!-- Tinggi Bak -->
       <div class="form-group" style="margin-bottom: 20px;">
         <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">Data Tinggi Bak (cm)</label>
         <div class="input-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
@@ -2633,8 +2242,6 @@ body.dark-theme .nav-bar {
           <div class="unit">cm</div>
         </div>
       </div>
-
-      <!-- Data Meter -->
       <div class="section-divider" style="border-top: 1px solid #eee; margin: 24px 0;"></div>
       <div class="form-group" style="margin-bottom: 20px;">
         <label style="font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block;">Data Water Meter (m³)</label>
@@ -2655,11 +2262,8 @@ body.dark-theme .nav-bar {
           <div class="unit">jam</div>
         </div>
       </div>
-
       <button type="submit" class="btn" id="calculateEstimationButton" style="margin-top: 10px;">Hitung Estimasi</button>
     </form>
-
-    <!-- Hasil Estimasi -->
     <div class="estimation-result" id="estimationResult" style="display: none; margin-top: 30px;">
       <h3 style="margin-bottom: 20px;">Hasil Estimasi Pemakaian Air</h3>
       <div style="background: rgba(76, 175, 80, 0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
@@ -2679,8 +2283,6 @@ body.dark-theme .nav-bar {
     </div>
   </div>
 </div>
-    
-    <!-- Halaman Katalog Edukasi -->
 <div id="educationPage" class="container" style="display: none;">
     <div class="header">
         <div id="anim2" style="width:300px;height:300px;margin:auto;"></div>
@@ -2711,8 +2313,6 @@ body.dark-theme .nav-bar {
         <div id="educationContent"></div>
     </div>
 </div>
-
-    <!-- Halaman Manajemen Data (hanya untuk CA00383) -->
     <div id="dataManagementPage" class="container" style="display: none;">
         <div class="header">
             <div class="greeting" id="dataManagementGreeting">Selamat Pagi, User!</div>
@@ -2734,14 +2334,10 @@ body.dark-theme .nav-bar {
             <button class="btn delete-data-btn" id="deleteDataButton">Hapus Data</button>
         </div>
     </div>
-
 <script type="module">
-// Impor modul Firebase yang diperlukan
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getMessaging, onMessage, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
-
-// Konfigurasi Firebase Anda
 const firebaseConfig = {
     apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
     authDomain: "water-checklist.firebaseapp.com",
@@ -2750,12 +2346,8 @@ const firebaseConfig = {
     messagingSenderId: "84158811467",
     appId: "1:84158811467:web:717bd038c3da5362ad2cce"
 };
-
-// Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// === Registrasi Service Worker Dinamis untuk Notifikasi Background ===
 if ('serviceWorker' in navigator) {
     const swCode = `
         importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
@@ -2779,17 +2371,11 @@ if ('serviceWorker' in navigator) {
         .then(reg => console.log("Service Worker terdaftar:", reg))
         .catch(err => console.error("Service Worker gagal daftar:", err));
 }
-
-// Inisialisasi Firebase Messaging
 let messaging;
 try {
     messaging = getMessaging(app);
     console.log('Firebase Messaging berhasil diinisialisasi');
-
-    // VAPID key yang Anda berikan
     const vapidKey = 'BC_wKYhgBStBfdwVY_xkVcC4x_JpjcFbwpeWWpkgYWYScZZuEi6f296bP4CFmPxyu0AuejSxEk1OA6nGROERQhw';
-
-    // Fungsi untuk menyimpan token ke Firestore
     async function simpanTokenKeServer(token) {
         const userNik = localStorage.getItem("nik") || "unknown";
         await setDoc(doc(db, "deviceTokens", token), {
@@ -2799,8 +2385,6 @@ try {
         });
         console.log("Token FCM disimpan ke Firestore:", token);
     }
-
-    // Fungsi untuk meminta izin notifikasi
     async function mintaIzinNotifikasi() {
         try {
             const izin = await Notification.requestPermission();
@@ -2819,23 +2403,16 @@ try {
             console.error('Gagal mendapatkan token:', err);
         }
     }
-
-    // Menangani pesan yang diterima saat aplikasi terbuka (foreground)
     onMessage(messaging, (payload) => {
         console.log('Pesan diterima (foreground):', payload);
         const judulNotif = payload.notification?.title || 'Pesan Baru';
         const isiNotif = payload.notification?.body || 'Anda memiliki pesan baru';
         tampilkanNotifikasi(`${judulNotif} - ${isiNotif}`, true);
     });
-
-    // Meminta izin notifikasi saat halaman dimuat
     mintaIzinNotifikasi();
-
 } catch (error) {
     console.error('Gagal menginisialisasi Firebase Messaging:', error);
 }
-
-// Fungsi untuk menampilkan notifikasi di dalam halaman
 function tampilkanNotifikasi(pesan, isSuccess = false) {
     const elemenNotif = document.getElementById('notification');
     if (elemenNotif) {
@@ -2850,8 +2427,6 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         console.error('Elemen notifikasi tidak ditemukan');
     }
 }
-
-    // Data pengguna aplikasi
     const users = [
         { nik: 'CA00006', name: 'Muhammad Fahruroji' },
         { nik: 'CA00159', name: 'Andri Rahmatulloh' },
@@ -2862,28 +2437,20 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         { nik: 'CA00491', name: 'Torik Hidayat' },
         { nik: 'CA00508', name: 'Amanda Lutfi' }
     ];
-
-    // Variabel aplikasi
     let currentType = 'masuk';
     let currentNIK = '';
     let currentUserName = '';
     let usageChart = null;
     const ITEMS_PER_PAGE = 10;
-    
-    // Fungsi untuk menampilkan grafik penggunaan
     function renderUsageChart() {
         const meterAwal = parseFloat(document.getElementById('meterStart').value);
         const meterAkhir = parseFloat(document.getElementById('meterEnd').value);
-
         if (isNaN(meterAwal) || isNaN(meterAkhir)) {
             console.warn('Data meter tidak valid untuk grafik');
             return;
         }
-
         if (usageChart) usageChart.destroy();
-
         const ctx = document.getElementById('usageChart').getContext('2d');
-
         usageChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -2923,13 +2490,11 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             }
         });
     }
-
         const shifts = [
             { name: 'Satu', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
             { name: 'Dua', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
             { name: 'Tiga', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
         ];
-
         const blockLocations = {
             'Induk': ['Aquaria', 'Hydran', 'Induk Blok A B C', 'Induk P+D', 'Damkar', 'Blok H', 'Blok E, F, G', 'PDAM', 'PDAM II', 'Hydrant II'],
             'Blok C': ['Toilet C11', 'Toilet C8', 'Toilet C15', 'Toilet C12', 'Toilet C17', 'Toilet C20', 'Manual 1', 'Manual 2', 'Manual 3', 'Manual 4', 'Manual 5'],
@@ -2943,7 +2508,6 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             'Blok H': ['H2 Masjid', 'H4 Kantin', 'H5.1 Toilet', 'H5.2 Dapur', 'H5.3 Toilet'],
             'Blok E': ['E21 Office', 'E22 Office', 'E7.1 Toilet', 'E7.2 Toilet', 'E8.1 Toilet', 'E8.2 Toilet', 'E9.1 Toilet', 'E9.2 Toilet', 'E10.3 Toilet', 'E10.4 Toilet']
         };
-
         function showNotification(message, isSuccess = false) {
             const notification = document.getElementById('notification');
             if (notification) {
@@ -2958,7 +2522,6 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
                 console.error('Elemen notification tidak ditemukan');
             }
         }
-
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -2976,29 +2539,21 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
                 localStorage.setItem('theme', 'dark');
             }
         }
-
         function switchPage(pageId) {
-    // Sembunyikan semua page
     document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #dataManagementPage')
         .forEach(page => {
             page.style.display = 'none';
             page.classList.remove('page-transition');
         });
-
-    // Tampilkan page target
     const targetPage = document.getElementById(pageId);
     if (targetPage) {
         targetPage.style.display = 'block';
-        void targetPage.offsetWidth; // reset animasi
+        void targetPage.offsetWidth; 
         targetPage.classList.add('page-transition');
     }
-
-    // Update nav active
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.toggle('active', item.dataset.page === pageId);
     });
-
-    // Halaman khusus
     if (pageId === 'educationPage') {
         loadEducationContent();
     }
@@ -3016,59 +2571,56 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         populateDamageFilterDate();
     }
 }
-
+function hideAllPages() {
+    const pages = ['loginPage', 'mainPage', 'meterPage', 'damagePage', 'estimationPage', 'educationPage', 'dataManagementPage'];
+    pages.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+}
 function login() {
     const nikInput = document.getElementById('nikInput');
     const nikValue = nikInput.value.trim().toUpperCase();
     const user = users.find(u => u.nik === nikValue);
     const button = document.getElementById('loginButton');
-    const successCheck = document.getElementById('successCheck');
     const overlay = document.getElementById('loginOverlay');
-
     if (!nikValue) {
         showNotification('Mohon masukkan NIK terlebih dahulu!');
         return;
     }
-
     if (user) {
-        // Tampilkan loading + overlay
         button.classList.add('loading');
         overlay.style.display = 'block';
-
         setTimeout(() => {
             button.classList.remove('loading');
-            successCheck.style.display = 'block';
-
-            setTimeout(() => {
-                successCheck.style.display = 'none';
+            showSuccessAnimation(() => {
                 overlay.style.display = 'none';
                 nikInput.value = '';
-
-                // PROSES LOGIN LANJUTAN
                 currentNIK = nikValue;
                 currentUserName = user.name;
-                document.getElementById('loginPage').style.display = 'none';
+                hideAllPages(); 
                 document.getElementById('navBar').style.display = 'flex';
+                document.getElementById('mainPage').style.display = 'block'; 
                 switchPage('mainPage');
-                showNotification(`Selamat datang, ${currentUserName}!`, true);
                 updateShiftInfo();
                 updateGreeting();
                 populateFilters();
                 listenReports(1);
-                ['meterGreeting', 'damageGreeting', 'estimationGreeting', 'educationGreeting', 'dataManagementGreeting'].forEach(id => {
-                    document.getElementById(id).textContent = document.getElementById('greeting').textContent;
-                });
+                ['meterGreeting', 'damageGreeting', 'estimationGreeting', 'educationGreeting', 'dataManagementGreeting']
+                    .forEach(id => {
+                        document.getElementById(id).textContent = document.getElementById('greeting').textContent;
+                    });
                 if (currentNIK === 'CA00383') {
                     document.getElementById('dataManagementToggle').style.display = 'block';
-                    document.getElementById('dataManagementToggle').addEventListener('click', () => switchPage('dataManagementPage'));
+                    document.getElementById('dataManagementToggle')
+                        .addEventListener('click', () => switchPage('dataManagementPage'));
                 }
-            }, 1000);
+            });
         }, 700);
     } else {
         showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
     }
 }
-
         function updateGreeting() {
             const now = new Date();
             const hour = now.getHours();
@@ -3087,7 +2639,6 @@ function login() {
                 document.getElementById(id).textContent = greetingText;
             });
         }
-
         function updateShiftInfo() {
             const now = new Date();
             const hour = now.getHours();
@@ -3099,14 +2650,12 @@ function login() {
             });
             document.getElementById('shiftInfo').textContent = shiftInfo;
         }
-
         function updateTime() {
             const now = new Date();
             document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
             updateShiftInfo();
             updateGreeting();
         }
-
         function switchType(type) {
             currentType = type;
             document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
@@ -3116,7 +2665,6 @@ function login() {
             delete saveButton.dataset.editId;
             document.getElementById('checklistForm').reset();
         }
-
         function showEditForm(checklist) {
             if (checklist.nik !== currentNIK) {
                 showNotification('Anda tidak memiliki izin untuk mengedit laporan ini.');
@@ -3147,7 +2695,6 @@ function login() {
             saveButton.dataset.editId = checklist.id;
             document.getElementById('checklistFormContainer').scrollIntoView({ behavior: 'smooth' });
         }
-
         async function saveChecklist(event) {
             event.preventDefault();
             const saveButton = document.getElementById('saveChecklistButton');
@@ -3164,34 +2711,28 @@ function login() {
                     }
                 });
             }
-
             if (currentType !== 'custom' && !currentShift) {
                 showNotification('Checklist masuk/pulang hanya dapat dilakukan selama jam shift!');
                 saveButton.classList.remove('loading');
                 return;
             }
-            
             if (currentType !== 'custom') {
                 const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
                 const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
                 const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
                 const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
-
                 const isValidMasuk = currentType === 'masuk' &&
                     ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
                      (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
-
                 const isValidPulang = currentType === 'pulang' &&
                     ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
                      (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
-
                 if (!isValidMasuk && !isValidPulang) {
                     showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}. Silakan coba lagi pada waktu yang sesuai.`);
                     saveButton.classList.remove('loading');
                     return;
                 }
             }
-
             const user = users.find(u => u.nik === currentNIK);
             const data = {
                 nik: currentNIK,
@@ -3219,16 +2760,13 @@ function login() {
                 catatan: document.getElementById('catatan').value || '',
                 createdAt: serverTimestamp()
             };
-
             const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'AStatus', 'EStatus', 'damkar', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'PDAM', 'flowPDAM'];
             const missing = required.filter(field => !data[field] && data[field] !== 0);
-
             if (missing.length > 0) {
                 showNotification('Mohon lengkapi semua field yang wajib diisi!');
                 saveButton.classList.remove('loading');
                 return;
             }
-
             try {
                 if (saveButton.dataset.editId) {
                     await updateDoc(doc(db, 'checklists', saveButton.dataset.editId), data);
@@ -3247,7 +2785,6 @@ function login() {
                 saveButton.classList.remove('loading');
             }
         }
-
         async function getLastVisibleDoc(collectionName, page, limit) {
             try {
                 const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'), limit(limit * (page - 1)));
@@ -3259,14 +2796,12 @@ function login() {
                 return null;
             }
         }
-        
         async function listenReports(page = 1) {
     const filterDate = document.getElementById('filterDate').value;
     const filterShift = document.getElementById('filterShift').value;
     const filterNIK = document.getElementById('filterNIK').value;
     const reportBody = document.getElementById('reportBody');
     const pagination = document.getElementById('reportPagination');
-
     let q = query(collection(db, 'checklists'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
     if (page > 1) {
         const lastVisible = await getLastVisibleDoc('checklists', page, ITEMS_PER_PAGE);
@@ -3277,17 +2812,14 @@ function login() {
     if (filterDate) q = query(q, where('date', '==', filterDate));
     if (filterShift) q = query(q, where('shift', '==', filterShift));
     if (filterNIK) q = query(q, where('nik', '==', filterNIK));
-
     try {
         onSnapshot(q, async (snapshot) => {
             reportBody.innerHTML = '';
             const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
             if (checklists.length === 0) {
                 reportBody.innerHTML = '<tr><td colspan="5">Tidak ada data checklist.</td></tr>';
             } else {
                 checklists.forEach(c => {
-                    // Baris data utama
                     const dataRow = document.createElement('tr');
                     dataRow.innerHTML = `
                         <td>${c.date || '-'}</td>
@@ -3297,8 +2829,6 @@ function login() {
                         <td>${c.catatan || '-'}</td>
                     `;
                     reportBody.appendChild(dataRow);
-
-                    // Baris tombol aksi di bawahnya
                     const actionRow = document.createElement('tr');
                     actionRow.classList.add('action-row');
                     actionRow.innerHTML = `
@@ -3317,8 +2847,6 @@ function login() {
                     reportBody.appendChild(actionRow);
                 });
             }
-
-            // Pagination
             const totalDocs = (await getDocs(query(collection(db, 'checklists')))).size;
             pagination.innerHTML = `
                 <button onclick="listenReports(${page - 1})" ${page === 1 ? 'disabled' : ''}>Sebelumnya</button>
@@ -3334,7 +2862,6 @@ function login() {
         showNotification(`Gagal mengatur listener checklist: ${error.message}`);
     }
 }
-
         async function populateFilters() {
             console.log('Populating checklist filters...');
             try {
@@ -3352,7 +2879,6 @@ function login() {
                 showNotification(`Gagal memuat filter checklist: ${error.message}`);
             }
         }
-
         function showDetail(data) {
             const modal = document.getElementById('detailModal');
             const modalContent = document.getElementById('modalContent');
@@ -3382,12 +2908,10 @@ function login() {
             modal.style.display = 'block';
             modalOverlay.style.display = 'block';
         }
-
         function closeModal() {
             document.getElementById('detailModal').style.display = 'none';
             document.getElementById('modalOverlay').style.display = 'none';
         }
-        
         function shareChecklist(data) {
     const message = `
 • Laporan Checklist
@@ -3395,7 +2919,6 @@ function login() {
 • Waktu: ${data.time || '-'}
 • Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
 • Penginput: ${data.nik || '-'} - ${data.name || '-'}
-
 1. Bak Distribusi RO: ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)
 2. Bak Tampung WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
 3. Pompa Transfer: ${data.pompa || '-'}
@@ -3409,14 +2932,12 @@ function login() {
 11. Meter Induk WTP: ${data.meterIndukWTP || 0} m³
 12. Flow Input PDAM: ${data.PDAM || 0} m³
 13. Flow Rate PDAM: ${data.flowPDAM || 0} m³/j
-
 Catatan: ${data.catatan || '-'}
     `.trim();
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
     window.open(whatsappUrl, '_blank');
 }
-
 async function saveMeter(event) {
     event.preventDefault();
     const saveButton = document.getElementById('saveMeterButton');
@@ -3433,7 +2954,6 @@ async function saveMeter(event) {
         notes: document.getElementById('meterNotes').value || '',
         createdAt: serverTimestamp()
     };
-
     try {
         console.log('Menyimpan data meter:', data);
         await addDoc(collection(db, 'meters'), data);
@@ -3448,7 +2968,6 @@ async function saveMeter(event) {
         saveButton.classList.remove('loading');
     }
 }
-
 async function saveDamage(event) {
     event.preventDefault();
     const saveButton = document.getElementById('saveDamageButton');
@@ -3466,7 +2985,6 @@ async function saveDamage(event) {
         notes: document.getElementById('damageNotes').value || '',
         createdAt: serverTimestamp()
     };
-
     try {
         console.log('Menyimpan data kerusakan:', data);
         await addDoc(collection(db, 'damages'), data);
@@ -3480,58 +2998,46 @@ async function saveDamage(event) {
         saveButton.classList.remove('loading');
     }
 }
-
 async function calculateActualUsage(block, location, currentReading) {
     try {
-        console.log('Mencari data untuk:', {block, location}); // Log debugging
-        
-        // Query untuk data sebelumnya (case insensitive)
+        console.log('Mencari data untuk:', {block, location}); 
         const q = query(
             collection(db, 'meters'),
             where('block', '>=', block),
-            where('block', '<=', block + '\uf8ff'), // Teknik range query untuk case insensitive
+            where('block', '<=', block + '\uf8ff'), 
             orderBy('createdAt', 'desc'),
             limit(1)
         );
-
         const snapshot = await getDocs(q);
-        console.log('Data ditemukan:', snapshot.docs.length); // Log debugging
-
+        console.log('Data ditemukan:', snapshot.docs.length); 
         if (!snapshot.empty) {
-            // Cari data dengan lokasi yang match (case insensitive)
             const allData = snapshot.docs.map(doc => doc.data());
             const prevData = allData.find(data => 
                 data.location.toLowerCase() === location.toLowerCase()
             );
-
             if (prevData) {
-                console.log('Data sebelumnya ditemukan:', prevData); // Log debugging
+                console.log('Data sebelumnya ditemukan:', prevData); 
                 const prevReading = parseFloat(prevData.meterReading) || 0;
                 return currentReading - prevReading;
             }
         }
-
-        console.log('Tidak ada data sebelumnya yang cocok'); // Log debugging
+        console.log('Tidak ada data sebelumnya yang cocok'); 
         return null;
     } catch (error) {
         console.error('Error dalam calculateActualUsage:', error);
         return null;
     }
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     const meterReadingInput = document.getElementById('meterReading');
     if (!meterReadingInput) return;
-
     meterReadingInput.addEventListener('input', async () => {
         const block = document.getElementById('meterBlock').value;
         const location = document.getElementById('meterLocation').value;
         const reading = parseFloat(meterReadingInput.value);
-        
         if (block && location && !isNaN(reading)) {
             const actual = await calculateActualUsage(block, location, reading);
             const el = document.getElementById('actualUsage');
-            
             if (actual !== null) {
                 el.innerHTML = `<strong>Pemakaian Aktual:</strong> ${actual.toFixed(2)} m³`;
             } else {
@@ -3542,13 +3048,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
 async function listenMeterReports(page = 1) {
     const filterBlock = document.getElementById('meterFilterBlock').value;
     const filterDate = document.getElementById('meterFilterDate').value;
     const reportBody = document.getElementById('meterReportBody');
     const pagination = document.getElementById('meterPagination');
-
     let q = query(collection(db, 'meters'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
     if (page > 1) {
         try {
@@ -3564,21 +3068,16 @@ async function listenMeterReports(page = 1) {
     }
     if (filterBlock) q = query(q, where('block', '==', filterBlock));
     if (filterDate) q = query(q, where('date', '==', filterDate));
-
         try {
         onSnapshot(q, async (snapshot) => {
             reportBody.innerHTML = '';
             const meters = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
             if (meters.length === 0) {
                 reportBody.innerHTML = '<tr><td colspan="8">Tidak ada data meter.</td></tr>';
             } else {
-                // Dapatkan semua data meter untuk perhitungan aktual
                 const allMeters = await getDocs(collection(db, 'meters'));
                 const allMeterData = allMeters.docs.map(doc => doc.data());
-                
                 for (const m of meters) {
-                    // Cari pembacaan sebelumnya untuk lokasi yang sama
                     const previousReadings = allMeterData
                         .filter(item => 
                             item.block === m.block && 
@@ -3589,12 +3088,10 @@ async function listenMeterReports(page = 1) {
                         .sort((a, b) => 
                             new Date(`${b.date} ${b.time}`) - new Date(`${a.date} ${a.time}`)
                         );
-                    
                     const previousReading = previousReadings[0];
                     const actualUsage = previousReading ? 
                         (m.meterReading - previousReading.meterReading).toFixed(2) : 
                         '-';
-                    
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${m.date || '-'}</td>
@@ -3624,13 +3121,11 @@ async function listenMeterReports(page = 1) {
         showNotification(`Gagal mengatur listener meter: ${error.message}`);
     }
 }
-
 async function listenDamageReports(page = 1) {
     const filterBlock = document.getElementById('damageFilterBlock').value;
     const filterDate = document.getElementById('damageFilterDate').value;
     const reportBody = document.getElementById('damageReportBody');
     const pagination = document.getElementById('damagePagination');
-
     let q = query(collection(db, 'damages'), orderBy('createdAt', 'desc'), limit(ITEMS_PER_PAGE));
     if (page > 1) {
         try {
@@ -3646,7 +3141,6 @@ async function listenDamageReports(page = 1) {
     }
     if (filterBlock) q = query(q, where('block', '==', filterBlock));
     if (filterDate) q = query(q, where('date', '==', filterDate));
-
     try {
         onSnapshot(q, async (snapshot) => {
             console.log('Damage snapshot:', snapshot.docs.map(doc => doc.data()));
@@ -3685,7 +3179,6 @@ async function listenDamageReports(page = 1) {
         showNotification(`Gagal mengatur listener kerusakan: ${error.message}`);
     }
 }
-
 async function populateMeterFilterDate() {
     console.log('Populating meter filter date...');
     try {
@@ -3700,7 +3193,6 @@ async function populateMeterFilterDate() {
         showNotification(`Gagal memuat filter tanggal meter: ${error.message}`);
     }
 }
-
 async function populateDamageFilterDate() {
     console.log('Populating damage filter date...');
     try {
@@ -3715,17 +3207,14 @@ async function populateDamageFilterDate() {
         showNotification(`Gagal memuat filter tanggal kerusakan: ${error.message}`);
     }
 }
-
 function populateMeterFilterBlock() {
     const filterBlock = document.getElementById('meterFilterBlock');
     filterBlock.innerHTML = '<option value="">Semua Blok</option>' + Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
 }
-
 function populateDamageFilterBlock() {
     const filterBlock = document.getElementById('damageFilterBlock');
     filterBlock.innerHTML = '<option value="">Semua Blok</option>' + Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
 }
-
 function populateLocations(selectId, block) {
     const select = document.getElementById(selectId);
     select.innerHTML = '<option value="">Pilih Lokasi...</option>';
@@ -3733,17 +3222,14 @@ function populateLocations(selectId, block) {
         select.innerHTML += blockLocations[block].map(loc => `<option value="${loc}">${loc}</option>`).join('');
     }
 }
-
 function hitungVolumeBak(tinggiCm, panjang, lebar, tinggiMax) {
     const tinggiM = tinggiCm / 100;
-    return panjang * lebar * Math.min(tinggiM, tinggiMax); // m³
+    return panjang * lebar * Math.min(tinggiM, tinggiMax); 
 }
-
 async function calculateEstimation(event) {
     event.preventDefault();
     const button = document.getElementById('calculateEstimationButton');
     button.classList.add('loading');
-
     try {
         const tinggiRO = parseFloat(document.getElementById('tinggiRO').value) || 0;
         const tinggiWWTP = parseFloat(document.getElementById('tinggiWWTP').value) || 0;
@@ -3752,46 +3238,36 @@ async function calculateEstimation(event) {
         const meterEnd = parseFloat(document.getElementById('meterEnd').value) || 0;
         const estimationHours = parseFloat(document.getElementById('estimationHours').value) || 0;
         const customHours = parseFloat(document.getElementById('customEstimateHour').value) || 24;
-
         if (tinggiRO > 300 || tinggiWWTP > 500 || tinggiPDAM > 500) {
             showNotification('Tinggi salah satu bak melebihi batas maksimal!');
             return;
         }
-
         if (meterEnd <= meterStart) {
             showNotification('Pembacaan akhir harus lebih besar dari pembacaan awal!');
             return;
         }
-
         if (estimationHours <= 0) {
             showNotification('Durasi estimasi harus lebih dari 0!');
             return;
         }
-
         const consumption = meterEnd - meterStart;
         const avgPerHour = consumption / estimationHours;
         const avgMin = avgPerHour * 0.95;
         const avgMax = avgPerHour * 1.05;
-
         const BAK_RO = { panjang: 3, lebar: 5, tinggi: 3, jumlah: 2 };
         const BAK_WWTP = { panjang: 12, lebar: 20, tinggi: 5 };
         const BAK_PDAM = { panjang: 12, lebar: 20, tinggi: 5 };
-
         const volumeRO = hitungVolumeBak(tinggiRO, BAK_RO.panjang, BAK_RO.lebar, BAK_RO.tinggi) * BAK_RO.jumlah;
         const volumeWWTP = hitungVolumeBak(tinggiWWTP, BAK_WWTP.panjang, BAK_WWTP.lebar, BAK_WWTP.tinggi);
         const volumePDAM = hitungVolumeBak(tinggiPDAM, BAK_PDAM.panjang, BAK_PDAM.lebar, BAK_PDAM.tinggi);
-
         const percentRO = (volumeRO / 90) * 100;
         const percentWWTP = (volumeWWTP / 1200) * 100;
         const percentPDAM = (volumePDAM / 1200) * 100;
-
         const projection24h = avgPerHour * 24;
         const customProjection = avgPerHour * customHours;
-
         let recommendation = 'Aman';
         if (projection24h > 100) recommendation = 'Pemakaian tinggi, awasi suplai!';
         else if (projection24h < 20) recommendation = 'Pemakaian rendah, tetap hemat.';
-
         let suplaiNote = "";
         if (volumePDAM < customProjection) {
             const kekurangan = customProjection - volumePDAM;
@@ -3799,8 +3275,6 @@ async function calculateEstimation(event) {
         } else {
             suplaiNote = `Volume PDAM cukup untuk estimasi ${customHours} jam ke depan.`;
         }
-
-        // Tampilkan hasil
         document.getElementById('hoursUsed').textContent = estimationHours;
         document.getElementById('consumption4h').textContent = consumption.toFixed(2);
         document.getElementById('avgPerHour').textContent = `${avgMin.toFixed(2)} – ${avgMax.toFixed(2)} m³/jam`;
@@ -3808,15 +3282,12 @@ async function calculateEstimation(event) {
         document.getElementById('recommendation').textContent = recommendation;
         document.getElementById('suplaiRekomendasi').textContent = suplaiNote;
         document.getElementById('estimationResult').style.display = 'block';
-
-        // Forecast Table
         const forecastDurations = [4, 8, 12, 24];
         let forecastHTML = `<table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
         <thead><tr style="background: #f1f1f1;">
         <th style="padding: 8px;">Proyeksi</th>
         <th style="padding: 8px;">Estimasi Pemakaian (m³)</th>
         <th style="padding: 8px;">Prediksi Meter (m³)</th></tr></thead><tbody>`;
-
         forecastDurations.forEach(hours => {
             const usage = avgPerHour * hours;
             const predictedMeter = meterEnd + usage;
@@ -3824,18 +3295,14 @@ async function calculateEstimation(event) {
             <td style="padding: 6px;">${usage.toFixed(2)}</td>
             <td style="padding: 6px;">${predictedMeter.toFixed(2)}</td></tr>`;
         });
-
         forecastHTML += '</tbody></table>';
         document.getElementById('forecastTable').innerHTML = forecastHTML;
-
     } catch (error) {
         console.error('Gagal menghitung estimasi:', error);
         showNotification(`Gagal menghitung estimasi: ${error.message}`);
     } finally {
         button.classList.remove('loading');
     }
-    
-    // Chart
         if (usageChart) usageChart.destroy();
         const ctx = document.getElementById('usageChart').getContext('2d');
         usageChart = new Chart(ctx, {
@@ -3858,15 +3325,12 @@ async function calculateEstimation(event) {
                 }
             }
         });
-        
         renderUsageChart();
 }
-
 function loadEducationContent() {
     const search = document.getElementById('educationSearch').value.toLowerCase();
     const category = document.getElementById('educationCategory').value;
     const contentDiv = document.getElementById('educationContent');
-
     const educationData = {
         K3: [
             {
@@ -4494,7 +3958,6 @@ function loadEducationContent() {
             }
         ]
     };
-
     let filteredData = educationData[category] || [];
     if (search) {
         filteredData = filteredData.filter(item => 
@@ -4502,72 +3965,55 @@ function loadEducationContent() {
             item.content.toLowerCase().includes(search)
         );
     }
-
     contentDiv.innerHTML = filteredData.length > 0 ? filteredData.map(item => `
         <div class="accordion">
             <div class="accordion-header">${item.title}</div>
             <div class="accordion-content">${item.content}</div>
         </div>
     `).join('') : '<p>Tidak ada konten yang sesuai dengan pencarian atau kategori yang dipilih.</p>';
-
     document.querySelectorAll('.accordion-header').forEach(header => {
-        header.removeEventListener('click', toggleAccordion); // Hapus event listener sebelumnya untuk mencegah duplikasi
+        header.removeEventListener('click', toggleAccordion); 
         header.addEventListener('click', toggleAccordion);
     });
 }
-
 function toggleAccordion(event) {
     const content = event.currentTarget.nextElementSibling;
     content.classList.toggle('active');
 }
-
 function showLoading(message = "Memproses...") {
     document.querySelector('#loadingOverlay .loading-text').innerText = message;
     document.getElementById('loadingOverlay').style.display = 'flex';
 }
-
 function hideLoading() {
     document.getElementById('loadingOverlay').style.display = 'none';
 }
-
 async function deleteData() {
     console.log('deleteData function called');
-
     if (currentNIK !== 'CA00383') {
         showNotification('Hanya NIK CA00383 yang dapat mengakses fitur ini.');
         return;
     }
-
     const dataType = document.getElementById('dataType').value;
     const deleteDate = document.getElementById('dataDeleteDate').value;
     const button = document.getElementById('deleteDataButton');
-
     if (!dataType || !deleteDate) {
         showNotification('Mohon pilih tipe data dan tanggal!');
         return;
     }
-
     button.classList.add('loading');
     button.disabled = true;
-
     try {
         const dateObj = new Date(deleteDate);
         const formattedDate = dateObj.toLocaleDateString('id-ID');
-
         const q = query(collection(db, dataType), where('date', '==', formattedDate));
         const snapshot = await getDocs(q);
-
         if (snapshot.empty) {
             showNotification(`Tidak ada data ${dataType} untuk tanggal ${formattedDate}`);
             return;
         }
-
         const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
         await Promise.all(deletePromises);
-
         showNotification(`Berhasil menghapus ${snapshot.docs.length} data ${dataType} untuk tanggal ${formattedDate}!`, true);
-
-        // Refresh data
         if (dataType === 'checklists') {
             listenReports(1);
             populateFilters();
@@ -4578,7 +4024,6 @@ async function deleteData() {
             listenDamageReports(1);
             populateDamageFilterDate();
         }
-
     } catch (error) {
         console.error('Gagal menghapus data:', error);
         showNotification(`Gagal menghapus data: ${error.message}`);
@@ -4587,54 +4032,41 @@ async function deleteData() {
         button.disabled = false;
     }
 }
-
-// Inisialisasi aplikasi
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.classList.add(`${savedTheme}-theme`);
     document.getElementById('themeIcon').classList.add(savedTheme === 'dark' ? 'fa-sun' : 'fa-moon');
     document.getElementById('landingPage').style.display = 'flex';
     document.getElementById('loginPage').style.display = 'none';
-
     document.getElementById('themeToggle').addEventListener('click', toggleTheme);
     document.getElementById('loginButton').addEventListener('click', login);
     document.getElementById('nikInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') login();
     });
-
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => switchPage(item.dataset.page));
     });
-
     document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
     document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
     document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
-
     document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
     document.getElementById('meterForm').addEventListener('submit', saveMeter);
     document.getElementById('damageForm').addEventListener('submit', saveDamage);
     document.getElementById('estimationForm').addEventListener('submit', calculateEstimation);
     document.getElementById('deleteDataButton').addEventListener('submit', deleteData);
-
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalOverlay').addEventListener('click', closeModal);
-
     document.getElementById('meterBlock').addEventListener('change', (e) => populateLocations('meterLocation', e.target.value));
     document.getElementById('damageBlock').addEventListener('change', (e) => populateLocations('damageLocation', e.target.value));
-
-    // Nonaktifkan debounce untuk filter checklist
     document.getElementById('filterDate').addEventListener('change', () => listenReports(1));
     document.getElementById('filterShift').addEventListener('change', () => listenReports(1));
     document.getElementById('filterNIK').addEventListener('change', () => listenReports(1));
-
     document.getElementById('meterFilterBlock').addEventListener('change', () => listenMeterReports(1));
     document.getElementById('meterFilterDate').addEventListener('change', () => listenMeterReports(1));
     document.getElementById('damageFilterBlock').addEventListener('change', () => listenDamageReports(1));
     document.getElementById('damageFilterDate').addEventListener('change', () => listenDamageReports(1));
-
     document.getElementById('educationSearch').addEventListener('input', loadEducationContent);
     document.getElementById('educationCategory').addEventListener('change', loadEducationContent);
-
     document.getElementById('reportBody').addEventListener('click', (e) => {
         if (e.target.classList.contains('detail-btn')) {
             showDetail(JSON.parse(e.target.dataset.detail));
@@ -4647,7 +4079,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showEditForm(JSON.parse(e.target.dataset.detail));
         }
     });
-
     document.getElementById('meterReportBody').addEventListener('click', (e) => {
         if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
             const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
@@ -4658,14 +4089,12 @@ document.addEventListener('DOMContentLoaded', () => {
 • Blok: ${data.block || '-'}
 • Lokasi: ${data.location || '-'}
 • Angka Meter: ${data.meterReading || 0} m³
-
 Catatan: ${data.notes || '-'}
             `.trim();
             const encodedMessage = encodeURIComponent(message);
             window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
         }
     });
-
     document.getElementById('damageReportBody').addEventListener('click', (e) => {
         if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
             const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
@@ -4676,109 +4105,80 @@ Catatan: ${data.notes || '-'}
 • Blok: ${data.block || '-'}
 • Lokasi: ${data.location || '-'}
 • Spesifik: ${data.specific || '-'}
-
 Catatan: ${data.notes || '-'}
             `.trim();
             const encodedMessage = encodeURIComponent(message);
             window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
         }
     });
-
     populateMeterFilterBlock();
     populateDamageFilterBlock();
     setInterval(updateTime, 1000);
 });
-
-    // Fungsi menghitung status dari ketinggian air
     function hitungStatus(ketinggian) {
         if (ketinggian >= 150) return "Optimal";
         if (ketinggian >= 100) return "Normal";
         return "Rendah";
     }
-
-    // Fungsi memperbarui tampilan dan hidden value
     function updateStatusOutputs() {
         const tinggiRO = parseFloat(document.getElementById('tinggiRO').value) || 0;
         const tinggiWWTP = parseFloat(document.getElementById('tinggiWWTP').value) || 0;
         const tinggiPDAM = parseFloat(document.getElementById('tinggiPDAM').value) || 0;
-
         const statusRO = hitungStatus(tinggiRO);
         const statusWWTP = hitungStatus(tinggiWWTP);
         const statusPDAM = hitungStatus(tinggiPDAM);
-
-        // Hidden fields untuk data simpan
         document.getElementById('bakRO').value = statusRO;
         document.getElementById('bakWWTP').value = statusWWTP;
         document.getElementById('statusPDAM').value = statusPDAM;
-
-        // (Opsional) Tampilkan ke user jika ada elemen visual
         const roText = document.getElementById('statusROText');
         const wwtpText = document.getElementById('statusWWTPText');
         const pdamText = document.getElementById('statusPDAMText');
-
         if (roText) roText.textContent = statusRO;
         if (wwtpText) wwtpText.textContent = statusWWTP;
         if (pdamText) pdamText.textContent = statusPDAM;
     }
-
     window.addEventListener('DOMContentLoaded', () => {
-        // Saat user mengisi input tinggi, update status otomatis
         ['tinggiRO', 'tinggiWWTP', 'tinggiPDAM'].forEach(id => {
             const input = document.getElementById(id);
             if (input) {
                 input.addEventListener('input', updateStatusOutputs);
             }
         });
-
-        // Update status sebelum submit, agar field hidden sudah terisi
         const checklistForm = document.getElementById('checklistForm');
         if (checklistForm) {
             checklistForm.addEventListener('submit', function (e) {
-                updateStatusOutputs(); // penting agar hidden input keisi
+                updateStatusOutputs(); 
             });
         }
-
-        // Event lainnya
         const deleteBtn = document.getElementById('deleteDataButton');
         if (deleteBtn) {
             deleteBtn.addEventListener('click', deleteData);
         }
-
         const loginBtn = document.getElementById('loginButton');
         if (loginBtn) {
             loginBtn.addEventListener('click', login);
         }
     });
-    
-    // Event listeners untuk landing page - Tambahkan dalam DOMContentLoaded
 document.getElementById('loginFromLanding').addEventListener('click', () => {
     document.getElementById('landingPage').style.display = 'none';
     document.getElementById('loginPage').style.display = 'block';
 });
-
 document.getElementById('showGuide').addEventListener('click', () => {
     document.getElementById('guideModal').style.display = 'block';
 });
-
 document.getElementById('closeGuide').addEventListener('click', () => {
     document.getElementById('guideModal').style.display = 'none';
 });
-
-// Close modal when clicking outside
 document.getElementById('guideModal').addEventListener('click', (e) => {
     if (e.target === document.getElementById('guideModal')) {
         document.getElementById('guideModal').style.display = 'none';
     }
 });
-
-// Close modal with Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && document.getElementById('guideModal').style.display === 'block') {
         document.getElementById('guideModal').style.display = 'none';
     }
 });
-
-// Ripple effect tanpa mengganggu fungsi asli tombol
 document.querySelectorAll('.btn, .landing-btn, td button, .switch-btn').forEach(button => {
     button.addEventListener('click', function(e) {
         const rect = this.getBoundingClientRect();
@@ -4790,8 +4190,6 @@ document.querySelectorAll('.btn, .landing-btn, td button, .switch-btn').forEach(
         setTimeout(() => ripple.remove(), 600);
     }, false);
 });
-
-// Efek fade-in untuk halaman yang muncul
 const observer = new MutationObserver(mutations => {
     mutations.forEach(mutation => {
         if (mutation.target.style.display === 'block') {
@@ -4800,30 +4198,22 @@ const observer = new MutationObserver(mutations => {
         }
     });
 });
-
-// Observasi semua halaman utama
 document.querySelectorAll('#landingPage, #loginPage, #mainPage, #meterPage, #damagePage, #estimationPage, #educationPage')
     .forEach(page => {
         observer.observe(page, { attributes: true, attributeFilter: ['style'] });
     });
-
-// Staggered load untuk elemen di landing page saat pertama kali load
 window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('#landingPage .landing-hero, #landingPage .feature-card').forEach((el, index) => {
         el.style.animationDelay = `${index * 0.15}s`;
         el.classList.add('staggered');
     });
 });
-
-// Feedback error (shake)
 function showErrorShake(selector) {
     const el = document.querySelector(selector);
     if (!el) return;
     el.classList.add('shake');
     setTimeout(() => el.classList.remove('shake'), 400);
 }
-
-// Tombol loading sementara
 function setButtonLoading(btn, isLoading) {
     if (isLoading) {
         btn.classList.add('loading');
@@ -4831,8 +4221,6 @@ function setButtonLoading(btn, isLoading) {
         btn.classList.remove('loading');
     }
 }
-
-// Contoh integrasi pada form checklist
 const checklistForm = document.getElementById('checklistForm');
 if (checklistForm) {
     checklistForm.addEventListener('submit', e => {
@@ -4845,8 +4233,6 @@ if (checklistForm) {
         }, 1000);
     });
 }
-
-// Transisi arah halaman (optional integrasi)
 function showPageWithDirection(pageId, direction = 'right') {
     document.querySelectorAll('#landingPage, #loginPage, #mainPage, #meterPage, #damagePage, #estimationPage, #educationPage')
         .forEach(p => p.style.display = 'none');
@@ -4859,29 +4245,24 @@ function showPageWithDirection(pageId, direction = 'right') {
         }, 400);
     }
 }
-
-// ====== Logout ======
 document.addEventListener("DOMContentLoaded", function () {
     const navBar = document.getElementById("navBar");
-
     if (navBar) {
         const logoutBtn = document.createElement("div");
         logoutBtn.className = "nav-item";
         logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i><span>Logout</span>`;
         logoutBtn.addEventListener("click", function () {
-            localStorage.removeItem("loggedInUser"); // hapus sesi
-            location.reload(); // kembali ke halaman login
+            localStorage.removeItem("loggedInUser"); 
+            location.reload(); 
         });
         navBar.appendChild(logoutBtn);
     }
 });
-
 async function checkPing(url = "/favicon.ico", timeout = 3000) {
     const start = Date.now();
     try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeout);
-        // Ambil file kecil lokal agar ping akurat dan cepat
         await fetch(url + "?t=" + Date.now(), { cache: "no-store", signal: controller.signal });
         clearTimeout(timer);
         return Date.now() - start;
@@ -4889,20 +4270,17 @@ async function checkPing(url = "/favicon.ico", timeout = 3000) {
         return null;
     }
 }
-
 async function updateConnectionPanel() {
     const panel = document.getElementById("connectionPanel");
     const dot = document.getElementById("connectionDot");
     const text = document.getElementById("connectionText");
     const icon = document.getElementById("connectionIcon");
-
     if (document.getElementById("loginPage").style.display !== "none") {
         panel.style.display = "none";
         return;
     } else {
         panel.style.display = "flex";
     }
-
     if (!navigator.onLine) {
         dot.style.background = "red";
         dot.classList.add("blink");
@@ -4910,14 +4288,13 @@ async function updateConnectionPanel() {
         icon.className = "fas fa-times-circle connection-icon";
         return;
     }
-
     const ping = await checkPing();
     if (ping === null) {
         dot.style.background = "red";
         dot.classList.add("blink");
         text.textContent = "Offline";
         icon.className = "fas fa-times-circle connection-icon";
-    } else if (ping > 600) { // ubah threshold
+    } else if (ping > 600) { 
         dot.style.background = "crimson";
         dot.classList.add("blink");
         text.textContent = `Sinyal Lemah (${ping} ms)`;
@@ -4934,12 +4311,10 @@ async function updateConnectionPanel() {
         icon.className = "fas fa-signal connection-icon";
     }
 }
-
 window.addEventListener("online", updateConnectionPanel);
 window.addEventListener("offline", updateConnectionPanel);
 setInterval(updateConnectionPanel, 5000);
 updateConnectionPanel();
-
 const animations = [
     {id: 'anim1', path: 'packaging-for-delivery.json'},
     {id: 'anim2', path: 'creative-team.json'},
@@ -4947,7 +4322,6 @@ const animations = [
     {id: 'anim4', path: 'website-maintenance.json'},
     {id: 'anim5', path: 'growth-analysis.json'},
 ];
-
 animations.forEach(anim => {
     lottie.loadAnimation({
         container: document.getElementById(anim.id),
@@ -4957,6 +4331,24 @@ animations.forEach(anim => {
         path: anim.path
     });
 });
+function showSuccessAnimation(onFinish) {
+    const successContainer = document.getElementById('successCheck');
+    const animContainer = document.getElementById('successAnimation');
+    animContainer.innerHTML = '';
+    successContainer.style.display = 'flex';
+    const anim = lottie.loadAnimation({
+        container: animContainer,
+        renderer: 'svg',
+        loop: false,
+        autoplay: true,
+        path: 'successfully-done.json'
+    });
+    anim.setSpeed(1.0);
+    anim.addEventListener('complete', () => {
+        successContainer.style.display = 'none';
+        if (typeof onFinish === 'function') onFinish();
+    });
+}
 </script>
 </body>
 </html>
