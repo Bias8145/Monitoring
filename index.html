@@ -11,6 +11,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+    <!-- Libraries for exporting the meter sheet to PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Additional libraries for Excel export and PDF import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.111/pdf.min.js"></script>
     <style>
 * {
     margin: 0;
@@ -364,6 +370,88 @@ td button.edit-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
 }
+
+/* === Custom styles for meter block tabs === */
+/* Container for block tabs above the meter sheet. Displays blocks horizontally and wraps on small screens. */
+/*
+ * Styling for the block tabs used on the meter sheet.  These tabs are designed
+ * to resemble browser tabs: they align horizontally with no gaps, have
+ * rounded top corners, and share a bottom border with the container.  The
+ * active tab is highlighted with the primary theme colour.
+ */
+.block-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 12px;
+    align-items: flex-end;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+body.dark-theme .block-tabs {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+.block-tab {
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    margin-right: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    user-select: none;
+}
+body.light-theme .block-tab {
+    background: rgba(230, 230, 230, 0.9);
+    color: #333;
+}
+body.dark-theme .block-tab {
+    background: rgba(60, 60, 80, 0.85);
+    color: #e0e0e0;
+}
+.block-tab.active {
+    background: #4CAF50;
+    color: #fff;
+    border-color: #4CAF50;
+    box-shadow: none;
+}
+body.dark-theme .block-tab.active {
+    background: #4CAF50;
+    color: #fff;
+    border-color: #4CAF50;
+}
+
+/* --- Meter sheet layout overrides --- */
+/* Position the block tabs in a single horizontal row above the table and allow
+   the user to scroll horizontally to access additional blocks. These rules
+   override earlier definitions of .block-tabs and .block-tab. */
+.block-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+.block-tabs .block-tab {
+    /* Prevent flexbox from shrinking the tab widths; each tab keeps its
+       intrinsic width and the container can scroll horizontally */
+    flex: 0 0 auto;
+}
+
+/*
+ * Add borders to the meter sheet table for better readability.  Each cell is
+ * delineated with a subtle border that adapts to the light and dark themes.
+ */
+#sheetTable {
+    border-collapse: collapse;
+}
+#sheetTable th,
+#sheetTable td {
+    border: 1px solid rgba(0, 0, 0, 0.2);
+}
+body.dark-theme #sheetTable th,
+body.dark-theme #sheetTable td {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
 .filter-group {
     display: flex;
     gap: 10px;
@@ -377,6 +465,51 @@ td button.edit-btn:disabled {
     padding: 12px;
     border-radius: 12px;
     font-size: 13px;
+}
+
+/* Layout overrides for the meter sheet controls on the meter page.  These styles
+ * arrange the period selector and action buttons horizontally at the top of
+ * the sheet card.  Elements wrap responsively on narrow screens. */
+.sheet-controls {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    transform: perspective(1000px) translateZ(5px);
+}
+.sheet-button-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.sheet-date-group {
+    display: flex;
+}
+/* Ensure the month input expands to fill the available space within its row */
+.sheet-date-group input[type="month"] {
+    flex: 1;
+}
+/* Override button sizing within the sheet button group so they do not stretch
+   to fill the full width of their container.  Allow them to distribute
+   evenly while maintaining responsive behaviour on narrow screens. */
+.sheet-button-group .btn {
+    width: auto;
+    flex: 1 1 auto;
+    min-width: 110px;
+}
+
+/* Label preceding the period picker in the sheet controls */
+.sheet-label {
+    font-weight: 500;
+    margin-right: 4px;
+    font-size: 13px;
+}
+
+/* Hide the old "Tampilkan" button; the sheet loads automatically based on the selected period */
+#sheetLoadButton {
+    display: none !important;
 }
 .login-container {
     max-width: 400px;
@@ -2107,12 +2240,16 @@ body.light-theme .data-management-toggle {
             <h1>Check Meter Lapangan</h1>
             <div class="subtitle">Monitoring Meter Air</div>
         </div>
-        <div class="card">
+        <!-- Hide the original input form on the meter page.  The direct input form is no longer
+             used because users will enter values directly into the table.  We keep this
+             structure in the DOM but hide it so that the layout remains unaffected. -->
+        <div class="card" style="display:none;">
             <form id="meterForm">
                 <div class="form-group">
                     <select id="meterBlock" required>
                         <option value="">Pilih Blok...</option>
                         <option value="Induk">Induk</option>
+                        <option value="Blok P">Blok P</option>
                         <option value="Blok A">Blok A</option>
                         <option value="Blok B">Blok B</option>
                         <option value="Blok C">Blok C</option>
@@ -2121,7 +2258,6 @@ body.light-theme .data-management-toggle {
                         <option value="Blok F">Blok F</option>
                         <option value="Blok G">Blok G</option>
                         <option value="Blok H">Blok H</option>
-                        <option value="Blok P">Blok P</option>
                         <option value="Blok J">Blok J</option>
                     </select>
                 </div>
@@ -2146,36 +2282,43 @@ body.light-theme .data-management-toggle {
             </form>
         </div>
         <div class="card">
-            <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Meter</h2>
-            <div class="filter-group">
-                <select id="meterFilterBlock">
-                    <option value="">Semua Blok</option>
-                </select>
-                <select id="meterFilterDate">
-                    <option value="">Semua Tanggal</option>
-                </select>
+            <!-- Excel-style meter sheet card -->
+            <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Sheet Meter Bulanan</h2>
+            <!-- Controls for the meter sheet.  Arrange all inputs and actions in a single horizontal row.
+                 A hidden select stores the active block value; a labelled month picker allows the
+                 user to choose a period, and action buttons live alongside it.  The block tabs
+                 are moved beneath these controls so that the period and actions always remain at
+                 the top of the card. -->
+            <div class="filter-group sheet-controls">
+                <!-- Hidden select used internally for block selection -->
+                <select id="sheetBlockSelect" style="display:none;"><!-- Options will be populated dynamically --></select>
+                <span class="sheet-label">Periode:</span>
+                <!-- Month selector for choosing month; defaults to the current month on page load -->
+                <input type="month" id="sheetMonthSelect" style="padding: 10px; border-radius: 12px; border: none; font-size: 13px; min-width: 160px;">
+                <!-- Action buttons grouped together -->
+                <div class="sheet-button-group">
+                    <!-- PDF export button -->
+                    <button id="sheetExportPdfButton" type="button" class="btn">Export PDF</button>
+                    <!-- Save button persists the sheet back to Firestore -->
+                    <button id="sheetSaveButton" type="button" class="btn">Simpan</button>
+                </div>
+                <!-- Hidden file input for future import functionality -->
+                <input type="file" id="sheetPdfInput" accept="application/pdf" style="display:none;">
             </div>
+            <!-- Block tabs for selecting meter block (Induk, Blok A, B, etc.) -->
+            <div id="blockTabs" class="block-tabs"></div>
             <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">
-    💡 Geser ke samping untuk mengakses seluruh kolom laporan
+    💡 Pilih blok dan bulan untuk menampilkan sheet. Geser ke samping untuk mengakses seluruh kolom sheet.
 </p>
+            <!-- Total consumption display for the month placed above the table to provide a
+                 quick monthly overview before scrolling through the daily readings. -->
+            <div id="totalConsumption" style="font-size: 14px; font-weight: 600; margin-bottom: 12px;"></div>
             <div class="table-container">
-                <table id="meterTable">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Waktu</th>
-                            <th>Blok</th>
-                            <th>Lokasi</th>
-                            <th>Angka Meter</th>
-                            <th>Aktual</th>
-                            <th>Catatan</th>
-                            <th>Share</th>
-                        </tr>
-                    </thead>
-                    <tbody id="meterReportBody"></tbody>
+                <table id="sheetTable">
+                    <thead></thead>
+                    <tbody></tbody>
                 </table>
             </div>
-            <div class="pagination" id="meterPagination"></div>
         </div>
     </div>
     <div id="damagePage" class="container" style="display: none;">
@@ -2601,8 +2744,14 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         return;
     }
     if (pageId === 'meterPage') {
-        listenMeterReports(1);
-        populateMeterFilterDate();
+        // Only initialize the old meter report table if the elements exist (Excel-style sheet replaces it)
+        const meterReportBodyEl = document.getElementById('meterReportBody');
+        if (meterReportBodyEl) {
+            listenMeterReports(1);
+        }
+        if (document.getElementById('meterFilterDate')) {
+            populateMeterFilterDate();
+        }
     }
     if (pageId === 'damagePage') {
         listenDamageReports(1);
@@ -3223,6 +3372,8 @@ async function populateMeterFilterDate() {
     console.log('Populating meter filter date...');
     try {
         const filterDate = document.getElementById('meterFilterDate');
+        // Skip populating if the meter filter element does not exist (Excel-style sheet mode)
+        if (!filterDate) return;
         const snapshot = await getDocs(query(collection(db, 'meters'), orderBy('date', 'desc')));
         const meters = snapshot.docs.map(doc => doc.data());
         console.log('Meter dates:', meters.map(m => m.date));
@@ -3249,6 +3400,8 @@ async function populateDamageFilterDate() {
 }
 function populateMeterFilterBlock() {
     const filterBlock = document.getElementById('meterFilterBlock');
+    // Skip if the filter element does not exist (Excel-style sheet mode)
+    if (!filterBlock) return;
     filterBlock.innerHTML = '<option value="">Semua Blok</option>' + Object.keys(blockLocations).map(block => `<option value="${block}">${block}</option>`).join('');
 }
 function populateDamageFilterBlock() {
@@ -4104,8 +4257,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('filterDate').addEventListener('change', () => listenReports(1));
     document.getElementById('filterShift').addEventListener('change', () => listenReports(1));
     document.getElementById('filterNIK').addEventListener('change', () => listenReports(1));
-    document.getElementById('meterFilterBlock').addEventListener('change', () => listenMeterReports(1));
-    document.getElementById('meterFilterDate').addEventListener('change', () => listenMeterReports(1));
+    // Only attach meter filter listeners if the elements exist (the Excel-style sheet replaces these filters)
+    const meterFilterBlockEl = document.getElementById('meterFilterBlock');
+    if (meterFilterBlockEl) {
+        meterFilterBlockEl.addEventListener('change', () => listenMeterReports(1));
+    }
+    const meterFilterDateEl = document.getElementById('meterFilterDate');
+    if (meterFilterDateEl) {
+        meterFilterDateEl.addEventListener('change', () => listenMeterReports(1));
+    }
     document.getElementById('damageFilterBlock').addEventListener('change', () => listenDamageReports(1));
     document.getElementById('damageFilterDate').addEventListener('change', () => listenDamageReports(1));
     document.getElementById('educationSearch').addEventListener('input', loadEducationContent);
@@ -4154,7 +4314,13 @@ Catatan: ${data.notes || '-'}
             window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
         }
     });
-    populateMeterFilterBlock();
+    // Populate filter dropdowns for legacy meter table only if the elements exist
+    const meterFilterBlockEl2 = document.getElementById('meterFilterBlock');
+    if (meterFilterBlockEl2) {
+        populateMeterFilterBlock();
+        // also populate filter dates if needed
+        populateMeterFilterDate();
+    }
     populateDamageFilterBlock();
     setInterval(updateTime, 1000);
 });
@@ -4410,6 +4576,583 @@ function showSuccessAnimation(onFinish) {
         if (typeof onFinish === 'function') onFinish();
     });
 }
+
+// ==================== Meter Excel-style Sheet Functions ====================
+/**
+ * Populate block select for meter sheet using blockLocations keys.
+ */
+function populateSheetBlockSelect() {
+    const select = document.getElementById('sheetBlockSelect');
+    if (!select) return;
+    select.innerHTML = '';
+    // Sort blocks alphabetically with "Induk" first for consistent ordering
+    const blocks = Object.keys(blockLocations || {}).sort((a, b) => {
+        if (a === 'Induk') return -1;
+        if (b === 'Induk') return 1;
+        return a.localeCompare(b);
+    });
+    blocks.forEach(block => {
+        const opt = document.createElement('option');
+        opt.value = block;
+        opt.textContent = block;
+        select.appendChild(opt);
+    });
+
+    // After populating the hidden select, also build the visible block tabs
+    if (typeof populateBlockTabs === 'function') {
+        populateBlockTabs();
+    }
+}
+
+/**
+ * Create clickable tabs for each meter block and attach to the blockTabs container.
+ * When a tab is selected, it updates the hidden block select value, highlights the
+ * active tab, and triggers loading of the meter sheet if a month is selected.
+ */
+function populateBlockTabs() {
+    const tabContainer = document.getElementById('blockTabs');
+    const selectEl = document.getElementById('sheetBlockSelect');
+    if (!tabContainer || !selectEl) return;
+    // Clear existing tabs
+    tabContainer.innerHTML = '';
+    // Collect available block names and sort them alphabetically with "Induk"
+    // always appearing first.  Using localeCompare ensures Indonesian locale
+    // sorting rules where applicable.
+    const blocks = Object.keys(blockLocations || {}).sort((a, b) => {
+        if (a === 'Induk') return -1;
+        if (b === 'Induk') return 1;
+        return a.localeCompare(b);
+    });
+    blocks.forEach(block => {
+        const tab = document.createElement('div');
+        tab.className = 'block-tab';
+        tab.textContent = block;
+        tab.dataset.block = block;
+        // Mark active if it matches current select value
+        if (selectEl.value === block) {
+            tab.classList.add('active');
+        }
+        // Click handler for selecting block
+        tab.addEventListener('click', () => {
+            // If there are unsaved changes on the current sheet, warn the user before switching blocks
+            if (window.unsavedSheetChanges) {
+                const proceed = confirm('Anda memiliki perubahan yang belum disimpan. Tetap beralih ke blok lain?');
+                if (!proceed) {
+                    return;
+                }
+                // user confirmed discarding changes
+                window.unsavedSheetChanges = false;
+            }
+            // Update hidden select value
+            selectEl.value = block;
+            // Update active states
+            tabContainer.querySelectorAll('.block-tab').forEach(el => el.classList.remove('active'));
+            tab.classList.add('active');
+            // Load sheet data if month has been chosen (will show notification otherwise)
+            loadMeterSheet();
+        });
+        tabContainer.appendChild(tab);
+    });
+}
+/**
+ * Load meter sheet data for selected block and month.
+ */
+async function loadMeterSheet() {
+    // Warn the user if there are unsaved changes from previous edits.  Switching
+    // the sheet (either by changing block or month) will discard those changes.
+    if (window.unsavedSheetChanges) {
+        const confirmDiscard = confirm('Anda memiliki perubahan yang belum disimpan. Memuat sheet baru akan membatalkan perubahan tersebut. Lanjutkan?');
+        if (!confirmDiscard) {
+            return;
+        }
+        // User chose to discard changes; reset flag
+        window.unsavedSheetChanges = false;
+    }
+    const blockEl = document.getElementById('sheetBlockSelect');
+    const monthEl = document.getElementById('sheetMonthSelect');
+    if (!blockEl || !monthEl) return;
+    const block = blockEl.value;
+    const monthValue = monthEl.value; // format "YYYY-MM"
+    if (!block || !monthValue) {
+        showNotification('Pilih blok dan bulan untuk menampilkan sheet.');
+        return;
+    }
+    const [yearStr, monthStr] = monthValue.split('-');
+    const year = parseInt(yearStr);
+    const month = parseInt(monthStr);
+    if (isNaN(year) || isNaN(month)) {
+        showNotification('Format bulan tidak valid.');
+        return;
+    }
+    const daysInMonth = new Date(year, month, 0).getDate();
+    // fetch meter docs for selected block
+    let meterDocs = [];
+    try {
+        const q = query(collection(db, 'meters'), where('block', '==', block));
+        const snapshot = await getDocs(q);
+        meterDocs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error('Error fetching meter docs for sheet:', error);
+        showNotification('Gagal memuat data meter: ' + error.message);
+        return;
+    }
+    // filter docs by selected month/year
+    meterDocs = meterDocs.filter(doc => {
+        if (!doc.date) return false;
+        const parts = doc.date.split('/');
+        if (parts.length !== 3) return false;
+        const day = parseInt(parts[0]);
+        const monthLocal = parseInt(parts[1]);
+        const yearLocal = parseInt(parts[2]);
+        return yearLocal === year && monthLocal === month;
+    });
+    // prepare location groups
+    const locations = blockLocations[block] || [];
+    const locationDocs = {};
+    locations.forEach(loc => locationDocs[loc] = []);
+    meterDocs.forEach(doc => {
+        if (locationDocs[doc.location]) {
+            locationDocs[doc.location].push(doc);
+        }
+    });
+    // sort docs per location by date/time ascending
+    const parseDateTime = (doc) => {
+        try {
+            if (doc.createdAt && typeof doc.createdAt.toDate === 'function') {
+                return doc.createdAt.toDate();
+            }
+        } catch {}
+        return new Date(`${doc.date} ${doc.time}`);
+    };
+    Object.keys(locationDocs).forEach(loc => {
+        locationDocs[loc].sort((a,b) => parseDateTime(a) - parseDateTime(b));
+    });
+    // initialise global grid for this sheet. Structure: { 'dd/mm/yyyy': { 'location': { reading: number|null, docId: string|null } } }
+    window.currentSheetGrid = {};
+    // build table headers
+    const sheetTable = document.getElementById('sheetTable');
+    if (!sheetTable) return;
+    const thead = sheetTable.querySelector('thead');
+    const tbody = sheetTable.querySelector('tbody');
+    if (!thead || !tbody) return;
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+    // Build table headers: each location has three sub‑columns (Meter, Pemakaian, Akumulasi).
+    let headerHtml1 = '<tr><th rowspan="2">Tanggal</th>';
+    locations.forEach(loc => {
+        headerHtml1 += `<th colspan="3">${loc}</th>`;
+    });
+    // Append row‑level status and petugas columns
+    headerHtml1 += '<th rowspan="2">Status</th><th rowspan="2">Petugas</th></tr>';
+    let headerHtml2 = '<tr>';
+    locations.forEach(() => {
+        headerHtml2 += '<th>Meter</th><th>Pemakaian</th><th>Akumulasi</th>';
+    });
+    headerHtml2 += '</tr>';
+    thead.innerHTML = headerHtml1 + headerHtml2;
+    // prepare maps for previous readings and accumulations per location
+    const prevReadingMap = {};
+    const accumMap = {};
+    let totalConsumption = 0;
+    // generate rows for each day of the month
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateObj = new Date(year, month - 1, d);
+        const dateStr = dateObj.toLocaleDateString('id-ID');
+        const rowGrid = {};
+        let rowHtml = `<tr><td>${dateStr}</td>`;
+        let rowStatus = 'OK';
+        let rowPetugas = '';
+        locations.forEach(loc => {
+            const docsList = locationDocs[loc];
+            let reading = null;
+            let readingDoc = null;
+            if (docsList && docsList.length > 0) {
+                const docsOnDate = docsList.filter(m => m.date === dateStr);
+                if (docsOnDate.length > 0) {
+                    // pick latest record on that date
+                    docsOnDate.sort((a,b) => {
+                        const t1 = parseDateTime(a);
+                        const t2 = parseDateTime(b);
+                        return t2 - t1;
+                    });
+                    readingDoc = docsOnDate[0];
+                    const rVal = parseFloat(readingDoc.meterReading);
+                    reading = Number.isFinite(rVal) ? rVal : null;
+                }
+            }
+            // compute actual using previous reading
+            let actual = null;
+            if (reading !== null) {
+                const prev = prevReadingMap[loc];
+                if (prev !== undefined && prev !== null) {
+                    const diff = reading - prev;
+                    actual = Number.isFinite(diff) ? parseFloat(diff.toFixed(2)) : null;
+                    if (actual !== null) {
+                        totalConsumption += actual;
+                    }
+                }
+                prevReadingMap[loc] = reading;
+            } else {
+                rowStatus = 'Pending';
+            }
+            // update accumulation map
+            if (actual !== null) {
+                accumMap[loc] = (accumMap[loc] || 0) + actual;
+            }
+            // store to grid with additional metadata
+            rowGrid[loc] = {
+                reading: reading,
+                docId: readingDoc ? readingDoc.id : null,
+                petugas: readingDoc ? (readingDoc.name || readingDoc.userName || '') : ''
+            };
+            // assign petugas for row if not already chosen
+            if (!rowPetugas && rowGrid[loc].petugas) {
+                rowPetugas = rowGrid[loc].petugas;
+            }
+            // build input cell for meter reading
+            const inputVal = reading !== null ? reading : '';
+            rowHtml += `<td><input type="number" data-date="${dateStr}" data-location="${loc}" value="${inputVal}" step="any" style="width:80px;font-size:12px;border:none;background:transparent;color:inherit;"></td>`;
+            // build actual cell
+            rowHtml += `<td class="actual-cell" data-date="${dateStr}" data-location="${loc}">${actual !== null ? actual.toFixed(2) : '-'}</td>`;
+            // build accumulation cell (show running total if available, otherwise dash)
+            const accumVal = actual !== null ? accumMap[loc] : accumMap[loc];
+            const accumDisplay = (accumVal !== undefined && accumVal !== null) ? accumVal.toFixed(2) : '-';
+            rowHtml += `<td class="accum-cell" data-date="${dateStr}" data-location="${loc}">${accumDisplay}</td>`;
+        });
+        if (!rowPetugas) {
+            rowPetugas = currentUserName || '';
+        }
+        rowHtml += `<td class="status-cell" data-date="${dateStr}">${rowStatus}</td>`;
+        rowHtml += `<td class="petugas-cell" data-date="${dateStr}">${rowPetugas || '-'}</td>`;
+        rowHtml += '</tr>';
+        tbody.innerHTML += rowHtml;
+        window.currentSheetGrid[dateStr] = rowGrid;
+        window.currentSheetGrid[dateStr]._status = rowStatus;
+        window.currentSheetGrid[dateStr]._petugas = rowPetugas;
+    }
+    // update total consumption display element
+    const totalDiv = document.getElementById('totalConsumption');
+    if (totalDiv) {
+        totalDiv.textContent = `Total Konsumsi Bulan Ini: ${totalConsumption.toFixed(2)} m³`;
+    }
+    // attach listeners to inputs for dynamic updates
+    tbody.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('input', handleSheetInputChange);
+    });
+}
+/**
+ * Export the current meter sheet to an Excel file.
+ */
+function exportSheetToExcel() {
+    // build export array from currentSheetGrid if available
+    if (!window.currentSheetGrid) {
+        showNotification('Data sheet belum tersedia untuk diexport.');
+        return;
+    }
+    const grid = window.currentSheetGrid;
+    const block = document.getElementById('sheetBlockSelect')?.value || 'Data';
+    const monthValue = document.getElementById('sheetMonthSelect')?.value || 'Bulan';
+    const locations = blockLocations[block] || [];
+    // header row
+    const exportData = [];
+    const headerRow = ['Tanggal'];
+    // For each location, include Meter, Pemakaian and Akumulasi columns
+    locations.forEach(loc => {
+        headerRow.push(`${loc} Meter`);
+        headerRow.push(`${loc} Pemakaian`);
+        headerRow.push(`${loc} Akumulasi`);
+    });
+    // Append Status and Petugas columns
+    headerRow.push('Status');
+    headerRow.push('Petugas');
+    exportData.push(headerRow);
+    // sort dates ascending
+    const dateKeys = Object.keys(grid).sort((a,b) => {
+        const [da, ma, ya] = a.split('/').map(n => parseInt(n));
+        const [db, mb, yb] = b.split('/').map(n => parseInt(n));
+        return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
+    });
+    // compute previous reading and accumulation maps
+    const prevMap = {};
+    const accumMap = {};
+    dateKeys.forEach(dateStr => {
+        const rowObj = grid[dateStr];
+        const row = [dateStr];
+        let rowStatus = 'OK';
+        let rowPetugas = '';
+        locations.forEach(loc => {
+            const cell = rowObj[loc] || { reading: null };
+            const reading = cell.reading;
+            let actual = null;
+            if (reading !== null && reading !== undefined) {
+                if (prevMap[loc] !== undefined && prevMap[loc] !== null) {
+                    const diff = reading - prevMap[loc];
+                    actual = Number.isFinite(diff) ? parseFloat(diff.toFixed(2)) : null;
+                    if (actual !== null) {
+                        accumMap[loc] = (accumMap[loc] || 0) + actual;
+                    }
+                }
+                prevMap[loc] = reading;
+            } else {
+                rowStatus = 'Pending';
+            }
+            // row petugas: take first available
+            if (!rowPetugas && cell.petugas) {
+                rowPetugas = cell.petugas;
+            }
+            row.push(reading !== null && reading !== undefined ? reading : '-');
+            row.push(actual !== null ? actual.toFixed(2) : '-');
+            const accumVal = accumMap[loc];
+            row.push(accumVal !== undefined && accumVal !== null ? accumVal.toFixed(2) : '-');
+        });
+        if (!rowPetugas) {
+            rowPetugas = currentUserName || '';
+        }
+        row.push(rowStatus);
+        row.push(rowPetugas || '-');
+        exportData.push(row);
+    });
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(exportData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet');
+    const fileName = `Meter_Sheet_${block}_${monthValue}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+}
+
+/**
+ * Handle input changes on the interactive meter sheet. Updates the in-memory grid and recalculates
+ * actual usage per location across all dates whenever a reading is modified.
+ * @param {Event} event
+ */
+function handleSheetInputChange(event) {
+    const input = event.target;
+    const dateStr = input.dataset.date;
+    const loc = input.dataset.location;
+    if (!window.currentSheetGrid || !window.currentSheetGrid[dateStr] || !window.currentSheetGrid[dateStr][loc]) return;
+    // Mark sheet as having unsaved changes
+    window.unsavedSheetChanges = true;
+    let value = parseFloat(input.value);
+    if (!Number.isFinite(value)) value = null;
+    // update the grid reading value
+    window.currentSheetGrid[dateStr][loc].reading = value;
+    // recalculate actual and accumulation values for this location across all dates
+    const dates = Object.keys(window.currentSheetGrid).sort((a,b) => {
+        const [da, ma, ya] = a.split('/').map(n => parseInt(n));
+        const [db, mb, yb] = b.split('/').map(n => parseInt(n));
+        return new Date(ya, ma - 1, da) - new Date(yb, mb - 1, db);
+    });
+    let prev = null;
+    let accum = 0;
+    dates.forEach(d => {
+        const cell = window.currentSheetGrid[d][loc];
+        const readingVal = cell && (cell.reading !== undefined ? cell.reading : null);
+        let actualVal = null;
+        if (readingVal !== null && readingVal !== undefined) {
+            if (prev !== null && prev !== undefined) {
+                const diff = readingVal - prev;
+                actualVal = Number.isFinite(diff) ? parseFloat(diff.toFixed(2)) : null;
+                if (actualVal !== null) {
+                    accum += actualVal;
+                }
+            }
+            prev = readingVal;
+        }
+        const actualCell = document.querySelector(`.actual-cell[data-date="${d}"][data-location="${loc}"]`);
+        if (actualCell) {
+            actualCell.textContent = actualVal !== null ? actualVal.toFixed(2) : '-';
+        }
+        const accumCell = document.querySelector(`.accum-cell[data-date="${d}"][data-location="${loc}"]`);
+        if (accumCell) {
+            // show running total if accum > 0 or actualVal is not null; otherwise preserve previous displayed value
+            if ((actualVal !== null && !isNaN(accum)) || accum > 0) {
+                accumCell.textContent = accum.toFixed(2);
+            } else if (accum === 0 && actualVal === null) {
+                // if there is no reading yet, clear accumulation display
+                accumCell.textContent = '-';
+            }
+        }
+    });
+    // update row status and petugas for each date
+    dates.forEach(d => {
+        const rowObj = window.currentSheetGrid[d];
+        let status = 'OK';
+        let petugasVal = '';
+        Object.keys(rowObj).forEach(l => {
+            const cell = rowObj[l];
+            if (cell.reading === null || cell.reading === undefined) {
+                status = 'Pending';
+            }
+            if (!petugasVal && cell.petugas) {
+                petugasVal = cell.petugas;
+            }
+        });
+        if (!petugasVal) {
+            petugasVal = currentUserName || '';
+        }
+        const statusCell = document.querySelector(`.status-cell[data-date="${d}"]`);
+        const petugasCell = document.querySelector(`.petugas-cell[data-date="${d}"]`);
+        if (statusCell) {
+            statusCell.textContent = status;
+        }
+        if (petugasCell) {
+            petugasCell.textContent = petugasVal || '-';
+        }
+    });
+    // recalculate total consumption across all locations and dates
+    let total = 0;
+    document.querySelectorAll('.actual-cell').forEach(cell => {
+        const val = parseFloat(cell.textContent);
+        if (!isNaN(val)) {
+            total += val;
+        }
+    });
+    const totalDiv = document.getElementById('totalConsumption');
+    if (totalDiv) {
+        totalDiv.textContent = `Total Konsumsi Bulan Ini: ${total.toFixed(2)} m³`;
+    }
+}
+
+/**
+ * Persist the current interactive meter sheet to Firestore. For each date/location with a reading
+ * value, either updates the existing document (if docId is present) or creates a new document.
+ */
+async function saveSheetToFirestore() {
+    if (!window.currentSheetGrid) {
+        showNotification('Tidak ada data untuk disimpan.');
+        return;
+    }
+    const block = document.getElementById('sheetBlockSelect')?.value || '';
+    if (!block) {
+        showNotification('Pilih blok sebelum menyimpan sheet.');
+        return;
+    }
+    try {
+        for (const dateStr of Object.keys(window.currentSheetGrid)) {
+            const row = window.currentSheetGrid[dateStr];
+            for (const loc of Object.keys(row)) {
+                const { reading, docId } = row[loc];
+                if (reading === null || reading === undefined) continue;
+                // Firestore expects date in dd/mm/yyyy format, already provided
+                const parts = dateStr.split('/');
+                let docDate = dateStr;
+                // build a dummy time for newly created docs
+                const timeStr = '00:00:00';
+                if (docId) {
+                    // update existing document
+                    await updateDoc(doc(db, 'meters', docId), {
+                        meterReading: reading,
+                        block: block,
+                        location: loc,
+                        // keep original date/time
+                        updatedAt: serverTimestamp()
+                    });
+                } else {
+                    // add new document
+                    await addDoc(collection(db, 'meters'), {
+                        nik: currentNIK || '',
+                        name: currentUserName || '',
+                        date: docDate,
+                        time: timeStr,
+                        block: block,
+                        location: loc,
+                        meterReading: reading,
+                        notes: '',
+                        createdAt: serverTimestamp()
+                    });
+                }
+            }
+        }
+        showNotification('Sheet berhasil disimpan!', true);
+        // reset unsaved changes flag since data has been persisted
+        window.unsavedSheetChanges = false;
+        // reload sheet to reflect any updated order of docs
+        await loadMeterSheet();
+    } catch (error) {
+        console.error('Gagal menyimpan sheet:', error);
+        showNotification('Gagal menyimpan sheet: ' + error.message);
+    }
+}
+/**
+ * Set up PDF import for the meter sheet. Parses the PDF text and stores it in Firestore.
+ */
+/**
+ * Set up export of the meter sheet to PDF. When the export button is clicked, the
+ * current sheet table is rendered to a canvas and saved as a PDF file. Requires
+ * html2canvas and jsPDF libraries loaded in the page.
+ */
+function setupPdfExport() {
+    const exportBtn = document.getElementById('sheetExportPdfButton');
+    if (!exportBtn) return;
+    exportBtn.addEventListener('click', async () => {
+        // ensure there is sheet data loaded
+        if (!window.currentSheetGrid) {
+            showNotification('Data sheet belum tersedia untuk diekspor.');
+            return;
+        }
+        const table = document.getElementById('sheetTable');
+        if (!table) {
+            showNotification('Tidak ada tabel untuk diekspor.');
+            return;
+        }
+        try {
+            const canvas = await html2canvas(table, { backgroundColor: null });
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            // orientation landscape to better fit wide tables
+            const pdf = new jsPDF('l', 'pt', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            // calculate dimensions maintaining aspect ratio
+            const imgWidth = pageWidth - 20;
+            const imgHeight = canvas.height * (imgWidth / canvas.width);
+            pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+            const block = document.getElementById('sheetBlockSelect')?.value || 'Data';
+            const monthValue = document.getElementById('sheetMonthSelect')?.value || 'Bulan';
+            const fileName = `Meter_Sheet_${block}_${monthValue}.pdf`;
+            pdf.save(fileName);
+        } catch (err) {
+            console.error('Gagal mengekspor PDF:', err);
+            showNotification('Gagal mengekspor PDF: ' + err.message);
+        }
+    });
+}
+// Attach events for meter sheet controls after DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    // initialise unsaved changes flag
+    window.unsavedSheetChanges = false;
+    // Populate the hidden block select and create the visible block tabs
+    populateSheetBlockSelect();
+    // Set the period picker to the current month on load
+    const monthInput = document.getElementById('sheetMonthSelect');
+    if (monthInput) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        monthInput.value = `${year}-${month}`;
+        // When the period changes, reload the sheet automatically
+        monthInput.addEventListener('change', () => {
+            loadMeterSheet();
+        });
+    }
+    // Select the first available block by default and rebuild the tabs to mark it active
+    const blockSelect = document.getElementById('sheetBlockSelect');
+    if (blockSelect && blockSelect.options.length > 0) {
+        blockSelect.value = blockSelect.options[0].value;
+        if (typeof populateBlockTabs === 'function') {
+            populateBlockTabs();
+        }
+    }
+    // Attach save handler; export to PDF is configured in setupPdfExport
+    const saveBtn = document.getElementById('sheetSaveButton');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveSheetToFirestore);
+    }
+    // Set up PDF export for the meter sheet
+    setupPdfExport();
+    // Load the meter sheet immediately using the default block and month
+    loadMeterSheet();
+});
+// ==================== End Meter Excel-style Sheet Functions ====================
 </script>
 </body>
 </html>
