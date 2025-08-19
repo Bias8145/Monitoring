@@ -259,6 +259,42 @@ body.dark-theme .nav-item:hover {
     color: white;
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
+
+/*
+ * Custom file input labels for capturing and uploading damage photos.  The
+ * underlying <input type="file"> elements are hidden, and these labels
+ * provide a stylised interface with FontAwesome icons.  The styles
+ * differentiate between light and dark themes and include hover effects.
+ */
+.file-input-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 13px;
+    transition: background 0.3s ease, color 0.3s ease;
+    border: 2px dashed rgba(0, 0, 0, 0.2);
+}
+.file-input-label i {
+    font-size: 16px;
+}
+body.light-theme .file-input-label {
+    background: rgba(245, 245, 245, 0.9);
+    color: #333;
+    border-color: rgba(0, 0, 0, 0.15);
+}
+body.dark-theme .file-input-label {
+    background: rgba(60, 60, 80, 0.9);
+    color: #e0e0e0;
+    border-color: rgba(255, 255, 255, 0.2);
+}
+.file-input-label:hover {
+    background: rgba(76, 175, 80, 0.15);
+}
 .btn {
     width: 100%;
     padding: 14px;
@@ -369,6 +405,24 @@ td button.edit-btn:hover {
 td button.edit-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+/* Custom styles for damage report action buttons */
+td button.preview-btn {
+    background: #03A9F4;
+    color: white;
+}
+td button.preview-btn:hover {
+    background: #0288D1;
+    box-shadow: 0 4px 12px rgba(3, 169, 244, 0.4);
+}
+td button.edit-damage-btn {
+    background: #FFC107;
+    color: #333;
+}
+td button.edit-damage-btn:hover {
+    background: #FFB300;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
 }
 
 /* === Custom styles for meter block tabs === */
@@ -2232,6 +2286,14 @@ body.light-theme .data-management-toggle {
     </div>
     <div class="modal-content" id="modalContent"></div>
 </div>
+<!-- Modal for displaying detailed damage report and photo evidence -->
+<div id="damageDetailModal" class="modal">
+    <div class="modal-header">
+        <h2>Detail Kerusakan</h2>
+        <button class="modal-close" id="damageDetailClose">&times;</button>
+    </div>
+    <div class="modal-content" id="damageDetailContent"></div>
+</div>
 <div id="notification" class="notification"></div>
     <div id="meterPage" class="container" style="display: none;">
         <div class="header">
@@ -2366,6 +2428,34 @@ body.light-theme .data-management-toggle {
                 <div class="form-group">
                     <textarea id="damageNotes" placeholder="Catatan"></textarea>
                 </div>
+                <!-- Photo capture and upload inputs for damage evidence -->
+                <!--
+                    We hide the native file inputs and replace them with custom labels that include
+                    icons from FontAwesome.  This improves the visual appearance of the capture
+                    (camera) and upload buttons while still retaining full functionality.  The
+                    `for` attribute on the labels links them to the hidden inputs so a click on
+                    the label triggers the file picker or camera.  The IDs of the inputs remain
+                    unchanged so that existing JavaScript event listeners continue to work.
+                -->
+                <div class="form-group">
+                    <!-- Hidden input for taking a photo using the device camera -->
+                    <input type="file" id="damagePhoto" accept="image/*" capture="environment" style="display: none;">
+                    <!-- Custom label that acts like a button -->
+                    <label for="damagePhoto" class="file-input-label" data-default-text="Ambil Foto Kerusakan">
+                        <i class="fa fa-camera"></i>
+                        <span>Ambil Foto Kerusakan</span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <!-- Hidden input for uploading a photo from the device storage -->
+                    <input type="file" id="damageUpload" accept="image/*" style="display: none;">
+                    <!-- Custom label that acts like a button -->
+                    <label for="damageUpload" class="file-input-label" data-default-text="Unggah Foto Kerusakan">
+                    <i class="fa fa-upload"></i>
+                    <span>Unggah Foto Kerusakan</span>
+                    </label>
+                </div>
+                <div id="damageImagePreview" style="margin-top: 10px; text-align: center;"></div>
                 <button type="submit" class="btn" id="saveDamageButton">Simpan Laporan</button>
             </form>
         </div>
@@ -2392,7 +2482,7 @@ body.light-theme .data-management-toggle {
                             <th>Lokasi</th>
                             <th>Spesifik</th>
                             <th>Catatan</th>
-                            <th>Share</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="damageReportBody"></tbody>
@@ -2526,6 +2616,7 @@ body.light-theme .data-management-toggle {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getMessaging, onMessage, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 const firebaseConfig = {
     apiKey: "AIzaSyBPmuyBT8tTr5V0yZJNbjHHLz_-iY2djpo",
     authDomain: "water-checklist.firebaseapp.com",
@@ -2536,6 +2627,8 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+// Initialize Firebase Storage for uploading and retrieving images
+const storage = getStorage(app);
 if ('serviceWorker' in navigator) {
     const swCode = `
         importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
@@ -3098,7 +3191,10 @@ function login() {
             modalOverlay.style.display = 'block';
         }
         function closeModal() {
+            // Hide both checklist and damage detail modals when overlay is clicked
             document.getElementById('detailModal').style.display = 'none';
+            const dmgModal = document.getElementById('damageDetailModal');
+            if (dmgModal) dmgModal.style.display = 'none';
             document.getElementById('modalOverlay').style.display = 'none';
         }
         function shareChecklist(data) {
@@ -3161,24 +3257,77 @@ async function saveDamage(event) {
     event.preventDefault();
     const saveButton = document.getElementById('saveDamageButton');
     saveButton.classList.add('loading');
-    const now = new Date();
-    const data = {
-        nik: currentNIK,
-        name: currentUserName,
-        date: now.toLocaleDateString('id-ID'),
-        time: now.toLocaleTimeString('id-ID'),
-        damageType: document.getElementById('damageType').value,
-        block: document.getElementById('damageBlock').value,
-        location: document.getElementById('damageLocation').value,
-        specific: document.getElementById('damageSpecific').value,
-        notes: document.getElementById('damageNotes').value || '',
-        createdAt: serverTimestamp()
-    };
     try {
-        console.log('Menyimpan data kerusakan:', data);
-        await addDoc(collection(db, 'damages'), data);
-        showNotification('Laporan kerusakan berhasil disimpan!', true);
+        // Determine if we are editing an existing report or creating a new one
+        const editId = saveButton.dataset.editId;
+        // Get selected files from both capture and upload inputs
+        const captureFile = document.getElementById('damagePhoto').files[0];
+        const uploadFile = document.getElementById('damageUpload').files[0];
+        // Prefer the uploaded file if present; otherwise use the captured image
+        const originalFile = uploadFile || captureFile;
+        // Validate the file type. Only image files are allowed for upload. If the
+        // provided file is not an image or no file is selected, `file` remains null.
+        // For now, we skip compression and use the original file directly. Compression
+        // can introduce errors for certain image formats and is unnecessary during
+        // initial testing. If compression is desired later, it can be re-enabled.
+        let file = null;
+        if (originalFile && originalFile.type && originalFile.type.startsWith('image/')) {
+            file = originalFile;
+        }
+        if (editId) {
+            // Editing existing report
+            const docRef = doc(db, 'damages', editId);
+            const updateData = {
+                damageType: document.getElementById('damageType').value,
+                block: document.getElementById('damageBlock').value,
+                location: document.getElementById('damageLocation').value,
+                specific: document.getElementById('damageSpecific').value,
+                notes: document.getElementById('damageNotes').value || ''
+            };
+            console.log('Memperbarui data kerusakan:', updateData);
+            await updateDoc(docRef, updateData);
+            // If a new file is selected, upload it and update photoUrl
+            if (file) {
+                // Use the compressed file name to avoid storing large files
+                const storageRef = ref(storage, `damageImages/${editId}/${file.name}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+                await updateDoc(docRef, { photoUrl: downloadURL });
+            }
+            showNotification('Laporan kerusakan berhasil diperbarui!', true);
+        } else {
+            // Creating new report
+            const now = new Date();
+            const newData = {
+                nik: currentNIK,
+                name: currentUserName,
+                date: now.toLocaleDateString('id-ID'),
+                time: now.toLocaleTimeString('id-ID'),
+                damageType: document.getElementById('damageType').value,
+                block: document.getElementById('damageBlock').value,
+                location: document.getElementById('damageLocation').value,
+                specific: document.getElementById('damageSpecific').value,
+                notes: document.getElementById('damageNotes').value || '',
+                createdAt: serverTimestamp()
+            };
+            console.log('Menyimpan data kerusakan baru:', newData);
+            const docRef = await addDoc(collection(db, 'damages'), newData);
+            // Upload the photo if provided
+            if (file) {
+                const storageRef = ref(storage, `damageImages/${docRef.id}/${file.name}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+                await updateDoc(docRef, { photoUrl: downloadURL });
+            }
+            showNotification('Laporan kerusakan berhasil disimpan!', true);
+        }
+        // Reset form and preview
         document.getElementById('damageForm').reset();
+        document.getElementById('damageImagePreview').innerHTML = '';
+        // Remove any edit indicators and restore button text
+        delete saveButton.dataset.editId;
+        saveButton.textContent = 'Simpan Laporan';
+        // Refresh the list
         listenDamageReports(1);
     } catch (error) {
         console.error('Gagal menyimpan laporan kerusakan:', error);
@@ -3341,6 +3490,14 @@ async function listenDamageReports(page = 1) {
             } else {
                 damages.forEach(d => {
                     const row = document.createElement('tr');
+                    // Prepare the JSON string for data-detail, escape single quotes for HTML
+                    // Serialize the damage data to a JSON string and escape double quotes
+                    // for safe embedding into an HTML attribute. Double quotes are converted
+                    // to the HTML entity &quot; so that JSON can be stored in a data attribute
+                    // enclosed with double quotes without breaking the markup. Single quotes
+                    // remain untouched since they do not interfere with double-quoted
+                    // attributes.
+                    const detailStr = JSON.stringify(d).replace(/"/g, '&quot;');
                     row.innerHTML = `
                         <td>${d.date || '-'}</td>
                         <td>${d.damageType || '-'}</td>
@@ -3348,7 +3505,11 @@ async function listenDamageReports(page = 1) {
                         <td>${d.location || '-'}</td>
                         <td>${d.specific || '-'}</td>
                         <td>${d.notes || '-'}</td>
-                        <td><button class="whatsapp-btn" data-detail='${JSON.stringify(d).replace(/'/g, "&apos;")}'><i class="fab fa-whatsapp"></i> Share</button></td>
+                        <td style="white-space: nowrap; display:flex; gap:4px; justify-content:center;">
+                            <button class="preview-btn" data-detail="${detailStr}" title="Preview"><i class="fa fa-eye"></i></button>
+                            <button class="edit-damage-btn" data-detail="${detailStr}" title="Edit"><i class="fa fa-edit"></i></button>
+                            <button class="whatsapp-btn" data-detail="${detailStr}" title="Share"><i class="fab fa-whatsapp"></i></button>
+                        </td>
                     `;
                     reportBody.appendChild(row);
                 });
@@ -3414,6 +3575,146 @@ function populateLocations(selectId, block) {
     if (block && blockLocations[block]) {
         select.innerHTML += blockLocations[block].map(loc => `<option value="${loc}">${loc}</option>`).join('');
     }
+}
+
+// === Damage reporting utilities ===
+// Display the details of a damage report along with its photo evidence in a modal
+function showDamageDetail(data) {
+    const modal = document.getElementById('damageDetailModal');
+    const modalContent = document.getElementById('damageDetailContent');
+    const modalOverlay = document.getElementById('modalOverlay');
+    if (!modal || !modalContent) return;
+    // Construct list of report details
+    const detailList = `
+        <ul>
+            <li><strong>Tanggal:</strong> ${data.date || '-'}</li>
+            <li><strong>Jenis Kerusakan:</strong> ${data.damageType || '-'}</li>
+            <li><strong>Blok:</strong> ${data.block || '-'}</li>
+            <li><strong>Lokasi:</strong> ${data.location || '-'}</li>
+            <li><strong>Spesifik:</strong> ${data.specific || '-'}</li>
+            <li><strong>Catatan:</strong> ${data.notes || '-'}</li>
+        </ul>
+    `;
+    const imageHtml = data.photoUrl
+        ? `<div style="margin-top: 12px; text-align:center;"><img src="${data.photoUrl}" alt="Bukti Kerusakan" style="max-width: 100%; border-radius: 8px;" /></div>`
+        : `<p style="margin-top: 12px;"><em>Tidak ada foto bukti</em></p>`;
+    modalContent.innerHTML = detailList + imageHtml;
+    modal.style.display = 'block';
+    modalOverlay.style.display = 'block';
+}
+
+// Populate the damage form with existing data for editing
+function showDamageEditForm(damage) {
+    // Only allow editing if the current user created the report
+    if (damage.nik && damage.nik !== currentNIK) {
+        showNotification('Anda tidak memiliki izin untuk mengedit laporan ini.');
+        return;
+    }
+    // Set the form fields based on the damage data
+    document.getElementById('damageType').value = damage.damageType || '';
+    document.getElementById('damageBlock').value = damage.block || '';
+    // Ensure location options correspond to the selected block
+    populateLocations('damageLocation', damage.block);
+    document.getElementById('damageLocation').value = damage.location || '';
+    document.getElementById('damageSpecific').value = damage.specific || '';
+    document.getElementById('damageNotes').value = damage.notes || '';
+    // Show existing photo preview if available
+    const preview = document.getElementById('damageImagePreview');
+    if (damage.photoUrl) {
+        preview.innerHTML = `<img src="${damage.photoUrl}" alt="Foto Kerusakan" style="max-width: 100%; border-radius: 8px;" />`;
+    } else {
+        preview.innerHTML = '';
+    }
+    // Change save button text and set edit identifier
+    const saveBtn = document.getElementById('saveDamageButton');
+    saveBtn.textContent = 'Update Laporan';
+    saveBtn.dataset.editId = damage.id;
+    // Scroll the user to the damage form for editing
+    document.getElementById('damageForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Show a preview of the selected damage image (capture or upload)
+function updateDamageImagePreview(inputEl) {
+    const preview = document.getElementById('damageImagePreview');
+    const file = inputEl.files && inputEl.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview Foto" style="max-width: 100%; border-radius: 8px;" />`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
+    }
+}
+
+// Update the associated label text to reflect the selected file name.  If no
+// file is selected, it restores the label to its default text stored in
+// `data-default-text`.  This helper keeps the UI responsive when users
+// choose or remove files for upload or capture.
+function updateFileLabel(inputEl) {
+    const label = document.querySelector(`label[for="${inputEl.id}"]`);
+    if (!label) return;
+    const span = label.querySelector('span');
+    if (!span) return;
+    if (inputEl.files && inputEl.files.length > 0) {
+        span.textContent = inputEl.files[0].name;
+    } else {
+        span.textContent = label.dataset.defaultText || span.textContent;
+    }
+}
+
+// Compress an image file to reduce its size before uploading.
+// This function resizes the image to fit within a maximum width/height while
+// maintaining the aspect ratio and reduces the JPEG quality. If the provided
+// file is not an image, the original file is returned. The returned object
+// is a new File instance with a `.jpg` extension.
+async function compressImage(file, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+    // If there is no file or the file is not an image, return it unchanged
+    if (!file || !file.type || !file.type.startsWith('image/')) {
+        return file;
+    }
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            // Scale the image to fit within the specified dimensions while preserving aspect ratio
+            if (width > height) {
+                if (width > maxWidth) {
+                    height *= maxWidth / width;
+                    width = maxWidth;
+                }
+            } else {
+                if (height > maxHeight) {
+                    width *= maxHeight / height;
+                    height = maxHeight;
+                }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(width);
+            canvas.height = Math.round(height);
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    // Fallback to original file if compression fails
+                    resolve(file);
+                    return;
+                }
+                // Create a new File object with a .jpg extension to ensure JPEG format
+                const newFileName = file.name.replace(/\.[^.]+$/i, '') + '.jpg';
+                const compressedFile = new File([blob], newFileName, { type: 'image/jpeg' });
+                resolve(compressedFile);
+            }, 'image/jpeg', quality);
+        };
+        img.onerror = (err) => {
+            console.error('Error loading image for compression:', err);
+            resolve(file);
+        };
+        // Use URL.createObjectURL to load the image
+        img.src = URL.createObjectURL(file);
+    });
 }
 function hitungVolumeBak(tinggiCm, panjang, lebar, tinggiMax) {
     const tinggiM = tinggiCm / 100;
@@ -4299,19 +4600,49 @@ Catatan: ${data.notes || '-'}
         }
     });
     document.getElementById('damageReportBody').addEventListener('click', (e) => {
-        if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
-            const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
-            const message = `
-• Laporan Kerusakan
-• Tanggal: ${data.date || '-'}
-• Jenis Kerusakan: ${data.damageType || '-'}
-• Blok: ${data.block || '-'}
-• Lokasi: ${data.location || '-'}
-• Spesifik: ${data.specific || '-'}
-Catatan: ${data.notes || '-'}
-            `.trim();
+        // Determine the button that was clicked. If the target is an <i> icon or another
+        // element inside the button, traverse up to the nearest <button> ancestor. This
+        // ensures that clicks on nested elements (e.g. icons) still reference the correct
+        // button element.
+        const button = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
+        // Exit if no button was found or the button does not contain detail data.
+        if (!button || !button.dataset || !button.dataset.detail) {
+            return;
+        }
+        // Restore the original JSON string by converting the &quot; HTML entities back to
+        // double quotes. The damage data was serialized with double quotes replaced by
+        // &quot; to safely embed it in the markup. Here we reverse that substitution so
+        // JSON.parse can consume a valid JSON string.
+        let detailStr = button.dataset.detail.replace(/&quot;/g, '"');
+        let data;
+        try {
+            data = JSON.parse(detailStr);
+        } catch (err) {
+            console.error('Failed to parse damage detail JSON:', err, detailStr);
+            return;
+        }
+        // Determine the action based on the button's class. Each button in the
+        // damage report row has a distinct class indicating its purpose. Execute
+        // the corresponding handler and return early to avoid fall-through.
+        if (button.classList.contains('preview-btn')) {
+            showDamageDetail(data);
+            return;
+        }
+        if (button.classList.contains('edit-damage-btn')) {
+            showDamageEditForm(data);
+            return;
+        }
+        if (button.classList.contains('whatsapp-btn')) {
+            // Build a WhatsApp message with the damage report details. Include
+            // the photo URL if one is available. Newlines are escaped and the
+            // message is URL-encoded before opening WhatsApp.
+            let message = `\n• Laporan Kerusakan\n• Tanggal: ${data.date || '-'}\n• Jenis Kerusakan: ${data.damageType || '-'}\n• Blok: ${data.block || '-'}\n• Lokasi: ${data.location || '-'}\n• Spesifik: ${data.specific || '-'}\nCatatan: ${data.notes || '-'}`.trim();
+            if (data.photoUrl) {
+                message += `\nFoto: ${data.photoUrl}`;
+            }
             const encodedMessage = encodeURIComponent(message);
             window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+            return;
         }
     });
     // Populate filter dropdowns for legacy meter table only if the elements exist
@@ -4322,6 +4653,32 @@ Catatan: ${data.notes || '-'}
         populateMeterFilterDate();
     }
     populateDamageFilterBlock();
+    // Populate damage filter date options on load
+    populateDamageFilterDate();
+    // Attach change listeners to file inputs for image preview
+    const dmgPhotoInput = document.getElementById('damagePhoto');
+    if (dmgPhotoInput) {
+        dmgPhotoInput.addEventListener('change', function() {
+            // Preview the selected image and update the custom label
+            updateDamageImagePreview(this);
+            updateFileLabel(this);
+        });
+    }
+    const dmgUploadInput = document.getElementById('damageUpload');
+    if (dmgUploadInput) {
+        dmgUploadInput.addEventListener('change', function() {
+            updateDamageImagePreview(this);
+            updateFileLabel(this);
+        });
+    }
+    // Close button for damage detail modal
+    const dmgDetailCloseBtn = document.getElementById('damageDetailClose');
+    if (dmgDetailCloseBtn) {
+        dmgDetailCloseBtn.addEventListener('click', () => {
+            document.getElementById('damageDetailModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
+        });
+    }
     setInterval(updateTime, 1000);
 });
     function hitungStatus(ketinggian) {
