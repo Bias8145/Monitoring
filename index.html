@@ -123,20 +123,20 @@ body.dark-theme td {
     font-size: 12px;
 }
 body.light-theme .nav-bar {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* Apply soft green gradient for light theme nav bar and remove border */
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 body.dark-theme .nav-bar {
-    background: rgba(30, 30, 46, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    /* Apply dark blue gradient for dark theme nav bar and remove border */
+    background: linear-gradient(135deg, #37474f, #263238);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
 }
 body.light-theme .nav-item {
-    color: #333;
+    color: #fff;
 }
 body.dark-theme .nav-item {
-    color: #e0e0e0;
+    color: #fff;
 }
 body.light-theme .nav-item:hover {
     background: rgba(76, 175, 80, 0.1);
@@ -351,6 +351,7 @@ body.dark-theme .file-input-label {
 .table-container {
     max-height: 300px;
     overflow-y: auto;
+    overflow-x: auto; /* allow horizontal scrolling for wide tables */
     margin: 15px 0;
     border-radius: 12px;
     transform: perspective(1000px) translateZ(5px);
@@ -506,6 +507,43 @@ body.dark-theme #sheetTable th,
 body.dark-theme #sheetTable td {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/*
+ * Improve the meter sheet usability by freezing the header row and the first
+ * column.  Without sticky headers and columns, it’s easy to lose context when
+ * scrolling a wide table horizontally or vertically.  Setting `position:
+ * sticky` on `<th>` elements makes the header row stay at the top as the user
+ * scrolls down the table【430569600632284†L120-L126】, while making the first
+ * cell in each row sticky keeps the date column visible when scrolling
+ * horizontally【446093273901204†L159-L170】.  Different background colours and
+ * z‑index values ensure sticky cells sit above the rest of the table and do
+ * not bleed through other content【195241354059849†L49-L61】.
+ */
+#sheetTable th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    /* Use a subtle background so headers remain legible in both themes */
+    background: rgba(245, 245, 245, 0.95);
+}
+body.dark-theme #sheetTable th {
+    background: rgba(60, 60, 80, 0.95);
+}
+/* Make the top‑left cell (header for the date column) sit above other sticky
+ * elements by increasing its z‑index and anchoring it to the left */
+#sheetTable th:first-child {
+    left: 0;
+    z-index: 3;
+}
+#sheetTable td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: rgba(245, 245, 245, 0.95);
+}
+body.dark-theme #sheetTable td:first-child {
+    background: rgba(60, 60, 80, 0.95);
+}
 .filter-group {
     display: flex;
     gap: 10px;
@@ -564,6 +602,77 @@ body.dark-theme #sheetTable td {
 /* Hide the old "Tampilkan" button; the sheet loads automatically based on the selected period */
 #sheetLoadButton {
     display: none !important;
+}
+
+/* === Additional styles for the dedicated attendance page and button === */
+/* Attendance toggle button placed next to the theme toggle */
+.attendance-toggle {
+    position: absolute;
+    top: 20px;
+    left: 72px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 16px;
+    background: rgba(224, 224, 224, 0.1);
+    color: #4CAF50;
+    z-index: 9999; /* ensure it appears above other elements */
+    /* When testing, we applied a visible border; remove for final version */
+    border: none;
+}
+.attendance-toggle:hover {
+    background: rgba(224, 224, 224, 0.15);
+    transform: translateY(-1px);
+}
+body.light-theme .attendance-toggle {
+    background: rgba(100, 100, 100, 0.1);
+}
+@media (max-width: 600px) {
+    .attendance-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+        left: 66px;
+        top: 20px;
+    }
+}
+/* Staff list styles */
+.staff-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.staff-list li {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+}
+body.light-theme .staff-list li {
+    background: rgba(76, 175, 80, 0.1);
+    color: #333;
+}
+body.dark-theme .staff-list li {
+    background: rgba(60, 60, 80, 0.8);
+    color: #e0e0e0;
+}
+/* Freeze the second header row in the meter sheet so column labels stay visible while scrolling */
+#sheetTable thead tr:nth-child(1) th {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+}
+#sheetTable thead tr:nth-child(2) th {
+    position: sticky;
+    top: 32px; /* approximate height of the first header row */
+    z-index: 3;
 }
 .login-container {
     max-width: 400px;
@@ -699,36 +808,37 @@ body.light-theme .input-icon {
     width: 90%;
     display: flex;
     justify-content: space-around;
-    padding: 12px 16px;
-    border-radius: 16px;
+    padding: 14px 20px;
+    border-radius: 20px;
     z-index: 1000;
     transition: all 0.3s ease;
-    backdrop-filter: blur(12px);
+    /* unify nav bar style; gradient and shadow will be set per theme */
+    color: #fff;
 }
 .nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    padding: 8px 12px;
-    font-size: 10px;
+    padding: 10px 14px;
+    font-size: 11px;
     transition: all 0.3s ease;
     border-radius: 12px;
     position: relative;
 }
 .nav-item i {
-    font-size: 18px;
+    font-size: 20px;
     margin-bottom: 4px;
     transition: transform 0.3s ease;
 }
 .nav-item span {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 500;
 }
 .nav-item.active {
-    background: #4CAF50;
-    color: white;
-    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4);
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
 }
 .nav-item:hover i {
     transform: translateY(-2px) rotate(5deg);
@@ -1911,12 +2021,250 @@ body.light-theme .data-management-toggle {
         transform: translateY(-3px);
     }
 }
+
+/* ===== CUSTOM MODIFICATIONS BY ASSISTANT ===== */
+
+/* Hide damage page and related UI components */
+[data-page="damagePage"],
+#damagePage,
+#damageDetailModal {
+    display: none !important;
+}
+
+/* Improve navigation bar readability in light theme */
+body.light-theme .nav-item {
+    color: #2e7d32;
+}
+body.light-theme .nav-item.active {
+    background: rgba(76, 175, 80, 0.3);
+    color: #2e7d32;
+}
+
+/* Enhance pagination button appearance */
+.pagination button {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #4CAF50, #81C784);
+    color: white;
+    font-size: 13px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+.pagination button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.pagination button:disabled {
+    background: #ccc;
+    color: #888;
+}
+
+/* Make education tables scrollable with fixed height */
+#educationContent table {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    max-height: 400px;
+    overflow: auto;
+}
+#educationContent th,
+#educationContent td {
+    white-space: nowrap;
+}
+
+/* Enhance dashboard (main page) cards for a more polished look */
+#mainPage .card {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+body.dark-theme #mainPage .card {
+    background: rgba(40, 40, 60, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Emphasize shift information on dashboard */
+.shift-info {
+    font-size: 14px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #4CAF50;
+}
+body.dark-theme .shift-info {
+    color: #A5D6A7;
+}
+
+/* Style switch type buttons to be more visually appealing */
+.switch-type .switch-btn {
+    background: rgba(76, 175, 80, 0.05);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.switch-type .switch-btn:hover {
+    background: rgba(76, 175, 80, 0.1);
+}
+.switch-type .switch-btn.active {
+    background: #4CAF50;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.4);
+}
+
+/* -------------------------------------------------------------
+   Custom overrides and enhancements
+   These rules refine the appearance of the navigation bar, pagination
+   buttons and attendance dashboard.  They are appended near the end
+   of the stylesheet to ensure they override earlier definitions.  */
+/* Light theme navigation tweaks */
+/* Light theme navigation bar background */
+body.light-theme .nav-bar {
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+body.light-theme .nav-item {
+    color: #4CAF50;
+}
+body.light-theme .nav-item i {
+    color: inherit;
+}
+body.light-theme .nav-item.active {
+    background: #4CAF50;
+    color: #ffffff;
+}
+body.light-theme .nav-item.active i,
+body.light-theme .nav-item.active span {
+    color: #ffffff;
+}
+
+/* Minimalist pagination controls */
+.pagination button {
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: none;
+    border: 1px solid #4CAF50;
+    color: #4CAF50;
+    font-size: 13px;
+    box-shadow: none;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+.pagination button:hover:not(:disabled) {
+    background: #4CAF50;
+    color: #ffffff;
+}
+.pagination button:disabled {
+    background: #e0e0e0;
+    color: #999999;
+    border-color: #e0e0e0;
+}
+
+/* Attendance input redesign */
+.attendance-inputs {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 12px;
+}
+.attendance-input-card {
+    flex: 1;
+    background: rgba(76, 175, 80, 0.05);
+    border: 1px solid rgba(76, 175, 80, 0.2);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.attendance-input-card i {
+    font-size: 20px;
+    color: #4CAF50;
+    margin-bottom: 8px;
+}
+.attendance-input-card input {
+    width: 60px;
+    font-size: 16px;
+    padding: 4px;
+    text-align: center;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    margin-bottom: 4px;
+    color: inherit;
+}
+.attendance-input-card span {
+    font-size: 12px;
+    color: #555555;
+}
+body.dark-theme .attendance-input-card {
+    background: rgba(40, 40, 60, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .attendance-input-card i {
+    color: #A5D6A7;
+}
+body.dark-theme .attendance-input-card input {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+body.dark-theme .attendance-input-card span {
+    color: #cccccc;
+}
+
+/* Attendance summary card styles */
+.attendance-summary-card {
+    text-align: center;
+}
+.progress-container {
+    width: 100%;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 8px;
+    /* Increase the bar height slightly for better visibility on mobile */
+    height: 14px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+# Custom class for the attendance Lottie animation. By making the width a
+# percentage of its parent container and restricting the maximum width,
+# the animation scales gracefully across screen sizes. The height is
+# defined to keep a consistent aspect ratio.
+.attendance-anim {
+    width: 100%;
+    max-width: 360px;
+    height: 200px;
+    margin: 0 auto 32px auto;
+}
+
+/* Small tag used to display the NIK next to a staff member's name. It uses
+   reduced font size and opacity to avoid overwhelming the primary name. */
+.nik-tag {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-left: 6px;
+}
+#progressText {
+    /* Display the legend as a horizontal flex row so each legend item
+       (colour swatch + label) sits neatly next to each other.  We also
+       nudge the margin to give breathing room above the bar. */
+    font-size: 13px;
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 500;
+}
 </style>
 </head>
 <body class="light-theme">
     <div class="theme-toggle" id="themeToggle">
         <i id="themeIcon" class="fas fa-sun"></i>
     </div>
+    <!-- Attendance toggle removed: dashboard can now be accessed via the navigation bar -->
     <div class="data-management-toggle" id="dataManagementToggle" style="display: none !important;">
         <i class="fas fa-trash-alt"></i>
     </div>
@@ -1925,18 +2273,17 @@ body.light-theme .data-management-toggle {
     <div class="loading-text">Memproses...</div>
 </div>
     <nav class="nav-bar" id="navBar" style="display: none;">
+        <!-- New nav item for dashboard (attendance page) placed on the far left -->
+        <div class="nav-item" data-page="attendancePage" data-tooltip="Kehadiran">
+            <i class="fas fa-user-check"></i>
+            <span>Dashboard</span>
+        </div>
         <div class="nav-item active" data-page="mainPage" data-tooltip="Checklist">
             <i class="fas fa-list-check"></i>
             <span>Checklist</span>
         </div>
-        <div class="nav-item" data-page="meterPage" data-tooltip="Meter Lapangan">
-            <i class="fas fa-tachometer-alt"></i>
-            <span>Meter Lapangan</span>
-        </div>
-        <div class="nav-item" data-page="damagePage" data-tooltip="Kerusakan">
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>Kerusakan</span>
-        </div>
+        <!-- Nav item for Meter Lapangan removed as per updated requirements -->
+        <!-- Kerusakan navigation item removed as damage reporting is no longer part of the system -->
         <div class="nav-item" data-page="estimationPage" data-tooltip="Estimasi">
             <i class="fas fa-chart-line"></i>
             <span>Estimasi</span>
@@ -1981,15 +2328,7 @@ body.light-theme .data-management-toggle {
                     Pencatatan pembacaan meter air semua blok dengan perhitungan konsumsi aktual otomatis
                 </p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <h3 class="feature-title">Laporan Kerusakan</h3>
-                <p class="feature-description">
-                    Pelaporan kebocoran, kerusakan pipa, dan masalah pompa dengan lokasi spesifik dan kategori
-                </p>
-            </div>
+            <!-- Removed the 'Laporan Kerusakan' feature card to hide damage reporting from the landing page -->
             <div class="feature-card">
                 <div class="feature-icon">
                     <i class="fas fa-chart-line"></i>
@@ -2046,15 +2385,7 @@ body.light-theme .data-management-toggle {
                 <li>Tambahkan catatan jika diperlukan</li>
             </ul>
         </div>
-        <div class="guide-section">
-            <h3><i class="fas fa-exclamation-triangle" style="margin-right: 6px;"></i>Laporan Kerusakan</h3>
-            <p>Pelaporan masalah dan kerusakan sistem:</p>
-            <ul>
-                <li>Pilih jenis kerusakan: Kebocoran, Kerusakan Pipa, Pompa Mati, atau Lainnya</li>
-                <li>Tentukan blok dan lokasi spesifik kejadian</li>
-                <li>Deskripsikan detail kerusakan dan catatan perbaikan</li>
-            </ul>
-        </div>
+        <!-- Removed 'Laporan Kerusakan' guide section as damage reporting is not part of the system anymore -->
         <div class="guide-section">
             <h3><i class="fas fa-chart-line" style="margin-right: 6px;"></i>Estimasi Konsumsi</h3>
             <p>Perhitungan proyeksi pemakaian air:</p>
@@ -2127,12 +2458,66 @@ body.light-theme .data-management-toggle {
         </div>
     </div>
 </div>
+<!-- Attendance Page: newly added dedicated page for the attendance dashboard -->
+<div id="attendancePage" class="container" style="display:none;">
+    <div class="header">
+        <!-- Use a CSS class for the attendance animation so the size can
+             responsively follow the container width. This makes it easier
+             to adjust the Lottie animation on different devices without
+             hard‑coding a fixed pixel size. -->
+        <div id="attendanceAnim" class="attendance-anim"></div>
+        <div class="greeting" id="attendanceGreeting">Selamat Pagi, User!</div>
+        <h1>Dashboard Kehadiran</h1>
+        <div class="subtitle">Pantau Kedisiplinan</div>
+    </div>
+    <!-- Summary card showing progress of lateness and early departures -->
+    <div class="card attendance-summary-card">
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Ringkasan Kehadiran</h2>
+        <div class="progress-container">
+            <div id="attendanceProgressBar" class="progress-bar"></div>
+        </div>
+        <div id="progressText">Belum ada data keterlambatan.</div>
+    </div>
+    <!-- Staff list card -->
+    <div class="card">
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Daftar Staf</h2>
+        <ul id="staffList" class="staff-list"></ul>
+    </div>
+    <!-- Attendance input card redesigned -->
+    <div class="card">
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Input Kehadiran</h2>
+        <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Masukkan jumlah keterlambatan dan pulang cepat Anda bulan ini (maksimal total 5 kali).</p>
+        <div class="attendance-inputs">
+            <div class="attendance-input-card">
+                <i class="fas fa-clock"></i>
+                <input type="number" id="lateInput" min="0" max="5" value="0">
+                <span>Telat</span>
+            </div>
+            <div class="attendance-input-card">
+                <i class="fas fa-forward"></i>
+                <input type="number" id="earlyInput" min="0" max="5" value="0">
+                <span>Pulang Cepat</span>
+            </div>
+        </div>
+        <div id="attendanceSummary" style="font-size: 13px; margin-top: 6px; font-weight: 500;"></div>
+    </div>
+</div>
 <div id="mainPage" class="container page-fade" style="display:none;">
     <div class="header">
         <div id="anim1" style="width:400px;height:200px;margin:auto;margin-bottom:32px;"></div>
         <div class="greeting" id="greeting">Selamat Pagi, User!</div>
         <h1>Checklist Sistem Air</h1>
         <div class="subtitle">Monitoring & Pemeliharaan</div>
+
+        <!-- Dashboard Kehadiran
+             Menambahkan sebuah kartu ringkas di halaman utama untuk memantau
+             keterlambatan (telat) dan pulang cepat.  Dashboard ini
+             menggunakan input angka dengan batas maksimum 5 untuk masing‑masing
+             kategori, dan menampilkan total kumulatif.  Bila gabungan
+             keterlambatan dan pulang cepat mencapai 5 kali, akan muncul
+             peringatan agar pengguna tidak lalai.  Nilai disimpan di
+             localStorage sehingga bertahan antar kunjungan. -->
+        <!-- old attendance dashboard removed: moved to dedicated attendancePage -->
     </div>
     <div class="card">
         <div class="shift-info">
@@ -2287,13 +2672,7 @@ body.light-theme .data-management-toggle {
     <div class="modal-content" id="modalContent"></div>
 </div>
 <!-- Modal for displaying detailed damage report and photo evidence -->
-<div id="damageDetailModal" class="modal">
-    <div class="modal-header">
-        <h2>Detail Kerusakan</h2>
-        <button class="modal-close" id="damageDetailClose">&times;</button>
-    </div>
-    <div class="modal-content" id="damageDetailContent"></div>
-</div>
+<!-- Damage detail modal removed: damage reporting no longer available -->
 <div id="notification" class="notification"></div>
     <div id="meterPage" class="container" style="display: none;">
         <div class="header">
@@ -2383,114 +2762,7 @@ body.light-theme .data-management-toggle {
             </div>
         </div>
     </div>
-    <div id="damagePage" class="container" style="display: none;">
-        <div class="header">
-            <div id="anim4" style="width:300px;height:300px;margin:auto;"></div>
-            <div class="greeting" id="damageGreeting">Selamat Pagi, User!</div>
-            <h1>Laporan Kerusakan</h1>
-            <div class="subtitle">Pelaporan Kerusakan</div>
-        </div>
-        <div class="card">
-            <form id="damageForm">
-                <div class="form-group">
-                    <select id="damageType" required>
-                        <option value="">Pilih Jenis Kerusakan...</option>
-                        <option value="Kebocoran">Kebocoran</option>
-                        <option value="Kerusakan Pipa">Kerusakan Pipa</option>
-                        <option value="Pompa Mati">Pompa Mati</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="damageBlock" required>
-                        <option value="">Pilih Blok...</option>
-                        <option value="Induk">Induk</option>
-                        <option value="Blok A">Blok A</option>
-                        <option value="Blok B">Blok B</option>
-                        <option value="Blok C">Blok C</option>
-                        <option value="Blok D">Blok D</option>
-                        <option value="Blok E">Blok E</option>
-                        <option value="Blok F">Blok F</option>
-                        <option value="Blok G">Blok G</option>
-                        <option value="Blok H">Blok H</option>
-                        <option value="Blok P">Blok P</option>
-                        <option value="Blok J">Blok J</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <select id="damageLocation" required>
-                        <option value="">Pilih Lokasi...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="damageSpecific" placeholder="Spesifik Lokasi" required>
-                </div>
-                <div class="form-group">
-                    <textarea id="damageNotes" placeholder="Catatan"></textarea>
-                </div>
-                <!-- Photo capture and upload inputs for damage evidence -->
-                <!--
-                    We hide the native file inputs and replace them with custom labels that include
-                    icons from FontAwesome.  This improves the visual appearance of the capture
-                    (camera) and upload buttons while still retaining full functionality.  The
-                    `for` attribute on the labels links them to the hidden inputs so a click on
-                    the label triggers the file picker or camera.  The IDs of the inputs remain
-                    unchanged so that existing JavaScript event listeners continue to work.
-                -->
-                <div class="form-group">
-                    <!-- Hidden input for taking a photo using the device camera -->
-                    <input type="file" id="damagePhoto" accept="image/*" capture="environment" style="display: none;">
-                    <!-- Custom label that acts like a button -->
-                    <label for="damagePhoto" class="file-input-label" data-default-text="Ambil Foto Kerusakan">
-                        <i class="fa fa-camera"></i>
-                        <span>Ambil Foto Kerusakan</span>
-                    </label>
-                </div>
-                <div class="form-group">
-                    <!-- Hidden input for uploading a photo from the device storage -->
-                    <input type="file" id="damageUpload" accept="image/*" style="display: none;">
-                    <!-- Custom label that acts like a button -->
-                    <label for="damageUpload" class="file-input-label" data-default-text="Unggah Foto Kerusakan">
-                    <i class="fa fa-upload"></i>
-                    <span>Unggah Foto Kerusakan</span>
-                    </label>
-                </div>
-                <div id="damageImagePreview" style="margin-top: 10px; text-align: center;"></div>
-                <button type="submit" class="btn" id="saveDamageButton">Simpan Laporan</button>
-            </form>
-        </div>
-        <div class="card">
-            <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Laporan Kerusakan</h2>
-            <div class="filter-group">
-                <select id="damageFilterBlock">
-                    <option value="">Semua Blok</option>
-                </select>
-                <select id="damageFilterDate">
-                    <option value="">Semua Tanggal</option>
-                </select>
-            </div>
-            <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">
-    💡 Geser ke samping untuk mengakses seluruh kolom laporan
-</p>
-            <div class="table-container">
-                <table id="damageTable">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Jenis Kerusakan</th>
-                            <th>Blok</th>
-                            <th>Lokasi</th>
-                            <th>Spesifik</th>
-                            <th>Catatan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="damageReportBody"></tbody>
-                </table>
-            </div>
-            <div class="pagination" id="damagePagination"></div>
-        </div>
-    </div>
+    <!-- Damage reporting page removed as part of system simplification -->
 <div id="estimationPage" class="container" style="display: none; padding: 20px; padding-bottom: 100px;">
   <div class="header" style="margin-bottom: 20px;">
     <div id="anim5" style="width:300px;height:300px;margin:auto;"></div>
@@ -2598,7 +2870,7 @@ body.light-theme .data-management-toggle {
                     <option value="">Pilih Tipe Data...</option>
                     <option value="checklists">Checklist</option>
                     <option value="meters">Meter</option>
-                    <option value="damages">Kerusakan</option>
+                    <!-- Removed 'Kerusakan' option since damage data is no longer managed -->
                 </select>
             </div>
             <div class="form-group">
@@ -2814,7 +3086,8 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             localStorage.setItem('theme', newTheme);
         }
         function switchPage(pageId) {
-    document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #dataManagementPage')
+    // Hide all other known pages, including the attendance dashboard when switching via nav
+    document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #dataManagementPage, #attendancePage')
         .forEach(page => {
             page.style.display = 'none';
             page.classList.remove('page-transition');
@@ -2846,17 +3119,59 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             populateMeterFilterDate();
         }
     }
-    if (pageId === 'damagePage') {
-        listenDamageReports(1);
-        populateDamageFilterDate();
-    }
+    // Damage page functionality removed; no actions needed when pageId is 'damagePage'
 }
 function hideAllPages() {
-    const pages = ['loginPage', 'mainPage', 'meterPage', 'damagePage', 'estimationPage', 'educationPage', 'dataManagementPage'];
+    const pages = ['loginPage', 'mainPage', 'meterPage', 'damagePage', 'estimationPage', 'educationPage', 'dataManagementPage', 'attendancePage'];
     pages.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
+}
+
+// Display the dedicated attendance dashboard.  This function hides all other
+// pages, shows the nav bar, populates the staff list and updates the
+// greeting for the attendance page.  It also clears the active state of
+// any nav items since the attendance page is accessed via its own toggle.
+function showAttendancePage() {
+    hideAllPages();
+    const navBar = document.getElementById('navBar');
+    if (navBar) navBar.style.display = 'flex';
+    const page = document.getElementById('attendancePage');
+    if (page) {
+        page.style.display = 'block';
+        void page.offsetWidth;
+        page.classList.add('page-transition');
+    }
+    // Activate the dashboard nav item and deactivate others
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.page === 'attendancePage');
+    });
+    // Populate staff list and update greeting for the attendance page
+    populateStaffList();
+    updateGreeting();
+}
+
+// Populate the staff list on the attendance dashboard.  Uses the
+// predefined `users` array to list all registered staff members.
+function populateStaffList() {
+    const listEl = document.getElementById('staffList');
+    if (!listEl) return;
+    listEl.innerHTML = '';
+    if (Array.isArray(users)) {
+        users.forEach(u => {
+            const li = document.createElement('li');
+            /*
+             * Display both the staff member's name and their NIK. The name is
+             * rendered in a strong tag to emphasise it, while the NIK is
+             * rendered in a span with the `nik-tag` class so it appears
+             * secondary. This way users can easily identify employees by
+             * either field without cluttering the list.
+             */
+            li.innerHTML = `<strong>${u.name}</strong><span class="nik-tag">(${u.nik})</span>`;
+            listEl.appendChild(li);
+        });
+    }
 }
 function login() {
     const nikInput = document.getElementById('nikInput');
@@ -2878,18 +3193,19 @@ function login() {
                 nikInput.value = '';
                 currentNIK = nikValue;
                 currentUserName = user.name;
-                hideAllPages(); 
-                document.getElementById('navBar').style.display = 'flex';
-                document.getElementById('mainPage').style.display = 'block'; 
-                switchPage('mainPage');
+                // Reveal the attendance toggle once the user logs in so they can access the dashboard later
+                const attendanceToggle = document.getElementById('attendanceToggle');
+                if (attendanceToggle) {
+                    attendanceToggle.style.display = 'flex';
+                    // Bind click handler here to ensure it works in all environments
+                    attendanceToggle.onclick = showAttendancePage;
+                }
+                // After successful login, show the attendance dashboard first instead of the checklist
+                showAttendancePage();
+                // Prepare other parts of the application in the background
                 updateShiftInfo();
-                updateGreeting();
                 populateFilters();
                 listenReports(1);
-                ['meterGreeting', 'damageGreeting', 'estimationGreeting', 'educationGreeting', 'dataManagementGreeting']
-                    .forEach(id => {
-                        document.getElementById(id).textContent = document.getElementById('greeting').textContent;
-                    });
                 const toggleBtn = document.getElementById('dataManagementToggle');
                     if (currentNIK === 'CA00383') {
                         toggleBtn.style.display = 'block';
@@ -2917,8 +3233,9 @@ function login() {
                 greetingText = `Selamat Sore, ${currentUserName}!`;
             }
             document.getElementById('greeting').textContent = greetingText;
-            ['meterGreeting', 'damageGreeting', 'estimationGreeting', 'educationGreeting', 'dataManagementGreeting'].forEach(id => {
-                document.getElementById(id).textContent = greetingText;
+            ['meterGreeting', 'damageGreeting', 'estimationGreeting', 'educationGreeting', 'dataManagementGreeting', 'attendanceGreeting'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = greetingText;
             });
         }
         function updateShiftInfo() {
@@ -3746,48 +4063,74 @@ async function calculateEstimation(event) {
         }
         const consumption = meterEnd - meterStart;
         const avgPerHour = consumption / estimationHours;
+        // Taksiran min/max sebagai rentang ±5%
         const avgMin = avgPerHour * 0.95;
         const avgMax = avgPerHour * 1.05;
+        // Definisi dimensi bak (m)
         const BAK_RO = { panjang: 3, lebar: 5, tinggi: 3, jumlah: 2 };
         const BAK_WWTP = { panjang: 12, lebar: 20, tinggi: 5 };
         const BAK_PDAM = { panjang: 12, lebar: 20, tinggi: 5 };
+        // Hitung volume aktual berdasarkan tinggi bak (cm -> m)
         const volumeRO = hitungVolumeBak(tinggiRO, BAK_RO.panjang, BAK_RO.lebar, BAK_RO.tinggi) * BAK_RO.jumlah;
         const volumeWWTP = hitungVolumeBak(tinggiWWTP, BAK_WWTP.panjang, BAK_WWTP.lebar, BAK_WWTP.tinggi);
         const volumePDAM = hitungVolumeBak(tinggiPDAM, BAK_PDAM.panjang, BAK_PDAM.lebar, BAK_PDAM.tinggi);
-        const percentRO = (volumeRO / 90) * 100;
-        const percentWWTP = (volumeWWTP / 1200) * 100;
-        const percentPDAM = (volumePDAM / 1200) * 100;
+        // Hitung kapasitas maksimum masing-masing bak
+        const maxVolumeRO = BAK_RO.panjang * BAK_RO.lebar * BAK_RO.tinggi * BAK_RO.jumlah;
+        const maxVolumeWWTP = BAK_WWTP.panjang * BAK_WWTP.lebar * BAK_WWTP.tinggi;
+        const maxVolumePDAM = BAK_PDAM.panjang * BAK_PDAM.lebar * BAK_PDAM.tinggi;
+        const totalVolume = volumeRO + volumeWWTP + volumePDAM;
+        const maxTotalVolume = maxVolumeRO + maxVolumeWWTP + maxVolumePDAM;
+        // Persentase ketinggian terhadap kapasitas maksimum
+        const percentRO = (volumeRO / maxVolumeRO) * 100;
+        const percentWWTP = (volumeWWTP / maxVolumeWWTP) * 100;
+        const percentPDAM = (volumePDAM / maxVolumePDAM) * 100;
+        // Proyeksi konsumsi
         const projection24h = avgPerHour * 24;
         const customProjection = avgPerHour * customHours;
-        let recommendation = 'Aman';
-        if (projection24h > 100) recommendation = 'Pemakaian tinggi, awasi suplai!';
-        else if (projection24h < 20) recommendation = 'Pemakaian rendah, tetap hemat.';
-        let suplaiNote = "";
-        if (volumePDAM < customProjection) {
-            const kekurangan = customProjection - volumePDAM;
-            suplaiNote = `PERINGATAN: Tambahan suplai ${kekurangan.toFixed(2)} m³ dibutuhkan untuk memenuhi ${customHours} jam ke depan.`;
-        } else {
-            suplaiNote = `Volume PDAM cukup untuk estimasi ${customHours} jam ke depan.`;
+        // Estimasi lama suplai habis
+        const hoursUntilEmpty = avgPerHour > 0 ? totalVolume / avgPerHour : Infinity;
+        // Rekomendasi konsumsi berdasarkan kapasitas
+        let recommendation = 'Pemakaian dalam batas wajar.';
+        // Jika proyeksi 24 jam melebihi 80% suplai tersedia, peringatkan konsumsi tinggi
+        if (projection24h > totalVolume * 0.8) {
+            recommendation = 'Pemakaian tinggi, awasi suplai dan kurangi penggunaan.';
+        } else if (projection24h < totalVolume * 0.1) {
+            recommendation = 'Pemakaian rendah, tetap hemat.';
         }
+        // Rekomendasi suplai dan lama suplai
+        let suplaiNote = '';
+        if (hoursUntilEmpty < customHours) {
+            suplaiNote = `PERINGATAN: Suplai air tersisa sekitar ${hoursUntilEmpty.toFixed(1)} jam, kurang dari estimasi ${customHours} jam. Tambahkan suplai atau kurangi konsumsi.`;
+        } else {
+            suplaiNote = `Suplai air cukup untuk ${customHours} jam ke depan.`;
+        }
+        // Tampilkan hasil
         document.getElementById('hoursUsed').textContent = estimationHours;
         document.getElementById('consumption4h').textContent = consumption.toFixed(2);
         document.getElementById('avgPerHour').textContent = `${avgMin.toFixed(2)} – ${avgMax.toFixed(2)} m³/jam`;
         document.getElementById('projection24h').textContent = projection24h.toFixed(2);
-        document.getElementById('recommendation').textContent = recommendation;
+        // Tambahkan informasi konsumsi per orang berdasarkan pedoman WHO (15–20 L/orang/hari ≈ 0.0006–0.0008 m³/jam per orang)
+        const whoMin = (15 / 1000) / 24;
+        const whoMax = (20 / 1000) / 24;
+        document.getElementById('recommendation').textContent = `${recommendation} (Pedoman WHO: 15–20 L/orang/hari ≈ ${whoMin.toFixed(4)}–${whoMax.toFixed(4)} m³/jam per orang)`;
         document.getElementById('suplaiRekomendasi').textContent = suplaiNote;
         document.getElementById('estimationResult').style.display = 'block';
+        // Tabel proyeksi
         const forecastDurations = [4, 8, 12, 24];
         let forecastHTML = `<table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
         <thead><tr style="background: #f1f1f1;">
         <th style="padding: 8px;">Proyeksi</th>
         <th style="padding: 8px;">Estimasi Pemakaian (m³)</th>
-        <th style="padding: 8px;">Prediksi Meter (m³)</th></tr></thead><tbody>`;
+        <th style="padding: 8px;">Prediksi Meter (m³)</th>
+        <th style="padding: 8px;">Sisa Suplai (jam)</th></tr></thead><tbody>`;
         forecastDurations.forEach(hours => {
             const usage = avgPerHour * hours;
             const predictedMeter = meterEnd + usage;
+            const remainingHours = avgPerHour > 0 ? (totalVolume - usage) / avgPerHour : Infinity;
             forecastHTML += `<tr><td style="padding: 6px;">${hours} jam ke depan</td>
             <td style="padding: 6px;">${usage.toFixed(2)}</td>
-            <td style="padding: 6px;">${predictedMeter.toFixed(2)}</td></tr>`;
+            <td style="padding: 6px;">${predictedMeter.toFixed(2)}</td>
+            <td style="padding: 6px;">${remainingHours.toFixed(1)}</td></tr>`;
         });
         forecastHTML += '</tbody></table>';
         document.getElementById('forecastTable').innerHTML = forecastHTML;
@@ -4247,42 +4590,54 @@ function loadEducationContent() {
         ],
         'Jenis Water Meter': [
             {
-                title: 'Water Meter Mekanis',
+                title: 'Water Meter Mekanis (Positive Displacement)',
                 content: `
-                    <p>Water meter mekanis mengukur aliran air berdasarkan putaran turbin. Berikut adalah karakteristiknya:</p>
+                    <p>Water meter mekanis tipe <em>positive displacement</em> (PD) bekerja dengan membagi aliran ke dalam ruang-ruang kecil sehingga air yang lewat secara fisik menggeser elemen ukur. Meter ini sangat akurat pada laju alir rendah hingga menengah dan lazim digunakan untuk rumah tangga serta usaha kecil【510129852877284†L292-L302】.</p>
                     <ul>
-                        <li><strong>Spesifikasi:</strong> Akurasi ±2%, cocok untuk air bersih dengan TSS <50 ppm, diameter 0.5-4 inci.</li>
-                        <li><strong>Pemeliharaan:</strong> Bersihkan turbin setiap 6 bulan untuk mencegah penyumbatan oleh sedimen.</li>
-                        <li><strong>Monitoring:</strong> Catat pembacaan harian dan bandingkan dengan data historis untuk mendeteksi anomali.</li>
+                        <li><strong>Spesifikasi:</strong> Akurasi ±2%, cocok untuk air bersih (TSS < 50&nbsp;ppm), ukuran 0.5–4&nbsp;inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Bersihkan elemen pengukur setiap 6&nbsp;bulan untuk mencegah penyumbatan sedimen.</li>
+                        <li><strong>Monitoring:</strong> Catat pembacaan secara berkala dan bandingkan dengan tren historis untuk mendeteksi anomali.</li>
                     </ul>
-                    <p><strong>Contoh Aplikasi:</strong> Water meter mekanis di Blok A menunjukkan konsumsi 100 m³/hari, sesuai dengan kebutuhan domestik.</p>
-                    <p><strong>Standar:</strong> Water meter harus sesuai SNI 2547:2008 untuk alat ukur air.</p>
+                    <p><strong>Contoh Aplikasi:</strong> Meter PD di area perumahan mencatat konsumsi 100&nbsp;m³/hari dengan akurasi baik.</p>
+                    <p><strong>Standar:</strong> Meter PD harus memenuhi SNI&nbsp;2547:2008 untuk alat ukur air.</p>
                 `
             },
             {
-                title: 'Water Meter Ultrasonik',
+                title: 'Meter Kecepatan (Multi‑Jet/Turbin)',
                 content: `
-                    <p>Water meter ultrasonik menggunakan gelombang suara untuk mengukur aliran air. Berikut adalah karakteristiknya:</p>
+                    <p>Meter kecepatan mengukur kecepatan aliran air dan menghitung volume berdasarkan luas penampang pipa. Terdapat dua desain umum:</p>
                     <ul>
-                        <li><strong>Spesifikasi:</strong> Akurasi ±1%, tahan terhadap sedimen, cocok untuk air WWTP, diameter 1-6 inci.</li>
-                        <li><strong>Pemeliharaan:</strong> Kalibrasi setiap 12 bulan untuk memastikan akurasi pengukuran.</li>
-                        <li><strong>Monitoring:</strong> Gunakan fitur telemetri untuk mengirim data aliran ke sistem pusat secara real-time.</li>
+                        <li><strong>Multi‑Jet:</strong> Beberapa port kecil menghasilkan jet air yang memutar turbin. Meter ini sangat akurat pada debit rendah dan banyak digunakan untuk ukuran kecil【510129852877284†L327-L334】.</li>
+                        <li><strong>Turbin:</strong> Turbin tunggal berputar sebanding dengan kecepatan aliran. Meter turbin dapat menangani debit tinggi dengan kehilangan tekanan yang rendah, tetapi kurang akurat pada debit sangat rendah【510129852877284†L343-L353】.</li>
                     </ul>
-                    <p><strong>Contoh Aplikasi:</strong> Water meter ultrasonik di Blok P mengukur aliran WWTP 30 m³/jam dengan akurasi tinggi, mendeteksi anomali aliran.</p>
-                    <p><strong>Standar:</strong> Water meter ultrasonik harus sesuai ISO 4064:2014.</p>
+                    <p>Meter kecepatan cocok untuk aplikasi komersial atau kebakaran yang membutuhkan aliran tinggi.</p>
+                    <p><strong>Standar:</strong> Meter kecepatan mengikuti ISO&nbsp;4064:2014.</p>
                 `
             },
             {
                 title: 'Water Meter Elektromagnetik',
                 content: `
-                    <p>Water meter elektromagnetik mengukur aliran dengan medan magnet. Berikut adalah karakteristiknya:</p>
+                    <p>Water meter elektromagnetik menggunakan medan magnet dan hukum induksi Faraday untuk mengukur laju aliran. Karena tidak ada bagian yang bergerak, meter ini memiliki pemeliharaan minimal dan mampu mengukur aliran dalam dua arah. Meter ini ideal untuk air baku atau air limbah dengan kandungan padatan tinggi【510129852877284†L388-L404】.</p>
                     <ul>
-                        <li><strong>Spesifikasi:</strong> Akurasi ±0.5%, cocok untuk air dengan kandungan logam tinggi, diameter 2-8 inci.</li>
-                        <li><strong>Pemeliharaan:</strong> Periksa elektroda setiap 6 bulan untuk mencegah korosi dan kalibrasi setiap 12 bulan.</li>
-                        <li><strong>Monitoring:</strong> Integrasikan dengan sistem SCADA untuk analisis data aliran secara real-time.</li>
+                        <li><strong>Spesifikasi:</strong> Akurasi ±0.5%, diameter 2–8&nbsp;inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Periksa elektroda dan bersihkan permukaan sensor setiap 12&nbsp;bulan untuk mencegah korosi.</li>
+                        <li><strong>Monitoring:</strong> Integrasikan dengan sistem SCADA untuk mendapatkan data aliran real‑time.</li>
                     </ul>
-                    <p><strong>Contoh Aplikasi:</strong> Water meter elektromagnetik di Blok H mengukur aliran air industri 50 m³/jam dengan akurasi tinggi.</p>
-                    <p><strong>Standar:</strong> Water meter elektromagnetik harus sesuai ISO 4064:2014.</p>
+                    <p><strong>Contoh Aplikasi:</strong> Meter elektromagnetik di instalasi WWTP memantau aliran limbah industri 50&nbsp;m³/jam.</p>
+                    <p><strong>Standar:</strong> Meter elektromagnetik harus memenuhi ISO&nbsp;4064:2014.</p>
+                `
+            },
+            {
+                title: 'Water Meter Ultrasonik',
+                content: `
+                    <p>Water meter ultrasonik menggunakan transduser ultrasonik untuk mengukur waktu tempuh gelombang suara di sepanjang pipa, lalu menghitung kecepatan aliran dan volume. Meter ini sangat akurat, dapat mengukur aliran sangat rendah, dan hampir tidak memerlukan perawatan karena tidak memiliki bagian bergerak【510129852877284†L408-L446】.</p>
+                    <ul>
+                        <li><strong>Spesifikasi:</strong> Akurasi ±1%, tahan terhadap sedimen, diameter 1–6&nbsp;inci.</li>
+                        <li><strong>Pemeliharaan:</strong> Kalibrasi setiap 12&nbsp;bulan untuk menjaga akurasi.</li>
+                        <li><strong>Monitoring:</strong> Dapat dilengkapi telemetri untuk mengirim data aliran secara real‑time ke pusat kontrol.</li>
+                    </ul>
+                    <p><strong>Contoh Aplikasi:</strong> Meter ultrasonik pada saluran WWTP mencatat aliran 30&nbsp;m³/jam dengan akurasi tinggi dan mendeteksi anomali kebocoran.</p>
+                    <p><strong>Standar:</strong> Meter ultrasonik harus memenuhi ISO&nbsp;4064:2014.</p>
                 `
             }
         ],
@@ -4541,20 +4896,34 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') login();
     });
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => switchPage(item.dataset.page));
+        item.addEventListener('click', () => {
+            // Handle attendance page separately to populate staff list and update greeting
+            if (item.dataset.page === 'attendancePage') {
+                showAttendancePage();
+            } else {
+                switchPage(item.dataset.page);
+            }
+        });
     });
     document.getElementById('switchMasuk').addEventListener('click', () => switchType('masuk'));
     document.getElementById('switchPulang').addEventListener('click', () => switchType('pulang'));
     document.getElementById('switchCustom').addEventListener('click', () => switchType('custom'));
     document.getElementById('checklistForm').addEventListener('submit', saveChecklist);
     document.getElementById('meterForm').addEventListener('submit', saveMeter);
-    document.getElementById('damageForm').addEventListener('submit', saveDamage);
+    // Attach damage form events only if the elements exist (damage page removed in simplified version)
+    const damageFormEl = document.getElementById('damageForm');
+    if (damageFormEl) {
+        damageFormEl.addEventListener('submit', saveDamage);
+    }
     document.getElementById('estimationForm').addEventListener('submit', calculateEstimation);
     document.getElementById('deleteDataButton').addEventListener('submit', deleteData);
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalOverlay').addEventListener('click', closeModal);
     document.getElementById('meterBlock').addEventListener('change', (e) => populateLocations('meterLocation', e.target.value));
-    document.getElementById('damageBlock').addEventListener('change', (e) => populateLocations('damageLocation', e.target.value));
+    const damageBlockEl = document.getElementById('damageBlock');
+    if (damageBlockEl) {
+        damageBlockEl.addEventListener('change', (e) => populateLocations('damageLocation', e.target.value));
+    }
     document.getElementById('filterDate').addEventListener('change', () => listenReports(1));
     document.getElementById('filterShift').addEventListener('change', () => listenReports(1));
     document.getElementById('filterNIK').addEventListener('change', () => listenReports(1));
@@ -4567,8 +4936,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (meterFilterDateEl) {
         meterFilterDateEl.addEventListener('change', () => listenMeterReports(1));
     }
-    document.getElementById('damageFilterBlock').addEventListener('change', () => listenDamageReports(1));
-    document.getElementById('damageFilterDate').addEventListener('change', () => listenDamageReports(1));
+    const damageFilterBlockEl2 = document.getElementById('damageFilterBlock');
+    if (damageFilterBlockEl2) {
+        damageFilterBlockEl2.addEventListener('change', () => listenDamageReports(1));
+    }
+    const damageFilterDateEl2 = document.getElementById('damageFilterDate');
+    if (damageFilterDateEl2) {
+        damageFilterDateEl2.addEventListener('change', () => listenDamageReports(1));
+    }
     document.getElementById('educationSearch').addEventListener('input', loadEducationContent);
     document.getElementById('educationCategory').addEventListener('change', loadEducationContent);
     document.getElementById('reportBody').addEventListener('click', (e) => {
@@ -4679,7 +5054,15 @@ Catatan: ${data.notes || '-'}
             document.getElementById('modalOverlay').style.display = 'none';
         });
     }
+    // panggil updateTime sekali supaya waktu langsung tampil, lalu atur interval setiap detik
+    updateTime();
     setInterval(updateTime, 1000);
+
+    // Bind attendance toggle to show the attendance dashboard
+    const attendanceToggleEl = document.getElementById('attendanceToggle');
+    if (attendanceToggleEl) {
+        attendanceToggleEl.addEventListener('click', showAttendancePage);
+    }
 });
     function hitungStatus(ketinggian) {
         if (ketinggian >= 150) return "Optimal";
@@ -4901,10 +5284,12 @@ setInterval(updateConnectionPanel, 5000);
 updateConnectionPanel();
 const animations = [
     {id: 'anim1', path: 'packaging-for-delivery.json'},
-    {id: 'anim2', path: 'creative-team.json'},
+    {id: 'anim2', path: 'singing-contract.json'},
     {id: 'anim3', path: 'singing-contract.json'},
     {id: 'anim4', path: 'website-maintenance.json'},
     {id: 'anim5', path: 'growth-analysis.json'},
+    // Animation for the new attendance dashboard page
+    {id: 'attendanceAnim', path: 'creative-team.json'},
 ];
 animations.forEach(anim => {
     lottie.loadAnimation({
@@ -4932,6 +5317,15 @@ function showSuccessAnimation(onFinish) {
         successContainer.style.display = 'none';
         if (typeof onFinish === 'function') onFinish();
     });
+    // Fallback: in case the animation file fails to load or the complete event
+    // never fires (e.g. offline or missing asset), hide the overlay and
+    // invoke the callback after a short delay to avoid blocking the UI.
+    setTimeout(() => {
+        if (successContainer.style.display !== 'none') {
+            successContainer.style.display = 'none';
+            if (typeof onFinish === 'function') onFinish();
+        }
+    }, 2000);
 }
 
 // ==================== Meter Excel-style Sheet Functions ====================
@@ -5510,6 +5904,103 @@ window.addEventListener('DOMContentLoaded', () => {
     loadMeterSheet();
 });
 // ==================== End Meter Excel-style Sheet Functions ====================
+
+// ==================== Attendance Dashboard ====================
+// Saat dokumen dimuat, inisialisasi dashboard kehadiran.  Data tersimpan
+// menggunakan localStorage sehingga jumlah telat dan pulang cepat tetap
+// tersimpan antar sesi.  Fungsi updateAttendanceSummary menghitung total
+// keterlambatan dan pulang cepat serta menampilkan peringatan jika total
+// mencapai atau melebihi 5 kali.  Referensi desain dashboard berasal dari
+// praktik terbaik yang menekankan tampilan ringkas dengan angka tebal dan
+// penyampaian informasi yang relevan secara instan【622564324081978†L168-L195】.
+document.addEventListener('DOMContentLoaded', () => {
+    const lateInput = document.getElementById('lateInput');
+    const earlyInput = document.getElementById('earlyInput');
+    const summaryEl = document.getElementById('attendanceSummary');
+    if (!lateInput || !earlyInput || !summaryEl) return;
+    // Muat data dari localStorage atau atur default
+    try {
+        const stored = JSON.parse(localStorage.getItem('attendanceData'));
+        if (stored) {
+            lateInput.value = stored.late || 0;
+            earlyInput.value = stored.early || 0;
+        }
+    } catch (err) {
+        console.warn('Gagal memuat data kehadiran dari localStorage:', err);
+    }
+    function updateAttendanceSummary() {
+        const late = parseInt(lateInput.value) || 0;
+        const early = parseInt(earlyInput.value) || 0;
+        const total = late + early;
+        // Simpan ke localStorage
+        try {
+            localStorage.setItem('attendanceData', JSON.stringify({ late, early }));
+        } catch (err) {
+            console.warn('Gagal menyimpan data kehadiran:', err);
+        }
+        // Tampilkan ringkasan
+        summaryEl.innerHTML = `Telat: <strong>${late}</strong> kali, Pulang Cepat: <strong>${early}</strong> kali. Total: <strong>${total}</strong>/5`;
+        if (total >= 5) {
+            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Peringatan: Jumlah Telat dan Pulang Cepat telah mencapai batas maksimal 5 kali!</span>';
+        }
+        // Update the stacked progress bar and legend. Instead of using a single
+        // colour for the entire bar, we split it into a late segment and an
+        // early‑leave segment by applying a gradient background. The width of
+        // the bar still represents the total number of occurrences relative to
+        // the maximum (5), while the gradient shows the proportion of late vs
+        // early within that total. A legend underneath clarifies the meaning
+        // with coloured labels.
+        const progressBarEl = document.getElementById('attendanceProgressBar');
+        const progressTextEl = document.getElementById('progressText');
+        if (progressBarEl && progressTextEl) {
+            const barPercent = Math.min((total / 5) * 100, 100);
+            // Calculate segment widths relative to the total occurrences. When
+            // total is zero avoid division by zero by leaving the bar empty.
+            let lateSegment = 0;
+            let earlySegment = 0;
+            if (total > 0) {
+                lateSegment = (late / total) * 100;
+                earlySegment = 100; // the remainder covers early occurrences
+            }
+            // Set the bar's width according to the total and apply a gradient
+            // where the first part is red (late) and the second part is orange
+            // (early). If there are no occurrences the bar remains empty.
+            progressBarEl.style.width = `${barPercent}%`;
+            if (total > 0) {
+                progressBarEl.style.background =
+                    `linear-gradient(to right, #e53935 0%, #e53935 ${lateSegment}%, ` +
+                    `#FFCA28 ${lateSegment}%, #FFCA28 100%)`;
+            } else {
+                progressBarEl.style.background = '';
+            }
+            // Build the legend using coloured swatches instead of plain coloured text.
+            // Each legend item consists of a small coloured box followed by its label
+            // and count.  This visually resembles the legends used in charts.
+            const legendItems = [];
+            legendItems.push(
+                `<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#e53935;border-radius:2px;margin-right:4px;"></span>Telat: ${late}</span>`
+            );
+            legendItems.push(
+                `<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#FFCA28;border-radius:2px;margin-right:4px;"></span>Pulang Cepat: ${early}</span>`
+            );
+            // Combine items and append the total after the legend items.  The total is
+            // displayed without colour because it summarises both categories.
+            let legendHTML = legendItems.join('');
+            legendHTML += `<span style="font-weight:600;">Total: ${total}/5</span>`;
+            // If the total reaches the maximum, append a warning in red.
+            if (total >= 5) {
+                legendHTML += `<span style="color:#e53935;font-weight:600;">Batas tercapai!</span>`;
+            }
+            progressTextEl.innerHTML = legendHTML;
+        }
+    }
+    // Pasang listener untuk memperbarui ringkasan saat nilai berubah
+    lateInput.addEventListener('input', updateAttendanceSummary);
+    earlyInput.addEventListener('input', updateAttendanceSummary);
+    // Perbarui tampilan awal
+    updateAttendanceSummary();
+});
+// ==================== End Attendance Dashboard ====================
 </script>
 </body>
 </html>
