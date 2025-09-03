@@ -651,9 +651,27 @@ body.light-theme .attendance-toggle {
     gap: 6px;
 }
 .staff-list li {
+    /* Display list items as flex containers so the name and NIK stay
+       aligned on the left while the attendance badges sit on the far
+       right.  This ensures a clean, symmetrical layout on both
+       desktop and mobile screens. */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 13px;
+}
+
+/* Make the attendance count badges push to the far right of the staff
+   list item.  When combined with flexbox on the list item, this
+   automatically aligns the badges consistently and avoids irregular
+   spacing. */
+.staff-list .attendance-count {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
 }
 body.light-theme .staff-list li {
     background: rgba(76, 175, 80, 0.1);
@@ -1035,6 +1053,28 @@ body.light-theme .input-icon {
 .delete-data-btn:hover {
     background: #D32F2F;
     box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+
+/* Custom styles for confirmation modal buttons.  The confirmation modal
+   replaces native browser dialogs for destructive actions to maintain a
+   consistent look and feel.  The “Yes” button uses a red palette to
+   emphasise the irreversible nature of deletions, while the “Cancel”
+   button is grey. */
+.confirm-yes-btn {
+    background: #F44336;
+    color: white;
+}
+.confirm-yes-btn:hover {
+    background: #D32F2F;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+}
+.confirm-cancel-btn {
+    background: #9E9E9E;
+    color: white;
+}
+.confirm-cancel-btn:hover {
+    background: #757575;
+    box-shadow: 0 4px 12px rgba(158, 158, 158, 0.4);
 }
 .pagination {
     display: flex;
@@ -1729,6 +1769,9 @@ html, body {
 .action-row td {
     padding: 8px;
     background: rgba(255,255,255,0.05);
+    /* Each button now resides in its own table cell, so use default table cell layout */
+    display: table-cell;
+    text-align: left;
 }
 .action-row button {
     margin-right: 6px;
@@ -1762,6 +1805,15 @@ html, body {
 }
 .action-row .edit-btn:hover {
     background: #FFB300;
+}
+/* Delete button styling: uses a red palette to indicate a destructive action.  Hovering
+   slightly darkens the background to provide visual feedback. */
+.action-row .delete-btn {
+    background: #F44336;
+    color: #fff;
+}
+.action-row .delete-btn:hover {
+    background: #D32F2F;
 }
 @media (min-width: 769px) and (max-width: 1024px) {
     .container, .login-container {
@@ -2198,6 +2250,34 @@ body.dark-theme .attendance-input-card {
     background: rgba(40, 40, 60, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+    /* Badges for attendance counts in the staff list.  Each staff entry will
+       display their total instances of being late and leaving early.  The
+       background colours correspond to the colours used in the summary
+       progress bar: red for late arrivals and orange for early departures.  */
+    .attendance-count {
+        margin-left: 6px;
+        font-size: 12px;
+        display: inline-flex;
+        gap: 4px;
+        align-items: center;
+    }
+    .attendance-count .late-badge,
+    .attendance-count .early-badge {
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        line-height: 1;
+    }
+    .attendance-count .late-badge {
+        background: #e53935;
+        color: #fff;
+    }
+    .attendance-count .early-badge {
+        background: #FFCA28;
+        color: #000;
+    }
 body.dark-theme .attendance-input-card i {
     color: #A5D6A7;
 }
@@ -2264,10 +2344,11 @@ body.dark-theme .attendance-input-card span {
     <div class="theme-toggle" id="themeToggle">
         <i id="themeIcon" class="fas fa-sun"></i>
     </div>
-    <!-- Attendance toggle removed: dashboard can now be accessed via the navigation bar -->
-    <div class="data-management-toggle" id="dataManagementToggle" style="display: none !important;">
-        <i class="fas fa-trash-alt"></i>
-    </div>
+    <!-- Removed the standalone data management toggle.  Access to the data
+         management page is now provided via a navigation item (shown only
+         for privileged users) instead of a floating trash icon under the
+         theme button.  This simplifies the interface and prevents an
+         accidental click on a destructive action. -->
 <div id="loadingOverlay" style="display:none;">
     <div class="loading-spinner"></div>
     <div class="loading-text">Memproses...</div>
@@ -2283,6 +2364,7 @@ body.dark-theme .attendance-input-card span {
             <span>Checklist</span>
         </div>
         <!-- Nav item for Meter Lapangan removed as per updated requirements -->
+        <!-- Data management nav item removed; deletion functionality is now part of report actions -->
         <!-- Kerusakan navigation item removed as damage reporting is no longer part of the system -->
         <div class="nav-item" data-page="estimationPage" data-tooltip="Estimasi">
             <i class="fas fa-chart-line"></i>
@@ -2292,6 +2374,7 @@ body.dark-theme .attendance-input-card span {
             <i class="fas fa-book"></i>
             <span>Edukasi</span>
         </div>
+        <!-- Removed the data management nav item.  Deletion of individual reports can be performed directly within the report table. -->
     </nav>
 <div id="landingPage" class="landing-page">
     <div class="landing-content">
@@ -2319,15 +2402,7 @@ body.dark-theme .attendance-input-card span {
                     Monitoring tinggi bak distribusi, pompa transfer, hydran, dan meter air dengan sistem shift otomatis
                 </p>
             </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-tachometer-alt"></i>
-                </div>
-                <h3 class="feature-title">Meter Lapangan</h3>
-                <p class="feature-description">
-                    Pencatatan pembacaan meter air semua blok dengan perhitungan konsumsi aktual otomatis
-                </p>
-            </div>
+            <!-- Removed Meter Lapangan feature card as the meter reading functionality has been retired. -->
             <!-- Removed the 'Laporan Kerusakan' feature card to hide damage reporting from the landing page -->
             <div class="feature-card">
                 <div class="feature-icon">
@@ -2375,16 +2450,7 @@ body.dark-theme .attendance-input-card span {
                 <li>Sistem otomatis menghitung status berdasarkan ketinggian air</li>
             </ul>
         </div>
-        <div class="guide-section">
-            <h3><i class="fas fa-tachometer-alt" style="margin-right: 6px;"></i>Meter Lapangan</h3>
-            <p>Pencatatan pembacaan meter air semua blok:</p>
-            <ul>
-                <li>Pilih blok dan lokasi spesifik dari dropdown</li>
-                <li>Input angka meter dalam satuan m³</li>
-                <li>Sistem menghitung konsumsi aktual berdasarkan data sebelumnya</li>
-                <li>Tambahkan catatan jika diperlukan</li>
-            </ul>
-        </div>
+        <!-- Meter Lapangan guide section removed since the feature has been deprecated -->
         <!-- Removed 'Laporan Kerusakan' guide section as damage reporting is not part of the system anymore -->
         <div class="guide-section">
             <h3><i class="fas fa-chart-line" style="margin-right: 6px;"></i>Estimasi Konsumsi</h3>
@@ -2483,6 +2549,14 @@ body.dark-theme .attendance-input-card span {
         <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Daftar Staf</h2>
         <ul id="staffList" class="staff-list"></ul>
     </div>
+    <!-- Activity summary card: displays counts of checklist and meter reports for
+         the current day.  Placing this card directly below the staff list
+         ensures it remains visible and is not obscured by the fixed
+         navigation bar at the bottom of the page. -->
+    <div class="card" id="activitySummaryCard">
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Ringkasan Checklist &amp; Staf</h2>
+        <ul id="activitySummaryList" style="list-style: none; font-size: 13px; padding-left: 0;"></ul>
+    </div>
     <!-- Attendance input card redesigned -->
     <div class="card">
         <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Input Kehadiran</h2>
@@ -2536,6 +2610,23 @@ body.dark-theme .attendance-input-card span {
             <input type="hidden" id="bakRO">
             <input type="hidden" id="bakWWTP">
             <input type="hidden" id="statusPDAM">
+            <!-- Additional selects shown only for custom checklist type.  Allows the user to
+                 specify which shift the custom entry belongs to and whether it is for
+                 a "Masuk" (arrival) or "Pulang" (departure) checklist.  These fields
+                 remain hidden for the standard masuk/pulang modes. -->
+            <div class="form-group" id="customOptions" style="display:none;">
+                <select id="customShiftSelect">
+                    <option value="">Pilih Shift...</option>
+                    <option value="Satu">Shift Satu</option>
+                    <option value="Dua">Shift Dua</option>
+                    <option value="Tiga">Shift Tiga</option>
+                </select>
+                <select id="customTypeSelect" style="margin-top:10px;">
+                    <option value="">Pilih Tipe...</option>
+                    <option value="masuk">Masuk</option>
+                    <option value="pulang">Pulang</option>
+                </select>
+            </div>
             <div class="form-group">
                 <div class="input-group">
                     <input type="number" id="tinggiRO" placeholder="Ketinggian Bak RO (cm)" required>
@@ -2654,7 +2745,6 @@ body.dark-theme .attendance-input-card span {
                         <th>Waktu</th>
                         <th>Shift</th>
                         <th>Penginput</th>
-                        <th>Catatan</th>
                     </tr>
                 </thead>
                 <tbody id="reportBody"></tbody>
@@ -2673,12 +2763,27 @@ body.dark-theme .attendance-input-card span {
 </div>
 <!-- Modal for displaying detailed damage report and photo evidence -->
 <!-- Damage detail modal removed: damage reporting no longer available -->
+<!-- Custom confirmation modal to replace browser confirm dialogues -->
+<div id="confirmOverlay" class="modal-overlay"></div>
+<div id="confirmModal" class="modal">
+    <div class="modal-header">
+        <h2>Konfirmasi</h2>
+        <button class="modal-close" id="confirmClose">&times;</button>
+    </div>
+    <div class="modal-content">
+        <p id="confirmMessage" style="font-size:13px;"></p>
+        <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn confirm-cancel-btn" id="confirmCancel">Batal</button>
+            <button class="btn confirm-yes-btn" id="confirmYes">Ya</button>
+        </div>
+    </div>
+</div>
 <div id="notification" class="notification"></div>
     <div id="meterPage" class="container" style="display: none;">
         <div class="header">
             <div id="anim3" style="width:300px;height:300px;margin:auto;"></div>
             <div class="greeting" id="meterGreeting">Selamat Pagi, User!</div>
-            <h1>Check Meter Lapangan</h1>
+            <h1>Check Meter Air</h1>
             <div class="subtitle">Monitoring Meter Air</div>
         </div>
         <!-- Hide the original input form on the meter page.  The direct input form is no longer
@@ -2858,27 +2963,7 @@ body.dark-theme .attendance-input-card span {
         <div id="educationContent"></div>
     </div>
 </div>
-    <div id="dataManagementPage" class="container" style="display: none;">
-        <div class="header">
-            <div class="greeting" id="dataManagementGreeting">Selamat Pagi, User!</div>
-            <h1>Manajemen Data</h1>
-            <div class="subtitle">Hapus Data Lama</div>
-        </div>
-        <div class="card">
-            <div class="form-group">
-                <select id="dataType" required>
-                    <option value="">Pilih Tipe Data...</option>
-                    <option value="checklists">Checklist</option>
-                    <option value="meters">Meter</option>
-                    <!-- Removed 'Kerusakan' option since damage data is no longer managed -->
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="date" id="dataDeleteDate" required>
-            </div>
-            <button class="btn delete-data-btn" id="deleteDataButton">Hapus Data</button>
-        </div>
-    </div>
+    <!-- Data management page removed.  Previously this page provided a bulk deletion function for historical data.  Individual reports can now be deleted directly from the report table, so this page is no longer needed. -->
 <script type="module">
 (function() {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -2886,7 +2971,7 @@ body.dark-theme .attendance-input-card span {
     document.body.className = `${savedTheme}-theme`;
 })();
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, onSnapshot, query, orderBy, serverTimestamp, where, updateDoc, doc, deleteDoc, startAfter, limit, setDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getMessaging, onMessage, getToken } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 const firebaseConfig = {
@@ -2899,6 +2984,18 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+// Enable offline persistence so that attendance data entered while the network
+// is unavailable will be cached in IndexedDB and restored across page
+// reloads.  Without this call, writes performed offline are only kept
+// in-memory and will be lost when the user refreshes the page.  See
+// https://firebase.google.com/docs/firestore/manage-data/enable-offline for
+// details.  Ignore any errors thrown if persistence cannot be enabled
+// (e.g. in private browsing or multiple tabs).
+try {
+    enableIndexedDbPersistence(db);
+} catch (err) {
+    console.warn('Cannot enable Firestore offline persistence:', err);
+}
 // Initialize Firebase Storage for uploading and retrieving images
 const storage = getStorage(app);
 if ('serviceWorker' in navigator) {
@@ -2984,6 +3081,333 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
     let currentUserName = '';
     let usageChart = null;
     const ITEMS_PER_PAGE = 10;
+
+    // =======================================================================
+    // Attendance tracking using Firestore
+    //
+    // The attendance dashboard allows each staff member to record the number of
+    // times they were late and the number of times they left early in the
+    // current month.  Previously this information was stored in
+    // localStorage, which meant it was only available on the device where
+    // the data was entered.  To make the dashboard collaborative and
+    // persistent across devices, we store attendance data in Firestore.  Each
+    // document in the `attendance` collection corresponds to one staff
+    // member for a single month.  The document ID follows the pattern
+    // `${nik}_${yyyyMM}` so that counts automatically reset when the month
+    // changes.
+
+    // Unsubscribe functions for Firestore listeners so we can clean up if
+    // necessary (e.g. on logout).  Initially they are null.
+    let attendanceDocUnsubscribe = null;
+    let staffAttendanceUnsubscribe = null;
+
+    /**
+     * Compute a key for the current month in the format YYYY-MM (e.g.
+     * "2025-09").  This is used to construct attendance document IDs and
+     * queried via the `month` field.  Because the dashboard resets each
+     * month, using the month in the document ID naturally segregates
+     * records.
+     * @returns {string} The current month key.
+     */
+    function getCurrentMonthKey() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
+    }
+
+    /**
+     * Update the UI elements in the attendance dashboard based on the given
+     * counts.  This function updates the summary text, progress bar and
+     * legend.  It mirrors the previous localStorage implementation but
+     * derives its values from Firestore.  The maximum total is capped at 5.
+     * @param {number} late The number of late arrivals.
+     * @param {number} early The number of early departures.
+     */
+    function updateAttendanceUI(late, early) {
+        const total = late + early;
+        const summaryEl = document.getElementById('attendanceSummary');
+        const progressBarEl = document.getElementById('attendanceProgressBar');
+        const progressTextEl = document.getElementById('progressText');
+        if (!summaryEl || !progressBarEl || !progressTextEl) return;
+        summaryEl.innerHTML = `Telat: <strong>${late}</strong> kali, Pulang Cepat: <strong>${early}</strong> kali. Total: <strong>${total}</strong>/5`;
+        if (total >= 5) {
+            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Peringatan: Jumlah Telat dan Pulang Cepat telah mencapai batas maksimal 5 kali!</span>';
+        }
+        // Compute bar width relative to maximum and build gradient segments
+        const barPercent = Math.min((total / 5) * 100, 100);
+        let lateSegment = 0;
+        if (total > 0) {
+            lateSegment = (late / total) * 100;
+        }
+        progressBarEl.style.width = `${barPercent}%`;
+        if (total > 0) {
+            progressBarEl.style.background =
+                `linear-gradient(to right, #e53935 0%, #e53935 ${lateSegment}%, ` +
+                `#FFCA28 ${lateSegment}%, #FFCA28 100%)`;
+        } else {
+            progressBarEl.style.background = '';
+        }
+        // Build legend for late and early counts
+        const legendItems = [];
+        legendItems.push(`<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#e53935;border-radius:2px;margin-right:4px;"></span>Telat: ${late}</span>`);
+        legendItems.push(`<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#FFCA28;border-radius:2px;margin-right:4px;"></span>Pulang Cepat: ${early}</span>`);
+        let legendHTML = legendItems.join('');
+        legendHTML += `<span style="font-weight:600;">Total: ${total}/5</span>`;
+        if (total >= 5) {
+            legendHTML += `<span style="color:#e53935;font-weight:600;">Batas tercapai!</span>`;
+        }
+        progressTextEl.innerHTML = legendHTML;
+    }
+
+    /**
+     * Load a daily summary of checklist and meter activities.  This function
+     * queries Firestore for entries on the current date and updates the
+     * list in the activity summary card on the attendance dashboard.  If
+     * data cannot be loaded, the list will remain empty.  This makes the
+     * dashboard more informative by offering quick insight into the volume
+     * of operational tasks being recorded each day.
+     */
+    async function loadActivitySummary() {
+        const listEl = document.getElementById('activitySummaryList');
+        if (!listEl) return;
+        try {
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString('id-ID');
+            let checklistCount = 0;
+            // Count checklist entries for today
+            try {
+                const q1 = query(collection(db, 'checklists'), where('date', '==', formattedDate));
+                const snap1 = await getDocs(q1);
+                checklistCount = snap1.size;
+            } catch (err1) {
+                console.error('Error loading daily checklist summary:', err1);
+            }
+            // Determine the number of registered staff members from the predefined users array.
+            const staffCount = Array.isArray(users) ? users.length : 0;
+            // Build the summary list.  Since the meter feature has been retired, we no longer display meter counts.
+            listEl.innerHTML = `
+                <li><strong>Checklist Hari Ini:</strong> ${checklistCount}</li>
+                <li><strong>Total Staf Terdaftar:</strong> ${staffCount}</li>
+            `;
+        } catch (error) {
+            console.error('Gagal memuat ringkasan aktivitas air:', error);
+        }
+    }
+
+    /**
+     * Initialize the Firestore document for the current user and month.  If the
+     * document does not exist, it will be created with zero counts.  This
+     * function also sets up a real‑time listener on the document so that
+     * updates from other clients are reflected in the UI immediately.  When
+     * the input values change, the document is updated with the new counts.
+     */
+    async function initAttendanceDoc() {
+        // Clean up any previous listener on the user's doc
+        if (attendanceDocUnsubscribe) {
+            attendanceDocUnsubscribe();
+            attendanceDocUnsubscribe = null;
+        }
+        const monthKey = getCurrentMonthKey();
+        // Compose a unique document ID per user per period using an
+        // underscore to separate the NIK from the YYYY‑MM period.  This
+        // convention matches the Firestore rule that expects IDs in the
+        // format {nik}_{period}, e.g. "CA00006_2025-09".
+        const docId = `${currentNIK}_${monthKey}`;
+        const docRef = doc(db, 'attendance', docId);
+        // Ensure the document exists (merge to avoid overwriting existing counts).
+        // Use the field name "period" instead of "month" so that it passes
+        // the Firestore security rules.  Include an updatedAt timestamp on
+        // creation so that the document always satisfies the required
+        // fields defined in the rules.
+        // Ensure both "period" and legacy "month" fields are stored when
+        // creating a new attendance document.  The security rules still
+        // expect the field name "period", but adding the redundant
+        // "month" field allows backwards compatibility with code that
+        // queries on the old field.  Always merge to avoid clobbering
+        // existing data.
+        try {
+            // Check if the document already exists.  If it does, avoid
+            // resetting the late/early counts to zero when merging.  The
+            // Firestore rules require these fields on creation, so we
+            // include them only when creating the document.
+            const existingSnap = await getDoc(docRef);
+            const baseData = {
+                nik: currentNIK,
+                name: currentUserName,
+                period: monthKey,
+                month: monthKey,
+                updatedAt: serverTimestamp()
+            };
+            if (existingSnap.exists()) {
+                // Document exists; do not overwrite late/early values
+                await setDoc(docRef, baseData, { merge: true });
+            } else {
+                // Document does not exist; initialize late/early counts
+                await setDoc(docRef, {
+                    ...baseData,
+                    late: 0,
+                    early: 0
+                }, { merge: true });
+            }
+        } catch (err) {
+            console.error('Error ensuring attendance doc:', err);
+        }
+        // Listen to changes in this document
+        attendanceDocUnsubscribe = onSnapshot(docRef, (snap) => {
+            if (!snap.exists()) return;
+            const data = snap.data();
+            const late = data.late || 0;
+            const early = data.early || 0;
+            // Update the input fields without triggering our own oninput
+            const lateInput = document.getElementById('lateInput');
+            const earlyInput = document.getElementById('earlyInput');
+            if (lateInput) lateInput.value = late;
+            if (earlyInput) earlyInput.value = early;
+            updateAttendanceUI(late, early);
+        });
+        // Attach input handlers for the current user's attendance fields
+        const lateInputEl = document.getElementById('lateInput');
+        const earlyInputEl = document.getElementById('earlyInput');
+        if (lateInputEl && earlyInputEl) {
+            // Remove any previous listeners by cloning the nodes (simplistic approach)
+            const lateClone = lateInputEl.cloneNode(true);
+            const earlyClone = earlyInputEl.cloneNode(true);
+            lateInputEl.parentNode.replaceChild(lateClone, lateInputEl);
+            earlyInputEl.parentNode.replaceChild(earlyClone, earlyInputEl);
+            /*
+             * Attach new event listeners to both late and early inputs.  We
+             * handle both the "input" and "change" events because some browsers
+             * only fire one of them depending on how the user modifies the
+             * value (typing, using the arrow spinner, or using the mobile
+             * numeric keyboard).  Without listening to the "change" event the
+             * value typed manually would sometimes revert back to its old
+             * value because the snapshot listener overwrote it before the
+             * input event handler could commit the change.  By extracting
+             * the update logic into a helper function and attaching it to
+             * both events we ensure user input via keyboard is persisted.
+             */
+            function handleLateChange() {
+                let lateVal = parseInt(lateClone.value) || 0;
+                let earlyVal = parseInt(earlyClone.value) || 0;
+                if (lateVal + earlyVal > 5) {
+                    showNotification('Jumlah total tidak boleh lebih dari 5', false);
+                    lateVal = Math.max(0, 5 - earlyVal);
+                    lateClone.value = lateVal;
+                }
+                updateDoc(docRef, {
+                    late: lateVal,
+                    early: earlyVal,
+                    name: currentUserName,
+                    nik: currentNIK,
+                    period: monthKey,
+                    month: monthKey,
+                    updatedAt: serverTimestamp()
+                });
+                updateAttendanceUI(lateVal, earlyVal);
+            }
+            function handleEarlyChange() {
+                let lateVal = parseInt(lateClone.value) || 0;
+                let earlyVal = parseInt(earlyClone.value) || 0;
+                if (lateVal + earlyVal > 5) {
+                    showNotification('Jumlah total tidak boleh lebih dari 5', false);
+                    earlyVal = Math.max(0, 5 - lateVal);
+                    earlyClone.value = earlyVal;
+                }
+                updateDoc(docRef, {
+                    late: lateVal,
+                    early: earlyVal,
+                    name: currentUserName,
+                    nik: currentNIK,
+                    period: monthKey,
+                    month: monthKey,
+                    updatedAt: serverTimestamp()
+                });
+                updateAttendanceUI(lateVal, earlyVal);
+            }
+            // Use both input and change events to capture all ways the user
+            // modifies the number input.  See comment above.
+            lateClone.addEventListener('input', handleLateChange);
+            lateClone.addEventListener('change', handleLateChange);
+            earlyClone.addEventListener('input', handleEarlyChange);
+            earlyClone.addEventListener('change', handleEarlyChange);
+        }
+    }
+
+    /**
+     * Listen for attendance records for all staff in the current month.  This
+     * function queries the `attendance` collection for documents where the
+     * `month` field matches the current month.  Whenever the query result
+     * changes, the staff list is rebuilt to show each employee's counts.  If
+     * an employee has no record yet, they are displayed with zero counts.
+     */
+    function initStaffAttendanceListener() {
+        // Clean up any existing listener
+        if (staffAttendanceUnsubscribe) {
+            staffAttendanceUnsubscribe();
+            staffAttendanceUnsubscribe = null;
+        }
+        const monthKey = getCurrentMonthKey();
+        // Query attendance documents for the current period.  Use the
+        // "period" field instead of "month" to align with the Firestore
+        // security rules.  Documents created before this change that
+        // still use the old "month" field will not be returned by this
+        // query.
+        // Build a more flexible listener for attendance records.  Older
+        // documents may still store the current month in a "month" field,
+        // while newer ones use the "period" field.  Additionally, for
+        // maximum compatibility we also inspect the document ID which
+        // follows the convention `{nik}_{YYYY-MM}`.  We fetch the entire
+        // attendance collection and then filter client-side to include
+        // records where either the ID suffix, the period or the month
+        // matches the current month key.
+        const attendanceColRef = collection(db, 'attendance');
+        staffAttendanceUnsubscribe = onSnapshot(attendanceColRef, (querySnap) => {
+            const docs = [];
+            const suffix = `_${monthKey}`;
+            querySnap.forEach((docSnap) => {
+                const data = docSnap.data() || {};
+                const idMatch = docSnap.id.endsWith(suffix);
+                const periodMatch = data.period === monthKey;
+                const monthMatch = data.month === monthKey;
+                if (idMatch || periodMatch || monthMatch) {
+                    docs.push(data);
+                }
+            });
+            updateStaffListFromDocs(docs);
+        });
+    }
+
+    /**
+     * Rebuild the staff list based on the provided attendance documents.  This
+     * function merges the predefined `users` array (which contains names and
+     * NIKs) with the actual attendance data pulled from Firestore.  For
+     * employees without a record this month, late and early counts default
+     * to zero.  Each list item shows the employee's name, NIK and badges
+     * indicating their late and early counts.
+     * @param {Array<Object>} attendanceDocs Array of attendance documents.
+     */
+    function updateStaffListFromDocs(attendanceDocs) {
+        const listEl = document.getElementById('staffList');
+        if (!listEl) return;
+        listEl.innerHTML = '';
+        // Build a map from NIK to attendance data for faster lookup
+        const attMap = {};
+        attendanceDocs.forEach(d => {
+            attMap[d.nik] = d;
+        });
+        users.forEach(u => {
+            const d = attMap[u.nik] || { late: 0, early: 0 };
+            const li = document.createElement('li');
+            const total = (parseInt(d.late) || 0) + (parseInt(d.early) || 0);
+            li.innerHTML = `<strong>${u.name}</strong><span class="nik-tag">(${u.nik})</span>` +
+                `<span class="attendance-count">` +
+                `<span class="late-badge">${d.late || 0}</span>` +
+                `<span class="early-badge">${d.early || 0}</span>` +
+                `</span>`;
+            listEl.appendChild(li);
+        });
+    }
     function renderUsageChart() {
         const meterAwal = parseFloat(document.getElementById('meterStart').value);
         const meterAkhir = parseFloat(document.getElementById('meterEnd').value);
@@ -3033,9 +3457,13 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         });
     }
         const shifts = [
-            { name: 'Satu', start: 7, end: 15, startInput: '07:00', endInput: '07:30', startOutput: '14:30', endOutput: '15:00' },
-            { name: 'Dua', start: 15, end: 23, startInput: '15:00', endInput: '15:30', startOutput: '22:30', endOutput: '23:00' },
-            { name: 'Tiga', start: 23, end: 7, startInput: '23:00', endInput: '23:30', startOutput: '06:30', endOutput: '07:00' }
+            // Updated shift definitions.  Check‑in windows now extend up to 60 minutes
+            // after the shift start, and check‑out windows begin 40 minutes before the
+            // shift end and end 30 minutes after.  The "Tiga" (third) shift crosses
+            // midnight, so its endInput and endOutput values wrap accordingly.
+            { name: 'Satu', start: 7, end: 15, startInput: '07:00', endInput: '08:00', startOutput: '14:20', endOutput: '15:30' },
+            { name: 'Dua', start: 15, end: 23, startInput: '15:00', endInput: '16:00', startOutput: '22:20', endOutput: '23:30' },
+            { name: 'Tiga', start: 23, end: 7, startInput: '23:00', endInput: '00:00', startOutput: '06:20', endOutput: '07:30' }
         ];
         const blockLocations = {
             'Induk': ['Aquaria', 'Hydran', 'Induk Blok A B C', 'Induk P+D', 'Damkar', 'Blok H', 'Blok E, F, G', 'PDAM', 'PDAM II', 'Hydrant II'],
@@ -3075,6 +3503,59 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
                     }, 1500);
             }
         }
+
+    /**
+     * Display a custom confirmation modal.  This function takes a message and
+     * optional callbacks to execute when the user confirms or cancels the
+     * action.  It shows a modal overlay with two buttons: "Ya" and
+     * "Batal".  When the "Ya" button is clicked the onConfirm callback
+     * runs; when the modal is closed via any other route the onCancel
+     * callback runs (if provided).  This replaces native confirm() calls
+     * which display the browser’s domain and are not themeable.
+     *
+     * @param {string} message The confirmation message to display.
+     * @param {function} onConfirm Function to run when the user clicks "Ya".
+     * @param {function} [onCancel] Optional function to run when the user cancels.
+     */
+    function showConfirm(message, onConfirm, onCancel) {
+        const modal = document.getElementById('confirmModal');
+        const overlay = document.getElementById('confirmOverlay');
+        const msgEl = document.getElementById('confirmMessage');
+        const yesBtn = document.getElementById('confirmYes');
+        const cancelBtn = document.getElementById('confirmCancel');
+        const closeBtn = document.getElementById('confirmClose');
+        if (!modal || !overlay || !msgEl || !yesBtn || !cancelBtn) {
+            // Fallback to native confirm if modal elements are missing
+            const proceed = window.confirm(message);
+            if (proceed && typeof onConfirm === 'function') onConfirm();
+            else if (!proceed && typeof onCancel === 'function') onCancel();
+            return;
+        }
+        msgEl.textContent = message;
+        modal.style.display = 'block';
+        overlay.style.display = 'block';
+        // Clean up any previous handlers to avoid multiple bindings
+        const cleanup = () => {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+            yesBtn.removeEventListener('click', confirmHandler);
+            cancelBtn.removeEventListener('click', cancelHandler);
+            if (closeBtn) closeBtn.removeEventListener('click', cancelHandler);
+            overlay.removeEventListener('click', cancelHandler);
+        };
+        const confirmHandler = async () => {
+            cleanup();
+            if (typeof onConfirm === 'function') await onConfirm();
+        };
+        const cancelHandler = () => {
+            cleanup();
+            if (typeof onCancel === 'function') onCancel();
+        };
+        yesBtn.addEventListener('click', confirmHandler);
+        cancelBtn.addEventListener('click', cancelHandler);
+        if (closeBtn) closeBtn.addEventListener('click', cancelHandler);
+        overlay.addEventListener('click', cancelHandler);
+    }
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
@@ -3087,7 +3568,7 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         }
         function switchPage(pageId) {
     // Hide all other known pages, including the attendance dashboard when switching via nav
-    document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #dataManagementPage, #attendancePage')
+    document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #attendancePage')
         .forEach(page => {
             page.style.display = 'none';
             page.classList.remove('page-transition');
@@ -3104,11 +3585,7 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
     if (pageId === 'educationPage') {
         loadEducationContent();
     }
-    if (pageId === 'dataManagementPage' && currentNIK !== 'CA00383') {
-        showNotification('Hanya NIK CA00383 yang dapat mengakses manajemen data.');
-        switchPage('mainPage');
-        return;
-    }
+    // The data management page has been removed; no additional access control is required.
     if (pageId === 'meterPage') {
         // Only initialize the old meter report table if the elements exist (Excel-style sheet replaces it)
         const meterReportBodyEl = document.getElementById('meterReportBody');
@@ -3122,7 +3599,7 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
     // Damage page functionality removed; no actions needed when pageId is 'damagePage'
 }
 function hideAllPages() {
-    const pages = ['loginPage', 'mainPage', 'meterPage', 'damagePage', 'estimationPage', 'educationPage', 'dataManagementPage', 'attendancePage'];
+    const pages = ['loginPage', 'mainPage', 'meterPage', 'damagePage', 'estimationPage', 'educationPage', 'attendancePage'];
     pages.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -3150,6 +3627,8 @@ function showAttendancePage() {
     // Populate staff list and update greeting for the attendance page
     populateStaffList();
     updateGreeting();
+    // Load the daily activity summary when opening the attendance page
+    loadActivitySummary();
 }
 
 // Populate the staff list on the attendance dashboard.  Uses the
@@ -3200,19 +3679,18 @@ function login() {
                     // Bind click handler here to ensure it works in all environments
                     attendanceToggle.onclick = showAttendancePage;
                 }
-                // After successful login, show the attendance dashboard first instead of the checklist
+                // After successful login, show the attendance dashboard first
+                // instead of the checklist.  Then initialise the attendance
+                // Firestore listeners.  These functions subscribe to both the
+                // current user's document and the collection for all staff.
                 showAttendancePage();
+                initAttendanceDoc();
+                initStaffAttendanceListener();
                 // Prepare other parts of the application in the background
                 updateShiftInfo();
                 populateFilters();
                 listenReports(1);
-                const toggleBtn = document.getElementById('dataManagementToggle');
-                    if (currentNIK === 'CA00383') {
-                        toggleBtn.style.display = 'block';
-                        toggleBtn.addEventListener('click', () => switchPage('dataManagementPage'));
-                    } else {
-                    toggleBtn.style.display = 'none';
-                }
+                // The data management navigation item has been removed; individual reports can be deleted directly from the table.
             });
         }, 700);
     } else {
@@ -3263,6 +3741,11 @@ function login() {
             saveButton.textContent = 'Simpan Checklist';
             delete saveButton.dataset.editId;
             document.getElementById('checklistForm').reset();
+    // Show or hide the custom shift/type selectors based on the selected checklist type.
+    const customOptsEl = document.getElementById('customOptions');
+    if (customOptsEl) {
+        customOptsEl.style.display = type === 'custom' ? 'block' : 'none';
+    }
         }
         function showEditForm(checklist) {
             if (checklist.nik !== currentNIK) {
@@ -3272,6 +3755,21 @@ function login() {
             currentType = checklist.shift || 'custom';
             document.querySelectorAll('.switch-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`switch${currentType.charAt(0).toUpperCase() + currentType.slice(1)}`).classList.add('active');
+            // Toggle visibility of custom shift/type selectors and populate values when editing.
+            const customOptsEl = document.getElementById('customOptions');
+            const customShiftSel = document.getElementById('customShiftSelect');
+            const customTypeSel = document.getElementById('customTypeSelect');
+            if (customOptsEl && customShiftSel && customTypeSel) {
+                if (checklist.shift === 'custom') {
+                    customOptsEl.style.display = 'block';
+                    customShiftSel.value = checklist.shiftName || '';
+                    customTypeSel.value = checklist.customType || '';
+                } else {
+                    customOptsEl.style.display = 'none';
+                    customShiftSel.value = '';
+                    customTypeSel.value = '';
+                }
+            }
             document.getElementById('bakRO').value = checklist.bakRO || '';
             document.getElementById('tinggiRO').value = checklist.tinggiRO || '';
             document.getElementById('bakWWTP').value = checklist.bakWWTP || '';
@@ -3315,31 +3813,74 @@ function login() {
                 saveButton.classList.remove('loading');
                 return;
             }
+            // When using the standard masuk/pulang modes, validate that the current time
+            // falls within the allowed window.  Convert times to absolute minutes since
+            // midnight to handle both normal and cross‑midnight ranges.  For custom
+            // checklists the time window validation is skipped.
+            let selectedCustomShift = '';
+            let selectedCustomType = '';
             if (currentType !== 'custom') {
-                const [startInputHour, startInputMinute] = currentShift.startInput.split(':').map(Number);
-                const [endInputHour, endInputMinute] = currentShift.endInput.split(':').map(Number);
-                const [startOutputHour, startOutputMinute] = currentShift.startOutput.split(':').map(Number);
-                const [endOutputHour, endOutputMinute] = currentShift.endOutput.split(':').map(Number);
-                const isValidMasuk = currentType === 'masuk' &&
-                    ((hour === startInputHour && minute >= startInputMinute && (hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))) ||
-                     (startInputHour > endInputHour && (hour >= startInputHour || hour < endInputHour || (hour === endInputHour && minute <= endInputMinute))));
-                const isValidPulang = currentType === 'pulang' &&
-                    ((hour === startOutputHour && minute >= startOutputMinute && (hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))) ||
-                     (startOutputHour > endOutputHour && (hour >= startOutputHour || hour < endOutputHour || (hour === endOutputHour && minute <= endOutputMinute))));
-                if (!isValidMasuk && !isValidPulang) {
-                    showNotification(`Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ${currentType === 'masuk' ? `${currentShift.startInput}-${currentShift.endInput}` : `${currentShift.startOutput}-${currentShift.endOutput}`}. Silakan coba lagi pada waktu yang sesuai.`);
+                const [sInputH, sInputM] = currentShift.startInput.split(':').map(Number);
+                const [eInputH, eInputM] = currentShift.endInput.split(':').map(Number);
+                const [sOutputH, sOutputM] = currentShift.startOutput.split(':').map(Number);
+                const [eOutputH, eOutputM] = currentShift.endOutput.split(':').map(Number);
+                const startInputMin = sInputH * 60 + sInputM;
+                const endInputMin = eInputH * 60 + eInputM;
+                const startOutputMin = sOutputH * 60 + sOutputM;
+                const endOutputMin = eOutputH * 60 + eOutputM;
+                const currentMin = hour * 60 + minute;
+                const isMasukWindow =
+                    currentType === 'masuk' &&
+                    (startInputMin <= endInputMin
+                        ? currentMin >= startInputMin && currentMin <= endInputMin
+                        : currentMin >= startInputMin || currentMin <= endInputMin);
+                const isPulangWindow =
+                    currentType === 'pulang' &&
+                    (startOutputMin <= endOutputMin
+                        ? currentMin >= startOutputMin && currentMin <= endOutputMin
+                        : currentMin >= startOutputMin || currentMin <= endOutputMin);
+                if (!isMasukWindow && !isPulangWindow) {
+                    showNotification(
+                        `Checklist ${currentType} untuk ${currentShift.name} hanya dapat dilakukan pada ` +
+                            (currentType === 'masuk'
+                                ? `${currentShift.startInput}-${currentShift.endInput}`
+                                : `${currentShift.startOutput}-${currentShift.endOutput}`) +
+                            `. Silakan coba lagi pada waktu yang sesuai.`
+                    );
+                    saveButton.classList.remove('loading');
+                    return;
+                }
+            } else {
+                // Require the user to choose both a shift and a type (masuk/pulang) for
+                // custom checklists.  These selections are used later when storing
+                // additional metadata on the document.
+                const cs = document.getElementById('customShiftSelect');
+                const ct = document.getElementById('customTypeSelect');
+                selectedCustomShift = cs ? cs.value : '';
+                selectedCustomType = ct ? ct.value : '';
+                if (!selectedCustomShift || !selectedCustomType) {
+                    showNotification('Mohon pilih shift dan tipe untuk custom checklist!');
                     saveButton.classList.remove('loading');
                     return;
                 }
             }
             const user = users.find(u => u.nik === currentNIK);
+            // Build the checklist document.  For custom entries, set the shift to
+            // "custom", attach the selected shift name and type, and leave the
+            // standard shiftName field equal to the chosen shift.  For masuk/pulang
+            // entries, use the current shift name from the schedule definitions.
             const data = {
                 nik: currentNIK,
                 name: user ? user.name : 'Unknown',
                 date: dateStr,
                 time: now.toLocaleTimeString('id-ID'),
-                shift: currentType,
-                shiftName: currentType === 'custom' ? 'Custom' : currentShift ? currentShift.name : 'Unknown',
+                shift: currentType === 'custom' ? 'custom' : currentType,
+                shiftName:
+                    currentType === 'custom'
+                        ? selectedCustomShift
+                        : currentShift
+                        ? currentShift.name
+                        : 'Unknown',
                 bakRO: document.getElementById('bakRO').value,
                 tinggiRO: parseFloat(document.getElementById('tinggiRO').value) || 0,
                 bakWWTP: document.getElementById('bakWWTP').value,
@@ -3359,6 +3900,12 @@ function login() {
                 catatan: document.getElementById('catatan').value || '',
                 createdAt: serverTimestamp()
             };
+            // Attach the custom type only when using a custom checklist.  This field
+            // identifies whether the custom entry corresponds to a "Masuk" or "Pulang"
+            // operation and is displayed in the reports.
+            if (currentType === 'custom') {
+                data.customType = selectedCustomType;
+            }
             const required = ['bakRO', 'tinggiRO', 'bakWWTP', 'tinggiWWTP', 'pompa', 'tinggiPDAM', 'statusPDAM', 'hydrantStatus', 'AStatus', 'EStatus', 'damkar', 'supplyPDAM', 'meterIndukPDAM', 'meterIndukWTP', 'PDAM', 'flowPDAM'];
             const missing = required.filter(field => !data[field] && data[field] !== 0);
             if (missing.length > 0) {
@@ -3416,30 +3963,62 @@ function login() {
             reportBody.innerHTML = '';
             const checklists = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             if (checklists.length === 0) {
-                reportBody.innerHTML = '<tr><td colspan="5">Tidak ada data checklist.</td></tr>';
+                // There are no checklist entries.  Show a message spanning four columns
+                // since the notes column has been removed from the table.
+                reportBody.innerHTML = '<tr><td colspan="4">Tidak ada data checklist.</td></tr>';
             } else {
                 checklists.forEach(c => {
                     const dataRow = document.createElement('tr');
+                    // Render the basic data columns.  For the shift column, if the entry
+                    // is a custom checklist then append both the selected shift name and
+                    // the custom type (Masuk/Pulang) in parentheses.  Otherwise display
+                    // the shift name only when it is not "Custom".  This ensures that
+                    // custom entries are clearly labelled for easy identification.
+                    // Build the checklist row without displaying the “catatan” field.  Notes are now
+                    // only visible in the detail view, so this table shows a concise overview.
                     dataRow.innerHTML = `
                         <td>${c.date || '-'}</td>
                         <td>${c.time || '-'}</td>
-                        <td>${c.shift ? c.shift.toUpperCase() : '-'} ${c.shiftName !== 'Custom' ? '(' + (c.shiftName || '-') + ')' : ''}</td>
+                        <td>${
+                            c.shift ? c.shift.toUpperCase() : '-'
+                        } ${
+                            c.shift === 'custom'
+                                ? '(' +
+                                  (c.shiftName || '-') +
+                                  (c.customType
+                                      ? ', ' +
+                                        (c.customType.charAt(0).toUpperCase() + c.customType.slice(1))
+                                      : '') +
+                                  ')'
+                                : c.shiftName && c.shiftName !== 'Custom'
+                                ? '(' + (c.shiftName || '-') + ')'
+                                : ''
+                        }</td>
                         <td>${c.nik || '-'} - ${c.name || '-'}</td>
-                        <td>${c.catatan || '-'}</td>
                     `;
                     reportBody.appendChild(dataRow);
                     const actionRow = document.createElement('tr');
                     actionRow.classList.add('action-row');
+                    // Render actions across individual cells to align with their respective columns.
                     actionRow.innerHTML = `
-                        <td colspan="5" style="text-align:left;">
+                        <td>
                             <button class="detail-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>
                                 <i class="fas fa-eye"></i> Detail
                             </button>
+                        </td>
+                        <td>
                             <button class="share-btn whatsapp-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>
                                 <i class="fas fa-share-alt"></i> Share
                             </button>
+                        </td>
+                        <td>
                             <button class="edit-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}' ${c.nik !== currentNIK ? 'disabled' : ''}>
                                 <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </td>
+                        <td>
+                            <button class="delete-btn" data-detail='${JSON.stringify(c).replace(/'/g, "&apos;")}'>
+                                <i class="fas fa-trash"></i> Hapus
                             </button>
                         </td>
                     `;
@@ -3486,7 +4065,21 @@ function login() {
                 <ul>
                     <li><strong>Tanggal:</strong> ${data.date || '-'}</li>
                     <li><strong>Waktu:</strong> ${data.time || '-'}</li>
-                    <li><strong>Shift:</strong> ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}</li>
+                    <li><strong>Shift:</strong> ${
+                        data.shift ? data.shift.toUpperCase() : '-'
+                    } ${
+                        data.shift === 'custom'
+                            ? '(' +
+                              (data.shiftName || '-') +
+                              (data.customType
+                                  ? ', ' +
+                                    (data.customType.charAt(0).toUpperCase() + data.customType.slice(1))
+                                  : '') +
+                              ')'
+                            : data.shiftName && data.shiftName !== 'Custom'
+                            ? '(' + (data.shiftName || '-') + ')'
+                            : ''
+                    }</li>
                     <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
                     <li><strong>Bak Distribusi RO:</strong> ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)</li>
                     <li><strong>Bak Tampung WWTP:</strong> ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)</li>
@@ -3519,7 +4112,21 @@ function login() {
 • Laporan Checklist
 • Tanggal: ${data.date || '-'}
 • Waktu: ${data.time || '-'}
-• Shift: ${data.shift ? data.shift.toUpperCase() : '-'} ${data.shiftName !== 'Custom' ? '(' + (data.shiftName || '-') + ')' : ''}
+• Shift: ${
+    data.shift ? data.shift.toUpperCase() : '-'
+} ${
+    data.shift === 'custom'
+        ? '(' +
+          (data.shiftName || '-') +
+          (data.customType
+              ? ', ' +
+                (data.customType.charAt(0).toUpperCase() + data.customType.slice(1))
+              : '') +
+          ')'
+        : data.shiftName && data.shiftName !== 'Custom'
+        ? '(' + (data.shiftName || '-') + ')'
+        : ''
+}
 • Penginput: ${data.nik || '-'} - ${data.name || '-'}
 1. Bak Distribusi RO: ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)
 2. Bak Tampung WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
@@ -4860,26 +5467,45 @@ async function deleteData() {
             showNotification(`Tidak ada data ${dataType} untuk tanggal ${formattedDate}`);
             return;
         }
-        const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
-        await Promise.all(deletePromises);
-        showNotification(`Berhasil menghapus ${snapshot.docs.length} data ${dataType} untuk tanggal ${formattedDate}!`, true);
-        if (dataType === 'checklists') {
-            listenReports(1);
-            populateFilters();
-        } else if (dataType === 'meters') {
-            listenMeterReports(1);
-            populateMeterFilterDate();
-        } else if (dataType === 'damages') {
-            listenDamageReports(1);
-            populateDamageFilterDate();
-        }
+        // Ask for confirmation before deleting.  Use the number of matching
+        // documents in the message to clearly communicate the scope of the action.
+        showConfirm(`Apakah Anda yakin ingin menghapus ${snapshot.docs.length} data ${dataType} untuk tanggal ${formattedDate}?`, async () => {
+            try {
+                const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                await Promise.all(deletePromises);
+                showNotification(`Berhasil menghapus ${snapshot.docs.length} data ${dataType} untuk tanggal ${formattedDate}!`, true);
+                if (dataType === 'checklists') {
+                    listenReports(1);
+                    populateFilters();
+                } else if (dataType === 'meters') {
+                    listenMeterReports(1);
+                    populateMeterFilterDate();
+                } else if (dataType === 'damages') {
+                    listenDamageReports(1);
+                    populateDamageFilterDate();
+                }
+            } catch (err) {
+                console.error('Gagal menghapus data:', err);
+                showNotification(`Gagal menghapus data: ${err.message}`);
+            } finally {
+                button.classList.remove('loading');
+                button.disabled = false;
+            }
+        }, () => {
+            // Cancellation callback.  Simply reset the button state.
+            button.classList.remove('loading');
+            button.disabled = false;
+        });
+        // Early return: further actions are handled in the confirmation callbacks.
+        return;
     } catch (error) {
         console.error('Gagal menghapus data:', error);
         showNotification(`Gagal menghapus data: ${error.message}`);
-    } finally {
-        button.classList.remove('loading');
-        button.disabled = false;
     }
+    // Ensure the button state is reset if an exception occurs before the
+    // confirmation modal is displayed.
+    button.classList.remove('loading');
+    button.disabled = false;
 }
 document.addEventListener('DOMContentLoaded', () => {
     const savedTheme = localStorage.getItem('theme') || 'light';
@@ -4916,7 +5542,7 @@ document.addEventListener('DOMContentLoaded', () => {
         damageFormEl.addEventListener('submit', saveDamage);
     }
     document.getElementById('estimationForm').addEventListener('submit', calculateEstimation);
-    document.getElementById('deleteDataButton').addEventListener('submit', deleteData);
+    // Removed bulk data deletion button listener.  Deletion of reports is handled via per‑row actions.
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalOverlay').addEventListener('click', closeModal);
     document.getElementById('meterBlock').addEventListener('change', (e) => populateLocations('meterLocation', e.target.value));
@@ -4957,12 +5583,31 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('edit-btn')) {
             showEditForm(JSON.parse(e.target.dataset.detail));
         }
+        // Handle deletion of reports.  Confirm with the user before deleting the
+        // document from Firestore to prevent accidental removals.  Use the
+        // document id stored in the data-detail attribute for the deleteDoc call.
+        if (e.target.classList.contains('delete-btn') || (e.target.parentElement && e.target.parentElement.classList.contains('delete-btn'))) {
+            const detailStr = e.target.dataset.detail || e.target.parentElement.dataset.detail;
+            const data = JSON.parse(detailStr);
+            // Use a custom confirmation modal instead of the native confirm dialog.  This
+            // modal preserves the app’s aesthetic and avoids showing the browser’s
+            // domain in the prompt.
+            showConfirm('Apakah Anda yakin ingin menghapus laporan ini?', async () => {
+                try {
+                    await deleteDoc(doc(db, 'checklists', data.id));
+                    showNotification('Laporan berhasil dihapus!', true);
+                } catch (error) {
+                    console.error('Gagal menghapus laporan:', error);
+                    showNotification(`Gagal menghapus laporan: ${error.message}`);
+                }
+            });
+        }
     });
     document.getElementById('meterReportBody').addEventListener('click', (e) => {
         if (e.target.classList.contains('whatsapp-btn') || e.target.parentElement.classList.contains('whatsapp-btn')) {
             const data = JSON.parse(e.target.dataset.detail || e.target.parentElement.dataset.detail);
             const message = `
-• Laporan Meter Lapangan
+• Laporan Meter Air
 • Tanggal: ${data.date || '-'}
 • Waktu: ${data.time || '-'}
 • Blok: ${data.block || '-'}
@@ -5099,10 +5744,7 @@ Catatan: ${data.notes || '-'}
                 updateStatusOutputs(); 
             });
         }
-        const deleteBtn = document.getElementById('deleteDataButton');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', deleteData);
-        }
+        // No bulk deletion button exists; no need to bind deletion events here.
         const loginBtn = document.getElementById('loginButton');
         if (loginBtn) {
             loginBtn.addEventListener('click', login);
@@ -5385,22 +6027,25 @@ function populateBlockTabs() {
         }
         // Click handler for selecting block
         tab.addEventListener('click', () => {
-            // If there are unsaved changes on the current sheet, warn the user before switching blocks
+            // Helper to perform the block switch.  This sets the hidden select,
+            // updates the active tab styling and triggers loading of the sheet.
+            const performSwitch = () => {
+                selectEl.value = block;
+                tabContainer.querySelectorAll('.block-tab').forEach(el => el.classList.remove('active'));
+                tab.classList.add('active');
+                loadMeterSheet();
+            };
+            // If there are unsaved changes on the current sheet, show a custom
+            // confirmation modal instead of the native confirm().  Only when
+            // the user confirms will the changes be discarded.
             if (window.unsavedSheetChanges) {
-                const proceed = confirm('Anda memiliki perubahan yang belum disimpan. Tetap beralih ke blok lain?');
-                if (!proceed) {
-                    return;
-                }
-                // user confirmed discarding changes
-                window.unsavedSheetChanges = false;
+                showConfirm('Anda memiliki perubahan yang belum disimpan. Tetap beralih ke blok lain?', () => {
+                    window.unsavedSheetChanges = false;
+                    performSwitch();
+                });
+            } else {
+                performSwitch();
             }
-            // Update hidden select value
-            selectEl.value = block;
-            // Update active states
-            tabContainer.querySelectorAll('.block-tab').forEach(el => el.classList.remove('active'));
-            tab.classList.add('active');
-            // Load sheet data if month has been chosen (will show notification otherwise)
-            loadMeterSheet();
         });
         tabContainer.appendChild(tab);
     });
@@ -5412,8 +6057,10 @@ async function loadMeterSheet() {
     // Warn the user if there are unsaved changes from previous edits.  Switching
     // the sheet (either by changing block or month) will discard those changes.
     if (window.unsavedSheetChanges) {
-        const confirmDiscard = confirm('Anda memiliki perubahan yang belum disimpan. Memuat sheet baru akan membatalkan perubahan tersebut. Lanjutkan?');
-        if (!confirmDiscard) {
+        const proceed = await new Promise(resolve => {
+            showConfirm('Anda memiliki perubahan yang belum disimpan. Memuat sheet baru akan membatalkan perubahan tersebut. Lanjutkan?', () => resolve(true), () => resolve(false));
+        });
+        if (!proceed) {
             return;
         }
         // User chose to discard changes; reset flag
@@ -5913,92 +6560,12 @@ window.addEventListener('DOMContentLoaded', () => {
 // mencapai atau melebihi 5 kali.  Referensi desain dashboard berasal dari
 // praktik terbaik yang menekankan tampilan ringkas dengan angka tebal dan
 // penyampaian informasi yang relevan secara instan【622564324081978†L168-L195】.
+// The localStorage-based attendance dashboard has been replaced by a
+// Firestore-backed implementation.  See initAttendanceDoc() and
+// updateAttendanceUI() for the new logic.  We leave this empty
+// handler here to avoid executing the old code on DOMContentLoaded.
 document.addEventListener('DOMContentLoaded', () => {
-    const lateInput = document.getElementById('lateInput');
-    const earlyInput = document.getElementById('earlyInput');
-    const summaryEl = document.getElementById('attendanceSummary');
-    if (!lateInput || !earlyInput || !summaryEl) return;
-    // Muat data dari localStorage atau atur default
-    try {
-        const stored = JSON.parse(localStorage.getItem('attendanceData'));
-        if (stored) {
-            lateInput.value = stored.late || 0;
-            earlyInput.value = stored.early || 0;
-        }
-    } catch (err) {
-        console.warn('Gagal memuat data kehadiran dari localStorage:', err);
-    }
-    function updateAttendanceSummary() {
-        const late = parseInt(lateInput.value) || 0;
-        const early = parseInt(earlyInput.value) || 0;
-        const total = late + early;
-        // Simpan ke localStorage
-        try {
-            localStorage.setItem('attendanceData', JSON.stringify({ late, early }));
-        } catch (err) {
-            console.warn('Gagal menyimpan data kehadiran:', err);
-        }
-        // Tampilkan ringkasan
-        summaryEl.innerHTML = `Telat: <strong>${late}</strong> kali, Pulang Cepat: <strong>${early}</strong> kali. Total: <strong>${total}</strong>/5`;
-        if (total >= 5) {
-            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Peringatan: Jumlah Telat dan Pulang Cepat telah mencapai batas maksimal 5 kali!</span>';
-        }
-        // Update the stacked progress bar and legend. Instead of using a single
-        // colour for the entire bar, we split it into a late segment and an
-        // early‑leave segment by applying a gradient background. The width of
-        // the bar still represents the total number of occurrences relative to
-        // the maximum (5), while the gradient shows the proportion of late vs
-        // early within that total. A legend underneath clarifies the meaning
-        // with coloured labels.
-        const progressBarEl = document.getElementById('attendanceProgressBar');
-        const progressTextEl = document.getElementById('progressText');
-        if (progressBarEl && progressTextEl) {
-            const barPercent = Math.min((total / 5) * 100, 100);
-            // Calculate segment widths relative to the total occurrences. When
-            // total is zero avoid division by zero by leaving the bar empty.
-            let lateSegment = 0;
-            let earlySegment = 0;
-            if (total > 0) {
-                lateSegment = (late / total) * 100;
-                earlySegment = 100; // the remainder covers early occurrences
-            }
-            // Set the bar's width according to the total and apply a gradient
-            // where the first part is red (late) and the second part is orange
-            // (early). If there are no occurrences the bar remains empty.
-            progressBarEl.style.width = `${barPercent}%`;
-            if (total > 0) {
-                progressBarEl.style.background =
-                    `linear-gradient(to right, #e53935 0%, #e53935 ${lateSegment}%, ` +
-                    `#FFCA28 ${lateSegment}%, #FFCA28 100%)`;
-            } else {
-                progressBarEl.style.background = '';
-            }
-            // Build the legend using coloured swatches instead of plain coloured text.
-            // Each legend item consists of a small coloured box followed by its label
-            // and count.  This visually resembles the legends used in charts.
-            const legendItems = [];
-            legendItems.push(
-                `<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#e53935;border-radius:2px;margin-right:4px;"></span>Telat: ${late}</span>`
-            );
-            legendItems.push(
-                `<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#FFCA28;border-radius:2px;margin-right:4px;"></span>Pulang Cepat: ${early}</span>`
-            );
-            // Combine items and append the total after the legend items.  The total is
-            // displayed without colour because it summarises both categories.
-            let legendHTML = legendItems.join('');
-            legendHTML += `<span style="font-weight:600;">Total: ${total}/5</span>`;
-            // If the total reaches the maximum, append a warning in red.
-            if (total >= 5) {
-                legendHTML += `<span style="color:#e53935;font-weight:600;">Batas tercapai!</span>`;
-            }
-            progressTextEl.innerHTML = legendHTML;
-        }
-    }
-    // Pasang listener untuk memperbarui ringkasan saat nilai berubah
-    lateInput.addEventListener('input', updateAttendanceSummary);
-    earlyInput.addEventListener('input', updateAttendanceSummary);
-    // Perbarui tampilan awal
-    updateAttendanceSummary();
+    // No-op for legacy attendance implementation
 });
 // ==================== End Attendance Dashboard ====================
 </script>
