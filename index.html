@@ -686,13 +686,12 @@ body.light-theme .attendance-toggle {
     gap: 6px;
 }
 .staff-list li {
-    /* Display list items as flex containers so the name and NIK stay
-       aligned on the left while the attendance badges sit on the far
-       right.  This ensures a clean, symmetrical layout on both
-       desktop and mobile screens. */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    /* Display list items as block containers.  The first row (staff-row)
+       handles horizontal alignment of the name and badges, while any
+       additional information is stacked below.  Using block instead of
+       flex here ensures expandable details appear beneath the main row
+       rather than squeezed alongside it. */
+    display: block;
     padding: 8px 12px;
     border-radius: 8px;
     font-size: 13px;
@@ -703,10 +702,47 @@ body.light-theme .attendance-toggle {
    automatically aligns the badges consistently and avoids irregular
    spacing. */
 .staff-list .attendance-count {
+    /* The attendance-count container sits in the staff-row to the right of
+       the staff name.  It remains inline‑flex for proper spacing of
+       badges. */
     margin-left: auto;
     display: inline-flex;
     gap: 4px;
     align-items: center;
+}
+
+/* Container for the primary row within each staff item.  This row uses
+   flexbox to align the coloured dot, name, NIK tag and badge group
+   horizontally.  Additional details are displayed in a separate block
+   underneath. */
+.staff-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Small coloured dot indicating the assigned colour for each staff
+   member.  Users can click this dot (or anywhere in the row) to
+   reveal additional information about that staff member. */
+.staff-color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+/* Hidden details panel for each staff entry.  When the user clicks
+   on the staff item, this panel toggles between hidden and visible
+   states, revealing further metrics (late, early and checklist
+   counts). */
+.staff-details {
+    display: none;
+    font-size: 12px;
+    margin-top: 4px;
+    line-height: 1.3;
+    opacity: 0.85;
 }
 body.light-theme .staff-list li {
     background: rgba(76, 175, 80, 0.1);
@@ -2109,7 +2145,7 @@ body.light-theme .data-management-toggle {
     }
 }
 
-/* ===== CUSTOM MODIFICATIONS BY ASSISTANT ===== */
+ 
 
 /* Hide damage page and related UI components */
 [data-page="damagePage"],
@@ -2313,6 +2349,43 @@ body.dark-theme .attendance-input-card {
         background: #FFCA28;
         color: #000;
     }
+
+    /* Additional badges for staff activity metrics.  The checklist badge
+       shows the number of checklist submissions by a staff member, while
+       the on‑time badge displays their punctuality rate as a percentage.
+       We use distinct colours to differentiate these metrics: blue for
+       checklist submissions and green for on‑time arrival rates. */
+    .attendance-count .checklist-badge {
+        background: #2196F3;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        line-height: 1;
+    }
+    .attendance-count .ontime-badge {
+        background: #4CAF50;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        line-height: 1;
+    }
+
+    /* Additional badge for displaying the average input time of each staff member.
+       The purple colour complements the existing palette and differentiates this
+       metric from checklist counts and punctuality percentages. */
+    .attendance-count .avgtime-badge {
+        background: #9C27B0;
+        color: #fff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        line-height: 1;
+    }
 body.dark-theme .attendance-input-card i {
     color: #A5D6A7;
 }
@@ -2328,25 +2401,85 @@ body.dark-theme .attendance-input-card span {
 .attendance-summary-card {
     text-align: center;
 }
+
+/* Additional styles for the enhanced staff list */
+.staff-search {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+/* Sort dropdown styling for staff list */
+.staff-sort {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+body.dark-theme .staff-sort {
+    background: rgba(50, 50, 70, 0.8);
+    color: #e0e0e0;
+}
+body.light-theme .staff-sort {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+body.dark-theme .staff-search {
+    background: rgba(50, 50, 70, 0.8);
+    color: #e0e0e0;
+}
+body.light-theme .staff-search {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+#toggleStaffListBtn {
+    margin-top: 8px;
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    transition: background 0.3s ease;
+}
+#toggleStaffListBtn:hover {
+    background: linear-gradient(135deg, #45a049, #4CAF50);
+}
+/* Hide staff list items beyond the first five when collapsed */
+.staff-list.collapsed li:nth-child(n+6) {
+    display: none;
+}
 .progress-container {
     width: 100%;
-    background: rgba(76, 175, 80, 0.1);
-    border-radius: 8px;
-    /* Increase the bar height slightly for better visibility on mobile */
-    height: 14px;
+    background: rgba(76, 175, 80, 0.08);
+    border-radius: 12px;
+    /* Increase the bar height for better visibility */
+    height: 22px;
     overflow: hidden;
-    margin-top: 10px;
+    margin-top: 12px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
 }
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #66bb6a, #43a047);
+    background: linear-gradient(90deg, #e53935, #FFCA28);
     width: 0%;
     transition: width 0.5s ease;
+    border-radius: 12px;
 }
-# Custom class for the attendance Lottie animation. By making the width a
-# percentage of its parent container and restricting the maximum width,
-# the animation scales gracefully across screen sizes. The height is
-# defined to keep a consistent aspect ratio.
+/*
+    Custom class for the attendance Lottie animation.  By making the
+    width a percentage of its parent container and restricting the
+    maximum width, the animation scales gracefully across screen sizes.
+    The height is defined to keep a consistent aspect ratio.
+*/
 .attendance-anim {
     width: 100%;
     max-width: 360px;
@@ -2356,22 +2489,28 @@ body.dark-theme .attendance-input-card span {
 
 /* Small tag used to display the NIK next to a staff member's name. It uses
    reduced font size and opacity to avoid overwhelming the primary name. */
+/* Small tag used to display the NIK next to a staff member's name. The default width
+   and right‑alignment have been removed to ensure the NIK appears immediately
+   after the name. A space character is inserted in the markup to separate the
+   name and NIK, so no additional margin is needed here. */
 .nik-tag {
     font-size: 11px;
     opacity: 0.7;
-    margin-left: 6px;
+    /* No additional margin is applied here because a single space character is
+       inserted between the staff name and the NIK tag in the markup. */
+    margin-left: 0;
 }
 #progressText {
     /* Display the legend as a horizontal flex row so each legend item
        (colour swatch + label) sits neatly next to each other.  We also
        nudge the margin to give breathing room above the bar. */
-    font-size: 13px;
-    margin-top: 8px;
+    font-size: 14px;
+    margin-top: 10px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
-    font-weight: 500;
+    gap: 12px;
+    font-weight: 600;
 }
 </style>
 </head>
@@ -2595,19 +2734,16 @@ body.dark-theme .attendance-input-card span {
         </div>
     </div>
 </div>
-<!-- Attendance Page: newly added dedicated page for the attendance dashboard -->
+ 
 <div id="attendancePage" class="container" style="display:none;">
     <div class="header">
-        <!-- Use a CSS class for the attendance animation so the size can
-             responsively follow the container width. This makes it easier
-             to adjust the Lottie animation on different devices without
-             hard‑coding a fixed pixel size. -->
+ 
         <div id="attendanceAnim" class="attendance-anim"></div>
         <div class="greeting" id="attendanceGreeting">Selamat Pagi, User!</div>
         <h1>Dashboard Kehadiran</h1>
         <div class="subtitle">Pantau Kedisiplinan</div>
     </div>
-    <!-- Summary card showing progress of lateness and early departures -->
+ 
     <div class="card attendance-summary-card">
         <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Ringkasan Kehadiran</h2>
         <div class="progress-container">
@@ -2615,23 +2751,10 @@ body.dark-theme .attendance-input-card span {
         </div>
         <div id="progressText">Belum ada data keterlambatan.</div>
     </div>
-    <!-- Staff list card -->
+ 
     <div class="card">
-        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Daftar Staf</h2>
-        <ul id="staffList" class="staff-list"></ul>
-    </div>
-    <!-- Activity summary card: displays counts of checklist and meter reports for
-         the current day.  Placing this card directly below the staff list
-         ensures it remains visible and is not obscured by the fixed
-         navigation bar at the bottom of the page. -->
-    <div class="card" id="activitySummaryCard">
-        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Ringkasan Checklist &amp; Staf</h2>
-        <ul id="activitySummaryList" style="list-style: none; font-size: 13px; padding-left: 0;"></ul>
-    </div>
-    <!-- Attendance input card redesigned -->
-    <div class="card">
-        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Input Kehadiran</h2>
-        <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Masukkan jumlah keterlambatan dan pulang cepat Anda bulan ini (maksimal total 5 kali).</p>
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Telat &amp; Pulang Cepat</h2>
+        <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Catat jumlah keterlambatan dan pulang cepat Anda bulan ini (maksimal total 5 kali).</p>
         <div class="attendance-inputs">
             <div class="attendance-input-card">
                 <i class="fas fa-clock"></i>
@@ -2645,6 +2768,61 @@ body.dark-theme .attendance-input-card span {
             </div>
         </div>
         <div id="attendanceSummary" style="font-size: 13px; margin-top: 6px; font-weight: 500;"></div>
+    </div>
+ 
+    <!--
+        The standalone staff list card has been removed.  The staff list and
+        associated toggle button are now integrated directly into the
+        Aktivitas Staf card so that staff names, attendance badges and
+        activity metrics live in one cohesive section.  This improves the
+        flow of the dashboard by keeping all staff‑related information in
+        one place.  See the updated userActivityCard markup below.
+    -->
+ 
+    <div class="card" id="activitySummaryCard">
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Ringkasan Checklist &amp; Staf</h2>
+        <ul id="activitySummaryList" style="list-style: none; font-size: 13px; padding-left: 0;"></ul>
+    </div>
+ 
+    <!--
+        Aktivitas Staf card now always visible.  It contains a doughnut chart
+        summarising checklist submissions per staff member, a detailed
+        contributor list with average input times and punctuality rates, and
+        the complete staff roster with late/early/checklist/ontime badges.  A
+        toggle button lets users collapse or expand the roster.  All staff
+        appear by default (i.e. no initial collapse).
+    -->
+    <div class="card" id="userActivityCard">
+        <!--
+            This section visualises staff activity.  The chart shows the number
+            of checklist submissions per user with colour‑coded slices.  The legend
+            lists each user; clicking a legend item highlights that staff
+            member in the summary below.  Additional metrics such as the
+            average input time and punctuality are displayed beneath the
+            chart.  See renderUserActivityDashboard() for the data logic.
+        -->
+        <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Aktivitas Staf</h2>
+        <canvas id="userActivityChartCanvas" height="220" style="width:100%;max-width:100%;max-height:220px;"></canvas>
+        <!-- Hide the separate top contributor list to avoid duplicating information.  All staff
+             activity metrics (late/early counts, checklist submissions, average input time
+             and punctuality) are now shown within the staff roster below.  The list
+             remains in the DOM for compatibility but is hidden via inline style. -->
+        <ul id="topContributorList" style="list-style:none; font-size: 12px; padding-left:0; margin-top:8px; display:none;"></ul>
+
+        <!-- Integrated staff roster -->
+        <h3 style="margin-top: 16px; font-size: 16px; font-weight: 600;">Daftar Staf</h3>
+        <p class="staff-desc" style="font-size: 12px; opacity: 0.8; margin-bottom: 8px;">
+            💡 Klik nama staf atau lingkaran warna di sebelahnya untuk menampilkan keterangan detail (jumlah telat, pulang cepat, checklist).
+        </p>
+        <!-- Show all staff by default; remove the 'collapsed' class.  The
+             toggle button text reflects the current state via JS. -->
+        <ul id="staffList" class="staff-list"></ul>
+        <!--
+             Toggle button removed; all staff are shown by default.  If
+             collapse/expand functionality is reinstated in the future,
+             reintroduce this button and the collapsed class on the
+             staff-list element.
+        -->
     </div>
 </div>
 <div id="mainPage" class="container page-fade" style="display:none;">
@@ -3221,35 +3399,310 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
     let currentNIK = '';
     let currentUserName = '';
     let usageChart = null;
+    // Chart instance for the user activity bar chart.  Declared here so that
+    // it can be destroyed and recreated whenever the analysis data is reloaded.
+    let userActivityChart = null;
     const ITEMS_PER_PAGE = 10;
 
-    // =======================================================================
-    // Attendance tracking using Firestore
-    //
-    // The attendance dashboard allows each staff member to record the number of
-    // times they were late and the number of times they left early in the
-    // current month.  Previously this information was stored in
-    // localStorage, which meant it was only available on the device where
-    // the data was entered.  To make the dashboard collaborative and
-    // persistent across devices, we store attendance data in Firestore.  Each
-    // document in the `attendance` collection corresponds to one staff
-    // member for a single month.  The document ID follows the pattern
-    // `${nik}_${yyyyMM}` so that counts automatically reset when the month
-    // changes.
+    
+    let dashboardActivityChart = null;
+
+    function filterStaffList() {
+        const searchInput = document.getElementById('staffSearchInput');
+        const query = (searchInput && searchInput.value ? searchInput.value.toLowerCase().trim() : '');
+        const listEl = document.getElementById('staffList');
+        if (!listEl) return;
+        const items = listEl.querySelectorAll('li');
+        items.forEach(li => {
+            const text = li.textContent.toLowerCase();
+            if (!query) {
+                li.style.display = '';
+            } else {
+                li.style.display = text.includes(query) ? '' : 'none';
+            }
+        });
+    }
+
+    function setupStaffListControls() {
+        const listEl = document.getElementById('staffList');
+        const toggleBtn = document.getElementById('toggleStaffListBtn');
+        // Only require the list and button; search and sort controls have been removed.
+        if (!listEl || !toggleBtn) return;
+        toggleBtn.addEventListener('click', () => {
+            // Toggle the collapsed class.  When collapsed, only the first
+            // five entries are visible (see CSS .staff-list.collapsed).
+            listEl.classList.toggle('collapsed');
+            toggleBtn.textContent = listEl.classList.contains('collapsed')
+                ? 'Tampilkan Semua Staf'
+                : 'Sembunyikan Sebagian';
+        });
+    }
+
+    async function renderUserActivityDashboard() {
+        const card = document.getElementById('userActivityCard');
+        if (!card) return;
+        card.style.display = 'block';
+        if (dashboardActivityChart) {
+            try { dashboardActivityChart.destroy(); } catch (e) {}
+            dashboardActivityChart = null;
+        }
+        if (typeof getDocs !== 'function' || typeof collection !== 'function') {
+            card.innerHTML = '<p style="font-size:12px;">Grafik aktivitas staf tidak tersedia.</p>';
+            return;
+        }
+        // Query all checklist documents.  When offline this call returns an
+        // empty snapshot.  The data will be used to compute staff metrics.
+        let snap;
+        try {
+            snap = await getDocs(collection(db, 'checklists'));
+        } catch (err) {
+            console.error('Error querying user activity:', err);
+            card.innerHTML = '<p style="font-size:12px;">Data aktivitas tidak dapat diambil.</p>';
+            return;
+        }
+        // Prepare a metrics map keyed by NIK.  Initialise each user so that
+        // staff with no checklist entries still appear in the summary.  Each
+        // metric object tracks the number of checklists (count), the total
+        // input minutes (to compute the average time), the number of
+        // submissions (totalEntries) and the number of on‑time arrivals
+        // (onTime).  The user name is stored for convenience.
+        const metrics = {};
+        if (Array.isArray(users)) {
+            users.forEach(u => {
+                metrics[u.nik] = {
+                    name: u.name,
+                    count: 0,
+                    totalMinutes: 0,
+                    totalEntries: 0,
+                    onTime: 0
+                };
+            });
+        }
+        // Helper to parse a time string (HH:mm:ss) into minutes from midnight.
+        function toMinutes(t) {
+            if (!t) return null;
+            const parts = t.split(':');
+            if (parts.length < 2) return null;
+            const hours = parseInt(parts[0], 10);
+            const minutes = parseInt(parts[1], 10);
+            return hours * 60 + minutes;
+        }
+        // Iterate over checklist documents and accumulate metrics per user.
+        snap.forEach(docSnap => {
+            const data = docSnap.data() || {};
+            const nik = data.nik;
+            if (!nik || !metrics[nik]) return;
+            const m = metrics[nik];
+            m.count += 1;
+            m.totalEntries += 1;
+            // Convert time string into minutes for averaging.  Some records may
+            // omit the time; skip those in the average.  We track totalMinutes
+            // separately so missing times don't skew the average.
+            const tMin = toMinutes(data.time);
+            if (tMin !== null) {
+                m.totalMinutes += tMin;
+            }
+            // Determine if the entry is an on‑time arrival.  Only count
+            // checklists marked as an arrival (masuk) – including custom
+            // checklists with customType 'masuk'.  Use the shift definition
+            // to determine the acceptable input window.  For the third
+            // (night) shift, the window crosses midnight so we adjust the
+            // end boundary accordingly.
+            const shiftField = data.shift || '';
+            const customType = data.customType || '';
+            const isArrival = shiftField === 'masuk' || (shiftField === 'custom' && customType === 'masuk');
+            if (isArrival && tMin !== null) {
+                const shiftName = data.shiftName;
+                // Find the shift definition by name.  Fallback to null if
+                // unknown.
+                const sh = Array.isArray(shifts) ? shifts.find(s => s.name === shiftName) : null;
+                if (sh) {
+                    // Parse input window boundaries.
+                    const startParts = sh.startInput.split(':');
+                    const endParts = sh.endInput.split(':');
+                    let startMin = parseInt(startParts[0], 10) * 60 + parseInt(startParts[1], 10);
+                    let endMin = parseInt(endParts[0], 10) * 60 + parseInt(endParts[1], 10);
+                    let timeMin = tMin;
+                    // Adjust for windows crossing midnight (e.g. shift Tiga).
+                    if (endMin <= startMin) {
+                        // Extend endMin into the next day.
+                        endMin += 24 * 60;
+                        // If the time is before the start boundary, assume it
+                        // belongs to the next day and add 24h so comparisons
+                        // remain consistent.
+                        if (timeMin < startMin) {
+                            timeMin += 24 * 60;
+                        }
+                    }
+                    if (timeMin >= startMin && timeMin <= endMin) {
+                        m.onTime += 1;
+                    }
+                }
+            }
+        });
+        // Convert the metrics object into an array and compute derived
+        // statistics such as the average input time and punctuality rate.  The
+        // average input time is expressed in hours and minutes relative to
+        // midnight for visualisation in the summary list.
+        const entries = Object.keys(metrics).map(nik => {
+            const m = metrics[nik];
+            const avg = m.totalEntries > 0 ? m.totalMinutes / m.totalEntries : 0;
+            const avgHours = Math.floor(avg / 60);
+            const avgMins = Math.round(avg % 60);
+            const avgStr = (isNaN(avg) || avg === 0)
+                ? '-' : `${String(avgHours).padStart(2, '0')}:${String(avgMins).padStart(2, '0')}`;
+            const punctuality = m.totalEntries > 0 ? (m.onTime / m.totalEntries) * 100 : 0;
+            return {
+                nik: nik,
+                name: m.name,
+                count: m.count,
+                avgTimeStr: avgStr,
+                onTimeRate: punctuality
+            };
+        });
+        // Sort by number of checklist submissions descending to surface the
+        // most active staff members.
+        entries.sort((a, b) => b.count - a.count);
+
+        // Populate a global map of metrics keyed by NIK.  This map allows
+        // other components, such as the staff list, to display staff
+        // activity information without recomputing metrics.  Each entry
+        // includes the number of checklists submitted, the formatted
+        // average input time and the on‑time arrival rate.
+        window.userMetricsMap = {};
+        entries.forEach(e => {
+            window.userMetricsMap[e.nik] = e;
+        });
+
+        // If attendance data has already been loaded, refresh the staff list
+        // now that updated metrics are available.  This ensures that the
+        // checklist and punctuality badges appear alongside the late/early
+        // counts in the staff list.
+        if (typeof updateStaffListFromDocs === 'function') {
+            updateStaffListFromDocs(latestAttendanceDocs);
+        }
+        const labels = entries.map(e => e.name);
+        const counts = entries.map(e => e.count);
+        // Define a colour palette to differentiate staff visually.  Repeat
+        // colours if there are more staff than colours.
+        const palette = ['#4CAF50','#FF9800','#2196F3','#F44336','#9C27B0','#00BCD4','#8BC34A','#FFC107','#795548','#009688','#673AB7','#E91E63'];
+        const colours = entries.map((_, idx) => palette[idx % palette.length]);
+        const canvas = document.getElementById('userActivityChartCanvas');
+        // Remove any previous loading or placeholder nodes inside the card
+        // (except our canvas and list).  Without this, offline messages from
+        // previous runs would persist.
+        [...card.querySelectorAll('p.temp-message')].forEach(el => el.remove());
+        if (typeof Chart === 'undefined' || !canvas) {
+            // Fallback when Chart.js is not available.
+            const p = document.createElement('p');
+            p.classList.add('temp-message');
+            p.style.fontSize = '12px';
+            p.style.marginTop = '8px';
+            p.textContent = 'Grafik tidak tersedia.';
+            card.appendChild(p);
+        } else {
+            const ctx = canvas.getContext('2d');
+            dashboardActivityChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Checklist',
+                        data: counts,
+                        backgroundColor: colours,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                plugins: {
+                        legend: {
+                            // Move the legend to the right of the doughnut chart for a clearer
+                            // association between colour slices and staff names.  The legend
+                            // items will be arranged vertically and use small circles as
+                            // markers.  Clicking a legend item still highlights the
+                            // corresponding staff member in the list and toggles the slice.
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 12
+                            },
+                            onClick: function(evt, legendItem, legend) {
+                                const index = legendItem.index;
+                                const nik = entries[index].nik;
+                                if (typeof window.showStaffMetrics === 'function') {
+                                    window.showStaffMetrics(nik);
+                                }
+                                const ci = legend.chart;
+                                const meta = ci.getDatasetMeta(0);
+                                meta.data[index].hidden = !meta.data[index].hidden;
+                                ci.update();
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    const e = entries[idx];
+                                    return `${e.name}: ${e.count} checklist`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        // Populate the summary list with detailed metrics for each staff
+        const topListEl = document.getElementById('topContributorList');
+        if (topListEl) {
+            topListEl.innerHTML = '';
+            entries.forEach((entry) => {
+                const li = document.createElement('li');
+                li.dataset.nik = entry.nik;
+                li.style.marginBottom = '4px';
+                li.innerHTML = `<span style="font-weight:600;">${entry.name}</span> — ` +
+                    `<span>Jumlah: <strong>${entry.count}</strong>, Rata‑rata Jam: <strong>${entry.avgTimeStr}</strong>, Ketepatan: <strong>${entry.onTimeRate.toFixed(0)}%</strong></span>`;
+                topListEl.appendChild(li);
+            });
+        }
+        // Expose a global helper to highlight a staff member in the summary
+        // list when a legend item is clicked.  This function iterates
+        // through all list items and applies a subtle highlight to the
+        // matching NIK.
+        window.showStaffMetrics = function(nik) {
+            const items = document.querySelectorAll('#topContributorList li');
+            items.forEach(li => {
+                if (li.dataset.nik === nik) {
+                    li.style.background = 'rgba(76, 175, 80, 0.15)';
+                    li.style.borderRadius = '4px';
+                    li.style.padding = '4px 6px';
+                } else {
+                    li.style.background = '';
+                    li.style.borderRadius = '';
+                    li.style.padding = '4px 6px';
+                }
+            });
+        };
+    }
+
+    
 
     // Unsubscribe functions for Firestore listeners so we can clean up if
     // necessary (e.g. on logout).  Initially they are null.
     let attendanceDocUnsubscribe = null;
     let staffAttendanceUnsubscribe = null;
 
-    /**
-     * Compute a key for the current month in the format YYYY-MM (e.g.
-     * "2025-09").  This is used to construct attendance document IDs and
-     * queried via the `month` field.  Because the dashboard resets each
-     * month, using the month in the document ID naturally segregates
-     * records.
-     * @returns {string} The current month key.
-     */
+    // Keep track of the most recent attendance documents and user metrics.
+    // The attendance snapshot provides late and early counts per employee,
+    // while the user activity dashboard computes additional metrics such as
+    // the number of checklist submissions and punctuality rate.  Storing
+    // these maps globally allows the staff list to be rebuilt when either
+    // dataset updates.
+    let latestAttendanceDocs = [];
+    window.userMetricsMap = {};
+
+    
     function getCurrentMonthKey() {
         const now = new Date();
         const year = now.getFullYear();
@@ -3257,13 +3710,14 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         return `${year}-${month}`;
     }
 
-    /**
-     * Update the UI elements in the attendance dashboard based on the given
-     * counts.  This function updates the summary text, progress bar and
-     * legend.  It mirrors the previous localStorage implementation but
-     * derives its values from Firestore.  The maximum total is capped at 5.
-     * @param {number} late The number of late arrivals.
-     * @param {number} early The number of early departures.
+    /*
+     * Update the attendance summary and progress bar UI for the current user.
+     * This helper is invoked whenever the late or early counts change, either
+     * via user input or via a Firestore snapshot update.  It computes the
+     * total number of infractions, updates the textual summary, and draws a
+     * segmented progress bar where the red segment represents late arrivals
+     * and the yellow segment represents early departures.  The bar is capped
+     * at 100 % when the combined total reaches the monthly limit of five.
      */
     function updateAttendanceUI(late, early) {
         const total = late + early;
@@ -3271,9 +3725,13 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         const progressBarEl = document.getElementById('attendanceProgressBar');
         const progressTextEl = document.getElementById('progressText');
         if (!summaryEl || !progressBarEl || !progressTextEl) return;
-        summaryEl.innerHTML = `Telat: <strong>${late}</strong> kali, Pulang Cepat: <strong>${early}</strong> kali. Total: <strong>${total}</strong>/5`;
+        // Display the total infractions without enforcing a hard cap.  The
+        // value 5 serves as a reminder threshold only and does not
+        // prevent further entries.  When the combined total exceeds 5,
+        // append a gentle reminder message.
+        summaryEl.innerHTML = `Telat: <strong>${late}</strong> kali, Pulang Cepat: <strong>${early}</strong> kali. Total: <strong>${total}</strong> (batas pengingat: 5)`;
         if (total >= 5) {
-            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Peringatan: Jumlah Telat dan Pulang Cepat telah mencapai batas maksimal 5 kali!</span>';
+            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Pengingat: Anda telah melampaui batas pengingat 5 kali. Anda masih dapat mengisi lebih dari 5.</span>';
         }
         // Compute bar width relative to maximum and build gradient segments
         const barPercent = Math.min((total / 5) * 100, 100);
@@ -3289,16 +3747,22 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         } else {
             progressBarEl.style.background = '';
         }
-        // Build legend for late and early counts
+        // Build legend for late and early counts with icons instead of coloured squares.
         const legendItems = [];
-        legendItems.push(`<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#e53935;border-radius:2px;margin-right:4px;"></span>Telat: ${late}</span>`);
-        legendItems.push(`<span style="display:inline-flex;align-items:center;"><span style="width:12px;height:12px;background:#FFCA28;border-radius:2px;margin-right:4px;"></span>Pulang Cepat: ${early}</span>`);
-        let legendHTML = legendItems.join('');
-        legendHTML += `<span style="font-weight:600;">Total: ${total}/5</span>`;
+        legendItems.push(
+            `<span style="display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-clock" style="color:#e53935;"></i>Telat: ${late}</span>`
+        );
+        legendItems.push(
+            `<span style="display:inline-flex;align-items:center;gap:4px;"><i class="fas fa-forward" style="color:#FFCA28;"></i>Pulang Cepat: ${early}</span>`
+        );
+        // Show total count and reminder threshold.  When the total
+        // exceeds 5, append a reminder that the user may continue.
+        legendItems.push(`<span style="font-weight:600;">Total: ${total} (batas: 5)</span>`);
         if (total >= 5) {
-            legendHTML += `<span style="color:#e53935;font-weight:600;">Batas tercapai!</span>`;
+            legendItems.push(`<span style="color:#e53935;font-weight:600;">Pengingat tercapai! Anda masih dapat mengisi lebih.</span>`);
         }
-        progressTextEl.innerHTML = legendHTML;
+        progressTextEl.innerHTML = legendItems.join('');
+
     }
 
     /**
@@ -3519,33 +3983,63 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         });
     }
 
-    /**
-     * Rebuild the staff list based on the provided attendance documents.  This
-     * function merges the predefined `users` array (which contains names and
-     * NIKs) with the actual attendance data pulled from Firestore.  For
-     * employees without a record this month, late and early counts default
-     * to zero.  Each list item shows the employee's name, NIK and badges
-     * indicating their late and early counts.
-     * @param {Array<Object>} attendanceDocs Array of attendance documents.
-     */
+    
     function updateStaffListFromDocs(attendanceDocs) {
+        // Persist the latest attendance snapshot for use when metrics arrive
+        latestAttendanceDocs = Array.isArray(attendanceDocs) ? attendanceDocs : latestAttendanceDocs;
         const listEl = document.getElementById('staffList');
         if (!listEl) return;
+        // Clear the existing list
         listEl.innerHTML = '';
         // Build a map from NIK to attendance data for faster lookup
         const attMap = {};
-        attendanceDocs.forEach(d => {
+        latestAttendanceDocs.forEach(d => {
             attMap[d.nik] = d;
         });
-        users.forEach(u => {
+        // Always sort by name to provide a deterministic order.  The search
+        // and sort inputs have been removed for simplicity, so alphabetical
+        // ordering gives users a predictable list.
+        const sortedUsers = [...users].sort((a, b) => a.name.localeCompare(b.name));
+        // Define a colour palette to assign distinct colours to each staff member.
+        const palette = ['#4CAF50','#FF9800','#2196F3','#F44336','#9C27B0','#00BCD4','#8BC34A','#FFC107','#795548','#009688','#673AB7','#E91E63'];
+        sortedUsers.forEach((u, idx) => {
             const d = attMap[u.nik] || { late: 0, early: 0 };
+            // Look up any computed metrics for this user.  If no metrics
+            // exist yet (e.g. the user activity dashboard has not loaded),
+            // default to zero values.  Count represents the number of
+            // checklist submissions.
+            const metrics = window.userMetricsMap && window.userMetricsMap[u.nik] ? window.userMetricsMap[u.nik] : null;
+            const checklistCount = metrics ? metrics.count : 0;
+            // Assign a repeatable colour based on the user index.
+            const colour = palette[idx % palette.length];
+            // Build the list item.  The primary row (.staff-row) uses flexbox to
+            // align the coloured dot, name and badges horizontally.  A hidden
+            // details section provides descriptive text when the item is
+            // clicked.
             const li = document.createElement('li');
-            const total = (parseInt(d.late) || 0) + (parseInt(d.early) || 0);
-            li.innerHTML = `<strong>${u.name}</strong><span class="nik-tag">(${u.nik})</span>` +
-                `<span class="attendance-count">` +
-                `<span class="late-badge">${d.late || 0}</span>` +
-                `<span class="early-badge">${d.early || 0}</span>` +
-                `</span>`;
+            li.innerHTML =
+                `<div class="staff-row">` +
+                    `<span class="staff-left" style="display:flex;align-items:center;gap:6px;">` +
+                        `<span class="staff-color-dot" style="background:${colour};"></span>` +
+                        // Insert a space before the NIK tag so the ID appears directly after the name with a single space of separation.
+                        `<strong>${u.name}</strong> <span class="nik-tag">(${u.nik})</span>` +
+                    `</span>` +
+                    `<span class="attendance-count">` +
+                        `<span class="late-badge">${d.late || 0}</span>` +
+                        `<span class="early-badge">${d.early || 0}</span>` +
+                        `<span class="checklist-badge">${checklistCount}</span>` +
+                    `</span>` +
+                `</div>` +
+                `<div class="staff-details">Telat: ${d.late || 0} kali, Pulang Cepat: ${d.early || 0} kali, Checklist: ${checklistCount}</div>`;
+            // Toggle the visibility of the details panel on click.  When clicked
+            // again the panel hides.  This simple interaction provides
+            // contextual information without cluttering the list.
+            li.addEventListener('click', () => {
+                const details = li.querySelector('.staff-details');
+                if (details) {
+                    details.style.display = details.style.display === 'none' || details.style.display === '' ? 'block' : 'none';
+                }
+            });
             listEl.appendChild(li);
         });
     }
@@ -3714,10 +4208,7 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             localStorage.setItem('theme', newTheme);
         }
         function switchPage(pageId) {
-    // Hide all other known pages, including the attendance dashboard when switching via nav
-    // Include the analysis page in the list of pages to hide.  This
-    // ensures that when switching pages via the nav bar the analysis
-    // container does not remain visible in the background.
+    
     document.querySelectorAll('#mainPage, #meterPage, #damagePage, #estimationPage, #educationPage, #attendancePage, #analysisPage')
         .forEach(page => {
             page.style.display = 'none';
@@ -3765,10 +4256,7 @@ function hideAllPages() {
     });
 }
 
-// Display the dedicated attendance dashboard.  This function hides all other
-// pages, shows the nav bar, populates the staff list and updates the
-// greeting for the attendance page.  It also clears the active state of
-// any nav items since the attendance page is accessed via its own toggle.
+ 
 function showAttendancePage() {
     hideAllPages();
     const navBar = document.getElementById('navBar');
@@ -3779,34 +4267,51 @@ function showAttendancePage() {
         void page.offsetWidth;
         page.classList.add('page-transition');
     }
-    // Activate the dashboard nav item and deactivate others
+    
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.toggle('active', item.dataset.page === 'attendancePage');
     });
-    // Populate staff list and update greeting for the attendance page
+    
     populateStaffList();
     updateGreeting();
-    // Load the daily activity summary when opening the attendance page
-    loadActivitySummary();
+        
+        loadActivitySummary();
+        
+        setupStaffListControls();
+        
+        renderUserActivityDashboard();
+
+    // Initialise the attendance summary UI (progress bar and donut chart) when
+    // entering the attendance page.  Use the current values from the late and
+    // early input fields, defaulting to zero if they are unset.  Without
+    // explicitly invoking updateAttendanceUI here, the doughnut chart may
+    // remain blank until Firestore events or manual input occur, leaving
+    // unused space at the top of the summary card.
+    (function(){
+        const lateEl = document.getElementById('lateInput');
+        const earlyEl = document.getElementById('earlyInput');
+        const lateVal = lateEl ? parseInt(lateEl.value) || 0 : 0;
+        const earlyVal = earlyEl ? parseInt(earlyEl.value) || 0 : 0;
+        if (typeof updateAttendanceUI === 'function') {
+            updateAttendanceUI(lateVal, earlyVal);
+        }
+    })();
 }
 
-// Populate the staff list on the attendance dashboard.  Uses the
-// predefined `users` array to list all registered staff members.
+ 
 function populateStaffList() {
     const listEl = document.getElementById('staffList');
     if (!listEl) return;
     listEl.innerHTML = '';
     if (Array.isArray(users)) {
-        users.forEach(u => {
+        // Always sort by name when populating the staff list.  The search
+        // and sort inputs have been removed, so we default to alphabetical
+        // ordering by name for a consistent display.
+        const sorted = [...users].sort((a, b) => a.name.localeCompare(b.name));
+        sorted.forEach(u => {
             const li = document.createElement('li');
-            /*
-             * Display both the staff member's name and their NIK. The name is
-             * rendered in a strong tag to emphasise it, while the NIK is
-             * rendered in a span with the `nik-tag` class so it appears
-             * secondary. This way users can easily identify employees by
-             * either field without cluttering the list.
-             */
-            li.innerHTML = `<strong>${u.name}</strong><span class="nik-tag">(${u.nik})</span>`;
+            // Add a space before the NIK tag so the ID sits right after the name with minimal spacing
+            li.innerHTML = `<strong>${u.name}</strong> <span class="nik-tag">(${u.nik})</span>`;
             listEl.appendChild(li);
         });
     }
@@ -3853,7 +4358,42 @@ function login() {
             });
         }, 700);
     } else {
-        showNotification('NIK tidak valid! Silakan masukkan NIK yang terdaftar.');
+        // Accept unknown NIKs as new users.  Use the entered NIK as both the
+        // identifier and the display name.  This allows the attendance system
+        // to be used by anyone, without requiring a pre‑registered account.
+        button.classList.add('loading');
+        overlay.style.display = 'block';
+        setTimeout(() => {
+            button.classList.remove('loading');
+            showSuccessAnimation(() => {
+                overlay.style.display = 'none';
+                nikInput.value = '';
+                // If the entered NIK is not already in our user list, add it so
+                // that it appears in the staff roster.  Use the NIK itself as the
+                // display name.
+                if (!users.some(u => u.nik === nikValue)) {
+                    users.push({ nik: nikValue, name: nikValue });
+                }
+                currentNIK = nikValue;
+                currentUserName = nikValue;
+                // Show the attendance toggle and bind the click handler.
+                const attendanceToggle = document.getElementById('attendanceToggle');
+                if (attendanceToggle) {
+                    attendanceToggle.style.display = 'flex';
+                    attendanceToggle.onclick = showAttendancePage;
+                }
+                // Navigate directly to the attendance dashboard and initialise
+                // the Firestore listeners for the new user.
+                showAttendancePage();
+                initAttendanceDoc();
+                initStaffAttendanceListener();
+                // Prepare other parts of the application in the background
+                updateShiftInfo();
+                populateFilters();
+                listenReports(1);
+                // The data management navigation item has been removed; individual reports can be deleted directly from the table.
+            });
+        }, 700);
     }
 }
         function updateGreeting() {
@@ -3891,8 +4431,18 @@ function login() {
             document.getElementById('shiftInfo').textContent = shiftInfo;
         }
         function updateTime() {
+            /*
+             * Format the current time manually to avoid locale-specific separators.  Using
+             * toLocaleTimeString('id-ID') sometimes produces values with dot (.) separators
+             * or fails to update in some environments, leading to "00:00:00" being shown
+             * consistently.  By constructing the time string manually we ensure a
+             * consistent HH:MM:SS format and correct updating every second.
+             */
             const now = new Date();
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('id-ID');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').textContent = `${hours}:${minutes}:${seconds}`;
             updateShiftInfo();
             updateGreeting();
         }
@@ -4157,7 +4707,8 @@ function login() {
                                 ? '(' + (c.shiftName || '-') + ')'
                                 : ''
                         }</td>
-                        <td>${c.nik || '-'} - ${c.name || '-'}</td>
+                        <!-- Display name first and show NIK in parentheses for a neater presentation -->
+                        <td>${c.name || '-'} (${c.nik || '-'})</td>
                     `;
                     reportBody.appendChild(dataRow);
                     const actionRow = document.createElement('tr');
@@ -4212,7 +4763,8 @@ function login() {
                 const checklists = snapshot.docs.map(doc => doc.data());
                 console.log('Checklist dates:', checklists.map(c => c.date));
                 const dates = [...new Set(checklists.map(c => c.date))].sort((a, b) => new Date(b) - new Date(a));
-                const nikOptions = users.map(u => `<option value="${u.nik}">${u.nik} - ${u.name}</option>`);
+                // Build NIK options showing the user's name first with the NIK in parentheses.  This makes the dropdown easier to scan.
+                const nikOptions = users.map(u => `<option value="${u.nik}">${u.name} (${u.nik})</option>`);
                 filterDate.innerHTML = '<option value="">Semua Tanggal</option>' + dates.map(d => `<option value="${d}">${d}</option>`).join('');
                 filterNIK.innerHTML = '<option value="">Semua Pengguna</option>' + nikOptions.join('');
             } catch (error) {
@@ -4243,7 +4795,8 @@ function login() {
                             ? '(' + (data.shiftName || '-') + ')'
                             : ''
                     }</li>
-                    <li><strong>Penginput:</strong> ${data.nik || '-'} - ${data.name || '-'}</li>
+                    <!-- Show the staff member's name followed by their NIK in parentheses -->
+                    <li><strong>Penginput:</strong> ${data.name || '-'} (${data.nik || '-'})</li>
                     <li><strong>Bak Distribusi RO:</strong> ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)</li>
                     <li><strong>Bak Tampung WWTP:</strong> ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)</li>
                     <li><strong>Pompa Transfer:</strong> ${data.pompa || '-'}</li>
@@ -4290,7 +4843,7 @@ function login() {
         ? '(' + (data.shiftName || '-') + ')'
         : ''
 }
-• Penginput: ${data.nik || '-'} - ${data.name || '-'}
+• Penginput: ${data.name || '-'} (${data.nik || '-'})
 1. Bak Distribusi RO: ${data.bakRO || '-'} (Ketinggian: ${data.tinggiRO || 0} cm)
 2. Bak Tampung WWTP: ${data.bakWWTP || '-'} (Ketinggian: ${data.tinggiWWTP || 0} cm)
 3. Pompa Transfer: ${data.pompa || '-'}
@@ -5626,14 +6179,13 @@ function loadEducationContent() {
             }
             try {
                 // Define the numeric fields to analyse along with labels, units and colours.
+                // Restrict the analysis to only tank height measurements for RO distribution,
+                // RO storage and PDAM.  Other metrics such as meter readings and flow
+                // rates are omitted to focus on the tanks requested by the user.
                 const fields = [
-                    { field: 'tinggiRO', label: 'Ketinggian Bak RO', unit: 'cm', color: '#4CAF50' },
-                    { field: 'tinggiWWTP', label: 'Ketinggian Bak WWTP', unit: 'cm', color: '#2196F3' },
-                    { field: 'tinggiPDAM', label: 'Ketinggian Bak PDAM', unit: 'cm', color: '#FF9800' },
-                    { field: 'meterIndukPDAM', label: 'Meter Induk PDAM', unit: 'm³', color: '#9C27B0' },
-                    { field: 'meterIndukWTP', label: 'Meter Induk WTP', unit: 'm³', color: '#3F51B5' },
-                    { field: 'PDAM', label: 'Flow Input PDAM', unit: 'm³', color: '#009688' },
-                    { field: 'flowPDAM', label: 'Rate Input PDAM', unit: 'm³/j', color: '#F44336' }
+                    { field: 'tinggiRO', label: 'Ketinggian Bak Distribusi RO', unit: 'cm', color: '#4CAF50' },
+                    { field: 'tinggiWWTP', label: 'Ketinggian Bak Tampung RO', unit: 'cm', color: '#2196F3' },
+                    { field: 'tinggiPDAM', label: 'Ketinggian Bak PDAM', unit: 'cm', color: '#FF9800' }
                 ];
                 // Query all checklist documents ordered by date ascending so the
                 // graphs display chronologically.  When offline or if no data
@@ -5755,6 +6307,7 @@ function loadEducationContent() {
                         card.appendChild(summary);
                     }
                 });
+
             } catch (error) {
                 console.error('Gagal memuat data analisis:', error);
                 container.innerHTML = `<p>Terjadi kesalahan saat memuat analisis: ${error.message}</p>`;
@@ -5770,6 +6323,127 @@ function showLoading(message = "Memproses...") {
 }
 function hideLoading() {
     document.getElementById('loadingOverlay').style.display = 'none';
+}
+
+/**
+ * Render a bar chart summarising how many checklist entries each user has
+ * contributed.  The chart is appended as a new card into the provided
+ * analysis container.  It queries all documents in the `checklists`
+ * collection, aggregates counts by the `nik` field and displays the
+ * result.  If Chart.js is unavailable, a textual fallback is displayed
+ * instead.  The global variable `userActivityChart` holds a reference
+ * to the chart so it can be destroyed between reloads.
+ *
+ * @param {HTMLElement} container The analysis content element into
+ *        which the chart card should be appended.
+ */
+async function renderUserActivityChart(container) {
+    if (!container) return;
+    // If Firestore dependencies are missing (e.g. when offline), show a simple
+    // placeholder card instead of attempting to query data.
+    if (typeof getDocs !== 'function' || typeof collection !== 'function') {
+        const fallbackCard = document.createElement('div');
+        fallbackCard.className = 'card';
+        fallbackCard.style.marginBottom = '20px';
+        const title = document.createElement('h3');
+        title.textContent = 'Grafik Keaktifan Kontribusi Pengguna';
+        fallbackCard.appendChild(title);
+        const msg = document.createElement('p');
+        msg.style.fontSize = '12px';
+        msg.style.marginTop = '8px';
+        msg.textContent = 'Grafik keaktifan tidak tersedia karena modul Firebase tidak dimuat.';
+        fallbackCard.appendChild(msg);
+        container.appendChild(fallbackCard);
+        return;
+    }
+    // Fetch all checklist documents from Firestore to compute per-user counts
+    let snap;
+    try {
+        snap = await getDocs(collection(db, 'checklists'));
+    } catch (err) {
+        console.error('Error querying user activity:', err);
+        return;
+    }
+    const counts = {};
+    snap.forEach(docSnap => {
+        const data = docSnap.data() || {};
+        const nik = data.nik || 'Tidak diketahui';
+        counts[nik] = (counts[nik] || 0) + 1;
+    });
+    const labels = Object.keys(counts);
+    const values = labels.map(nik => counts[nik]);
+    // Sort descending by count to highlight most active users
+    const combined = labels.map((nik, i) => ({ nik, count: values[i] }));
+    combined.sort((a, b) => b.count - a.count);
+    const sortedLabels = combined.map(item => item.nik);
+    const sortedCounts = combined.map(item => item.count);
+    // Create a new card for the activity chart
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '20px';
+    const titleEl = document.createElement('h3');
+    titleEl.style.marginBottom = '10px';
+    titleEl.textContent = 'Grafik Keaktifan Kontribusi Pengguna';
+    card.appendChild(titleEl);
+    const canvas = document.createElement('canvas');
+    canvas.id = 'userActivityChartCanvas';
+    canvas.height = 200;
+    canvas.style.width = '100%';
+    canvas.style.maxWidth = '100%';
+    canvas.style.maxHeight = '200px';
+    card.appendChild(canvas);
+    container.appendChild(card);
+    // Draw the bar chart if Chart.js is available
+    if (typeof Chart !== 'undefined') {
+        // Destroy the previous instance if it exists
+        if (userActivityChart) {
+            try {
+                userActivityChart.destroy();
+            } catch (e) {
+                console.warn('Could not destroy previous activity chart:', e);
+            }
+        }
+        const ctx = canvas.getContext('2d');
+        userActivityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: sortedLabels,
+                datasets: [
+                    {
+                        label: 'Jumlah Laporan',
+                        data: sortedCounts,
+                        backgroundColor: '#FFC107',
+                        borderColor: '#FFA000',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'NIK' },
+                        ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Jumlah Laporan' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    } else {
+        // Provide a fallback message if Chart.js is unavailable
+        const noChart = document.createElement('p');
+        noChart.style.fontSize = '12px';
+        noChart.style.marginTop = '8px';
+        noChart.textContent = 'Grafik keaktifan tidak tersedia karena modul Chart tidak dimuat.';
+        card.appendChild(noChart);
+    }
 }
 async function deleteData() {
     console.log('deleteData function called');
