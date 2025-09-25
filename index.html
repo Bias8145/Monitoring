@@ -116,6 +116,108 @@ body.light-theme th {
     background: rgba(230, 230, 230, 0.95);
     font-size: 12px;
 }
+/* ----------------------------------------------------------------
+ * Custom enhancements for glassmorphism and new dashboard elements
+ * These styles introduce glass-like summary cards on the attendance
+ * dashboard, hero animations on the landing and login pages, and
+ * education cards for offline use.  They adapt to both light and
+ * dark themes by applying semi‑transparent backgrounds and soft
+ * shadows.  Additional classes control the sizing of lottie
+ * animation containers used throughout the site.
+ */
+/* Dashboard summary cards (attendance page) */
+.dashboard-summary-cards {
+    display: flex;
+    gap: 12px;
+    margin: 15px;
+    flex-wrap: wrap;
+}
+.summary-card {
+    flex: 1 1 calc(33.333% - 12px);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+}
+body.light-theme .summary-card {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+body.dark-theme .summary-card {
+    background: rgba(40, 40, 60, 0.8);
+    color: #e0e0e0;
+}
+.summary-card i {
+    font-size: 24px;
+    margin-bottom: 6px;
+    color: #4CAF50;
+}
+.summary-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.summary-value {
+    font-size: 22px;
+    font-weight: 700;
+}
+/* Lottie animation sizing for landing, login and analysis */
+.landing-animation {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto 20px auto;
+}
+.login-animation {
+    width: 80px;
+    height: 80px;
+    margin-right: 12px;
+}
+.analysis-animation {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 12px auto;
+}
+/* Education grid and cards for offline content */
+.education-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    margin-top: 10px;
+}
+.education-card {
+    padding: 12px;
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+body.light-theme .education-card {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+body.dark-theme .education-card {
+    background: rgba(40, 40, 60, 0.8);
+    color: #e0e0e0;
+}
+.education-card h4 {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.education-card p {
+    font-size: 12px;
+    margin-bottom: 8px;
+}
+.education-category {
+    font-size: 11px;
+    font-weight: 600;
+    color: #4CAF50;
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+}
 body.dark-theme th {
     background: rgba(50, 50, 70, 0.95);
     font-size: 12px;
@@ -2560,6 +2662,12 @@ body.light-theme .staff-search {
 <div id="landingPage" class="landing-page">
     <div class="landing-content">
         <div class="landing-hero">
+            <!-- Animated illustration for the hero section.  This uses a
+                 local Lottie file to give the landing page a dynamic,
+                 glass‑like feel.  The animation container has its size
+                 controlled via the .landing-animation class defined in the
+                 stylesheet above. -->
+            <div id="landingAnimation" class="landing-animation"></div>
             <h1 class="landing-title">Water Monitoring & Maintaining System</h1>
             <p class="landing-subtitle">Sistem Terintegrasi untuk Manajemen Air yang Lebih Baik</p>
             <div class="landing-actions">
@@ -2713,6 +2821,10 @@ body.light-theme .staff-search {
 </div>
     <div class="login-card">
         <div class="logo-section horizontal-logo">
+            <!-- Lottie animation for the login page.  Placed before the
+                 logo text to provide a friendly, modern touch while
+                 keeping the layout horizontally aligned. -->
+            <div id="loginAnimation" class="login-animation"></div>
             <div class="logo-text">
                 <h1>Water Monitoring & Maintaining System</h1>
                 <div class="subtitle">WTP Department - Secure Login Portal</div>
@@ -2722,6 +2834,14 @@ body.light-theme .staff-search {
             <div class="input-wrapper">
                 <input type="text" id="nikInput" placeholder="Masukkan NIK (Contoh: CA00001)" required>
                 <i class="fas fa-id-card input-icon"></i>
+            </div>
+            <!-- Added a second input for the user’s name.  The login process now
+                 requires both a registered NIK and the matching name to
+                 authenticate.  This prevents unknown identifiers from being
+                 accepted and makes the login more secure. -->
+            <div class="input-wrapper">
+                <input type="text" id="nameInput" placeholder="Masukkan Nama Anda" required>
+                <i class="fas fa-user input-icon"></i>
             </div>
             <button class="btn" id="loginButton">
                 <i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
@@ -2742,6 +2862,26 @@ body.light-theme .staff-search {
         <div class="greeting" id="attendanceGreeting">Selamat Pagi, User!</div>
         <h1>Dashboard Kehadiran</h1>
         <div class="subtitle">Pantau Kedisiplinan</div>
+        <!-- Summary cards displaying the user’s lateness, early departures and
+             daily checklist count.  These cards update dynamically when
+             the attendance values change. -->
+        <div class="dashboard-summary-cards">
+            <div class="summary-card">
+                <i class="fas fa-clock"></i>
+                <div class="summary-title">Terlambat</div>
+                <div id="summaryLate" class="summary-value">0</div>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-forward"></i>
+                <div class="summary-title">Pulang Cepat</div>
+                <div id="summaryEarly" class="summary-value">0</div>
+            </div>
+            <div class="summary-card">
+                <i class="fas fa-list-check"></i>
+                <div class="summary-title">Checklist</div>
+                <div id="summaryChecklist" class="summary-value">0</div>
+            </div>
+        </div>
     </div>
  
     <div class="card attendance-summary-card">
@@ -3221,6 +3361,10 @@ body.light-theme .staff-search {
 <div id="analysisPage" class="container" style="display:none;">
     <div class="header">
         <div class="greeting" id="analysisGreeting">Selamat Pagi, User!</div>
+        <!-- Animated illustration for the analysis page to emphasise data‑driven
+             insights.  Loaded via Lottie and sized by the
+             .analysis-animation class. -->
+        <div id="analysisAnim" class="analysis-animation"></div>
         <h1>Analisis Checklist</h1>
         <div class="subtitle">Grafik dan Statistik dari Data Checklist</div>
     </div>
@@ -3398,6 +3542,13 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
     let currentType = 'masuk';
     let currentNIK = '';
     let currentUserName = '';
+    // Additional variables to harden the login mechanism.  We track the
+    // number of consecutive failed login attempts and temporarily lock
+    // the login button after too many failures.  The lockout flag
+    // prevents further attempts until the timeout expires.
+    let loginAttempts = 0;
+    let lockout = false;
+    const LOCKOUT_DURATION = 30000; // 30 seconds
     let usageChart = null;
     // Chart instance for the user activity bar chart.  Declared here so that
     // it can be destroyed and recreated whenever the analysis data is reloaded.
@@ -3763,6 +3914,15 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         }
         progressTextEl.innerHTML = legendItems.join('');
 
+        // Update summary card values on the attendance dashboard.  When
+        // the attendance UI refreshes, reflect the latest late and early
+        // counts in the top summary cards so users can see their totals
+        // at a glance.
+        const summaryLateEl = document.getElementById('summaryLate');
+        const summaryEarlyEl = document.getElementById('summaryEarly');
+        if (summaryLateEl) summaryLateEl.textContent = late;
+        if (summaryEarlyEl) summaryEarlyEl.textContent = early;
+
     }
 
     /**
@@ -3795,6 +3955,12 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
                 <li><strong>Checklist Hari Ini:</strong> ${checklistCount}</li>
                 <li><strong>Total Staf Terdaftar:</strong> ${staffCount}</li>
             `;
+            // Also update the checklist summary card at the top of the attendance
+            // dashboard.  When offline or when Firestore data is unavailable,
+            // this ensures that the top summary still reflects the number of
+            // checklists recorded today.
+            const summaryChecklistEl = document.getElementById('summaryChecklist');
+            if (summaryChecklistEl) summaryChecklistEl.textContent = checklistCount;
         } catch (error) {
             console.error('Gagal memuat ringkasan aktivitas air:', error);
         }
@@ -4317,26 +4483,60 @@ function populateStaffList() {
     }
 }
 function login() {
-    const nikInput = document.getElementById('nikInput');
-    const nikValue = nikInput.value.trim().toUpperCase();
-    const user = users.find(u => u.nik === nikValue);
+    // Fetch the NIK and name entered by the user.  Trim and normalise the
+    // values so that comparison against the registered user list is case
+    // insensitive for the name and always uppercase for the NIK.
+    const nikInputEl = document.getElementById('nikInput');
+    const nameInputEl = document.getElementById('nameInput');
+    const nikValue = nikInputEl.value.trim().toUpperCase();
+    const nameValue = nameInputEl ? nameInputEl.value.trim() : '';
     const button = document.getElementById('loginButton');
     const overlay = document.getElementById('loginOverlay');
-    if (!nikValue) {
-        showNotification('Mohon masukkan NIK terlebih dahulu!');
+    // Require both the NIK and the name to be filled out.  This prevents
+    // accidental submission and ensures that we can properly verify the
+    // credentials against our registered user list.
+    if (!nikValue || !nameValue) {
+        showNotification('Mohon masukkan NIK dan nama terlebih dahulu!');
         return;
     }
+    // Validate the NIK format (two letters "CA" followed by five digits).  If it
+    // does not match the expected pattern, reject the attempt immediately.
+    const nikPattern = /^CA\d{5}$/;
+    if (!nikPattern.test(nikValue)) {
+        showNotification('Format NIK tidak valid! Gunakan format CA00000.');
+        return;
+    }
+    // If the user is in a lockout period due to excessive failed attempts,
+    // block this attempt and advise the user to wait.  The lockout flag
+    // and timer are defined alongside other globals.
+    if (lockout) {
+        showNotification('Terlalu banyak percobaan. Silakan coba lagi nanti.');
+        return;
+    }
+    // Find a matching user by NIK and name.  The NIK is compared exactly
+    // (case‑insensitive by virtue of being converted to upper case), while
+    // the name comparison ignores letter casing to accommodate minor
+    // differences in capitalisation.
+    const user = users.find(u => u.nik.toUpperCase() === nikValue && u.name.toLowerCase() === nameValue.toLowerCase());
     if (user) {
+        // Indicate that the login process is underway and block multiple
+        // submissions by showing a loading spinner and overlay.  After a
+        // short delay, the success animation is displayed and the main
+        // application pages are initialised for the authenticated user.
         button.classList.add('loading');
         overlay.style.display = 'block';
         setTimeout(() => {
             button.classList.remove('loading');
             showSuccessAnimation(() => {
                 overlay.style.display = 'none';
-                nikInput.value = '';
+                // Clear the input fields after a successful login
+                nikInputEl.value = '';
+                if (nameInputEl) nameInputEl.value = '';
+                // Store the current user credentials for later use in the app
                 currentNIK = nikValue;
                 currentUserName = user.name;
-                // Reveal the attendance toggle once the user logs in so they can access the dashboard later
+                // Reveal the attendance toggle once the user logs in so they can
+                // access the dashboard later
                 const attendanceToggle = document.getElementById('attendanceToggle');
                 if (attendanceToggle) {
                     attendanceToggle.style.display = 'flex';
@@ -4354,46 +4554,29 @@ function login() {
                 updateShiftInfo();
                 populateFilters();
                 listenReports(1);
-                // The data management navigation item has been removed; individual reports can be deleted directly from the table.
             });
         }, 700);
     } else {
-        // Accept unknown NIKs as new users.  Use the entered NIK as both the
-        // identifier and the display name.  This allows the attendance system
-        // to be used by anyone, without requiring a pre‑registered account.
-        button.classList.add('loading');
-        overlay.style.display = 'block';
-        setTimeout(() => {
-            button.classList.remove('loading');
-            showSuccessAnimation(() => {
-                overlay.style.display = 'none';
-                nikInput.value = '';
-                // If the entered NIK is not already in our user list, add it so
-                // that it appears in the staff roster.  Use the NIK itself as the
-                // display name.
-                if (!users.some(u => u.nik === nikValue)) {
-                    users.push({ nik: nikValue, name: nikValue });
-                }
-                currentNIK = nikValue;
-                currentUserName = nikValue;
-                // Show the attendance toggle and bind the click handler.
-                const attendanceToggle = document.getElementById('attendanceToggle');
-                if (attendanceToggle) {
-                    attendanceToggle.style.display = 'flex';
-                    attendanceToggle.onclick = showAttendancePage;
-                }
-                // Navigate directly to the attendance dashboard and initialise
-                // the Firestore listeners for the new user.
-                showAttendancePage();
-                initAttendanceDoc();
-                initStaffAttendanceListener();
-                // Prepare other parts of the application in the background
-                updateShiftInfo();
-                populateFilters();
-                listenReports(1);
-                // The data management navigation item has been removed; individual reports can be deleted directly from the table.
-            });
-        }, 700);
+        // Increment the failed attempt counter.  When the user exceeds
+        // the allowed threshold (3 attempts), disable the login button
+        // temporarily and set a lockout flag.  After the lockout
+        // duration, re‑enable the button and reset the counter.  This
+        // discourages brute‑force attempts against the local user list.
+        loginAttempts++;
+        if (loginAttempts >= 3) {
+            lockout = true;
+            button.disabled = true;
+            showNotification('Terlalu banyak percobaan. Coba lagi dalam 30 detik.');
+            setTimeout(() => {
+                lockout = false;
+                loginAttempts = 0;
+                button.disabled = false;
+            }, LOCKOUT_DURATION);
+        } else {
+            // Provide a generic failure message without revealing which
+            // credential was incorrect.
+            showNotification('NIK atau nama tidak terdaftar!');
+        }
     }
 }
         function updateGreeting() {
@@ -6523,6 +6706,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nikInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') login();
     });
+    // Allow pressing Enter in the name input to trigger the login action as well.
+    const nameInputField = document.getElementById('nameInput');
+    if (nameInputField) {
+        nameInputField.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+    }
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             // Handle attendance page separately to populate staff list and update greeting
@@ -6934,6 +7124,10 @@ const animations = [
     {id: 'anim5', path: 'growth-analysis.json'},
     // Animation for the new attendance dashboard page
     {id: 'attendanceAnim', path: 'creative-team.json'},
+    // Added animations for the landing hero, login card and analysis page
+    {id: 'landingAnimation', path: 'creative-team.json'},
+    {id: 'loginAnimation', path: 'packaging-for-delivery.json'},
+    {id: 'analysisAnim', path: 'growth-analysis.json'},
 ];
 animations.forEach(anim => {
     lottie.loadAnimation({
