@@ -2894,16 +2894,19 @@ body.light-theme .staff-search {
  
     <div class="card">
         <h2 style="margin-bottom: 12px; font-size: 18px; font-weight: 600;">Telat &amp; Pulang Cepat</h2>
-        <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Catat jumlah keterlambatan dan pulang cepat Anda bulan ini (maksimal total 5 kali).</p>
+            <!-- Updated description: the total infractions are no longer capped at 5.  Instead, 5 serves as a reminder threshold and users are free to record more than 5. -->
+            <p style="font-size: 12px; opacity: 0.7; margin-bottom: 8px;">Catat jumlah keterlambatan dan pulang cepat Anda bulan ini (batas pengingat 5 kali, Anda boleh melebihi angka ini).</p>
         <div class="attendance-inputs">
             <div class="attendance-input-card">
                 <i class="fas fa-clock"></i>
-                <input type="number" id="lateInput" min="0" max="5" value="0">
+                <!-- Removed the hard cap of 5 for lateness.  We retain a reasonable upper bound to prevent excessively large input values from breaking the UI. -->
+                <input type="number" id="lateInput" min="0" max="10" value="0">
                 <span>Telat</span>
             </div>
             <div class="attendance-input-card">
                 <i class="fas fa-forward"></i>
-                <input type="number" id="earlyInput" min="0" max="5" value="0">
+                <!-- Removed the hard cap of 5 for early departures.  A higher max allows users to record more than 5 instances, while still constraining the input range. -->
+                <input type="number" id="earlyInput" min="0" max="10" value="0">
                 <span>Pulang Cepat</span>
             </div>
         </div>
@@ -3881,8 +3884,11 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         // prevent further entries.  When the combined total exceeds 5,
         // append a gentle reminder message.
         summaryEl.innerHTML = `Telat: <strong>${late}</strong> kali, Pulang Cepat: <strong>${early}</strong> kali. Total: <strong>${total}</strong> (batas pengingat: 5)`;
-        if (total >= 5) {
-            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Pengingat: Anda telah melampaui batas pengingat 5 kali. Anda masih dapat mengisi lebih dari 5.</span>';
+        // Differentiate between hitting the threshold and exceeding it.  At exactly 5 we show a reminder message; above 5 we show a follow‑up warning.  No values are capped.
+        if (total > 5) {
+            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Peringatan lanjutan: Anda telah melebihi batas pengingat 5 kali. Anda masih dapat mengisi lebih dari 5.</span>';
+        } else if (total === 5) {
+            summaryEl.innerHTML += '<br><span style="color:#e53935;font-weight:600;">Pengingat: Anda telah mencapai batas 5 kali. Anda masih dapat mengisi lebih dari 5.</span>';
         }
         // Compute bar width relative to maximum and build gradient segments
         const barPercent = Math.min((total / 5) * 100, 100);
@@ -3909,8 +3915,11 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
         // Show total count and reminder threshold.  When the total
         // exceeds 5, append a reminder that the user may continue.
         legendItems.push(`<span style="font-weight:600;">Total: ${total} (batas: 5)</span>`);
-        if (total >= 5) {
-            legendItems.push(`<span style="color:#e53935;font-weight:600;">Pengingat tercapai! Anda masih dapat mengisi lebih.</span>`);
+        // Provide a reminder at exactly the threshold and a stronger warning beyond the threshold.
+        if (total > 5) {
+            legendItems.push(`<span style="color:#e53935;font-weight:600;">Peringatan lanjutan! Anda telah melebihi 5.</span>`);
+        } else if (total === 5) {
+            legendItems.push(`<span style="color:#e53935;font-weight:600;">Pengingat tercapai! Anda telah mencapai 5.</span>`);
         }
         progressTextEl.innerHTML = legendItems.join('');
 
@@ -4061,10 +4070,12 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             function handleLateChange() {
                 let lateVal = parseInt(lateClone.value) || 0;
                 let earlyVal = parseInt(earlyClone.value) || 0;
-                if (lateVal + earlyVal > 5) {
-                    showNotification('Jumlah total tidak boleh lebih dari 5', false);
-                    lateVal = Math.max(0, 5 - earlyVal);
-                    lateClone.value = lateVal;
+                const total = lateVal + earlyVal;
+                // Issue warnings at the reminder threshold (5) and beyond.  Unlike before, we no longer cap the total; the messages simply inform the user.
+                if (total === 5) {
+                    showNotification('Anda telah mencapai batas pengingat 5 kali.', false);
+                } else if (total > 5) {
+                    showNotification('Anda telah melebihi batas pengingat 5 kali.', false);
                 }
                 updateDoc(docRef, {
                     late: lateVal,
@@ -4080,10 +4091,12 @@ function tampilkanNotifikasi(pesan, isSuccess = false) {
             function handleEarlyChange() {
                 let lateVal = parseInt(lateClone.value) || 0;
                 let earlyVal = parseInt(earlyClone.value) || 0;
-                if (lateVal + earlyVal > 5) {
-                    showNotification('Jumlah total tidak boleh lebih dari 5', false);
-                    earlyVal = Math.max(0, 5 - lateVal);
-                    earlyClone.value = earlyVal;
+                const total = lateVal + earlyVal;
+                // Issue warnings at the reminder threshold (5) and beyond.  We do not adjust the values.
+                if (total === 5) {
+                    showNotification('Anda telah mencapai batas pengingat 5 kali.', false);
+                } else if (total > 5) {
+                    showNotification('Anda telah melebihi batas pengingat 5 kali.', false);
                 }
                 updateDoc(docRef, {
                     late: lateVal,
@@ -6706,6 +6719,25 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nikInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') login();
     });
+    // Auto-fill the name input when the NIK matches a registered user.
+    // This listener watches changes to the NIK field and, if the value corresponds
+    // to a known NIK in the users array, it automatically populates the name
+    // input.  The match is case-insensitive for the NIK.  When no match is
+    // found, the name field is left untouched to avoid overwriting any user
+    // input.
+    const nikField = document.getElementById('nikInput');
+    const autoNameField = document.getElementById('nameInput');
+    if (nikField && autoNameField) {
+        nikField.addEventListener('input', () => {
+            const nikVal = nikField.value.trim().toUpperCase();
+            if (nikVal.length === 7) {
+                const match = users.find(u => u.nik.toUpperCase() === nikVal);
+                if (match) {
+                    autoNameField.value = match.name;
+                }
+            }
+        });
+    }
     // Allow pressing Enter in the name input to trigger the login action as well.
     const nameInputField = document.getElementById('nameInput');
     if (nameInputField) {
